@@ -1,0 +1,248 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-retirement: #1d4ed8;
+  --color-retirement-light: #eff6ff;
+  --color-wedding: #9333ea;
+  --color-wedding-light: #faf5ff;
+  --color-tribute: #475569;
+  --color-tribute-light: #f8fafc;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-bg: #ffffff;
+  --radius: 12px;
+  --max-width: 1080px;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Header */
+.header {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.logo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+/* Hero */
+.hero {
+  padding: 72px 0 56px;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--color-text);
+  max-width: 680px;
+  margin: 0 auto 16px;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Products */
+.products {
+  padding: 0 0 80px;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.product-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: box-shadow 0.15s ease;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+}
+
+.product-card--retirement { border-top: 3px solid var(--color-retirement); }
+.product-card--wedding    { border-top: 3px solid var(--color-wedding); }
+.product-card--tribute    { border-top: 3px solid var(--color-tribute); }
+
+.product-occasion {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.product-card--retirement .product-occasion { color: var(--color-retirement); }
+.product-card--wedding    .product-occasion { color: var(--color-wedding); }
+.product-card--tribute    .product-occasion { color: var(--color-tribute); }
+
+.product-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.product-price {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.product-desc {
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.product-cta {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.15s ease;
+}
+
+.product-cta:hover { opacity: 0.85; }
+
+.product-cta--retirement { background: var(--color-retirement); color: #fff; }
+.product-cta--wedding    { background: var(--color-wedding);    color: #fff; }
+.product-cta--tribute    { background: var(--color-tribute);    color: #fff; }
+
+/* Trust bar */
+.trust {
+  background: #f8fafc;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  padding: 28px 0;
+}
+
+.trust-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.trust-icon {
+  color: #94a3b8;
+  font-size: 0.625rem;
+}
+
+/* Brand story */
+.story {
+  padding: 64px 0;
+  text-align: center;
+}
+
+.story-inner {
+  max-width: 560px;
+}
+
+.story-text {
+  font-size: 1.0625rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--color-border);
+  padding: 28px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-brand {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+.footer-links a {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.footer-links a:hover { text-decoration: underline; }
+
+.footer-legal {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .hero { padding: 48px 0 40px; }
+
+  .trust-items { gap: 20px; }
+
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 1.75rem; }
+  .hero-subtitle { font-size: 1rem; }
+  .product-cta { width: 100%; }
+}
