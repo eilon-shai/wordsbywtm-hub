@@ -1,6 +1,6 @@
 /* ============================================================
    Words By WTM — Hub Styles
-   Dark editorial aesthetic. Playfair Display + Inter.
+   Warm stationery aesthetic. Playfair Display + Inter.
    ============================================================ */
 
 *, *::before, *::after {
@@ -10,31 +10,31 @@
 }
 
 :root {
-  /* Base palette */
-  --bg:           #0e0e10;
-  --bg-card:      #16161a;
-  --bg-card-hover:#1c1c22;
-  --surface:      #1e1e24;
-  --border:       rgba(255, 255, 255, 0.07);
-  --border-light: rgba(255, 255, 255, 0.12);
+  /* Base palette — warm stationery */
+  --bg:           #f5f0e8;
+  --bg-card:      #faf7f2;
+  --bg-card-hover:#fffbf6;
+  --surface:      #ede8de;
+  --border:       rgba(120, 100, 75, 0.18);
+  --border-light: rgba(120, 100, 75, 0.09);
 
   /* Text */
-  --text-primary:  #f0ead8;
-  --text-secondary:#a09880;
-  --text-muted:    #5c5647;
+  --text-primary:  #2a2118;
+  --text-secondary:#5c4f3d;
+  --text-muted:    #8c7c68;
 
-  /* Product accent colors */
-  --retirement:       #c8a96e;  /* warm gold */
-  --retirement-dim:   rgba(200, 169, 110, 0.12);
-  --retirement-glow:  rgba(200, 169, 110, 0.25);
+  /* Product accent colors — deepened for light background */
+  --retirement:       #b8924a;  /* rich gold */
+  --retirement-dim:   rgba(184, 146, 74, 0.12);
+  --retirement-glow:  rgba(184, 146, 74, 0.25);
 
-  --wedding:          #c97bb2;  /* dusty rose */
-  --wedding-dim:      rgba(201, 123, 178, 0.12);
-  --wedding-glow:     rgba(201, 123, 178, 0.25);
+  --wedding:          #b8609a;  /* deep rose */
+  --wedding-dim:      rgba(184, 96, 154, 0.12);
+  --wedding-glow:     rgba(184, 96, 154, 0.25);
 
-  --tribute:          #7da5c0;  /* slate blue */
-  --tribute-dim:      rgba(125, 165, 192, 0.12);
-  --tribute-glow:     rgba(125, 165, 192, 0.25);
+  --tribute:          #5a8fab;  /* anchored slate blue */
+  --tribute-dim:      rgba(90, 143, 171, 0.12);
+  --tribute-glow:     rgba(90, 143, 171, 0.25);
 
   /* Typography */
   --font-serif: 'Playfair Display', Georgia, serif;
@@ -62,6 +62,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
 .container {
@@ -80,7 +81,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(14, 14, 16, 0.92);
+  background: rgba(245, 240, 232, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -121,9 +122,9 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200, 169, 110, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201, 123, 178, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 50% at 20% 60%, rgba(125, 165, 192, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(184, 146, 74, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(184, 96, 154, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 20% 60%, rgba(90, 143, 171, 0.07) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -201,6 +202,7 @@ body {
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: default;
+  box-shadow: 0 1px 4px rgba(60, 45, 25, 0.06), 0 4px 20px rgba(60, 45, 25, 0.04);
 }
 
 .product-card:hover {
@@ -210,19 +212,19 @@ body {
 .product-card--retirement { border-top: 2px solid var(--retirement); }
 .product-card--retirement:hover {
   border-color: var(--retirement);
-  box-shadow: 0 20px 60px rgba(200, 169, 110, 0.12), 0 4px 16px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 60px rgba(184, 146, 74, 0.18), 0 4px 16px rgba(60, 45, 25, 0.08);
 }
 
 .product-card--wedding { border-top: 2px solid var(--wedding); }
 .product-card--wedding:hover {
   border-color: var(--wedding);
-  box-shadow: 0 20px 60px rgba(201, 123, 178, 0.12), 0 4px 16px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 60px rgba(184, 96, 154, 0.15), 0 4px 16px rgba(60, 45, 25, 0.08);
 }
 
 .product-card--tribute { border-top: 2px solid var(--tribute); }
 .product-card--tribute:hover {
   border-color: var(--tribute);
-  box-shadow: 0 20px 60px rgba(125, 165, 192, 0.12), 0 4px 16px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 60px rgba(90, 143, 171, 0.15), 0 4px 16px rgba(60, 45, 25, 0.08);
 }
 
 .product-card-inner {
@@ -351,9 +353,9 @@ body {
   transform: translateY(-1px);
 }
 
-.product-cta--retirement { background: var(--retirement); color: #1a1206; }
-.product-cta--wedding    { background: var(--wedding);    color: #1a0614; }
-.product-cta--tribute    { background: var(--tribute);    color: #041320; }
+.product-cta--retirement { background: var(--retirement); color: #2a1f0a; }
+.product-cta--wedding    { background: var(--wedding);    color: #2a0e1f; }
+.product-cta--tribute    { background: var(--tribute);    color: #0a1a24; }
 
 .cta-arrow {
   flex-shrink: 0;
@@ -403,7 +405,7 @@ body {
   font-family: var(--font-serif);
   font-size: 3rem;
   font-weight: 700;
-  color: var(--border-light);
+  color: rgba(120, 100, 75, 0.22);
   line-height: 1;
   margin-bottom: 16px;
   letter-spacing: -0.03em;
@@ -492,7 +494,7 @@ body {
 .statement-quote::before {
   content: '\201C';
   font-size: 5rem;
-  color: var(--border-light);
+  color: rgba(120, 100, 75, 0.20);
   position: absolute;
   top: -24px;
   left: -12px;
