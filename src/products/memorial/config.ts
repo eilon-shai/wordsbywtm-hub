@@ -11,7 +11,18 @@ import type { CollectionMeta, Contribution } from '@eilon-shai/venture-core/db';
 // add a sibling config and register it in ../registry.ts — no new app/DB/key.
 // ---------------------------------------------------------------------------
 
-const APP_URL = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3005';
+// Resolve the absolute base URL the server uses to build share/manage links.
+// Precedence: explicit NEXT_PUBLIC_URL → real domain in production → the
+// deployment's own URL in preview (so links are testable) → localhost.
+function resolveAppUrl(): string {
+  if (process.env.NEXT_PUBLIC_URL) return process.env.NEXT_PUBLIC_URL;
+  if (process.env.VERCEL_ENV === 'production') return 'https://wordsbywtm.com';
+  const vercelHost = process.env.VERCEL_BRANCH_URL || process.env.VERCEL_URL;
+  if (vercelHost) return `https://${vercelHost}`;
+  return 'http://localhost:3005';
+}
+
+const APP_URL = resolveAppUrl();
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'Words That Matter <memorial@wordsbywtm.com>';
 
 const BRAND_COLOR = '#5a8fab'; // memorial slate-blue accent
@@ -78,8 +89,8 @@ export const memorialConfig: ProductConfig = {
     productName: 'Words That Matter — Memorial',
     productSlug: 'memorial',
     domain: APP_URL,
-    formPath: '/collect/new?occasion=memorial',
-    resultPath: '/result',
+    formPath: '/memorial/start',
+    resultPath: '/memorial/result',
     redisKeyPrefix: 'wtm-memorial',
     paddleProductId: process.env.PADDLE_PRODUCT_ID_MEMORIAL ?? 'pro_01kv1g5d6c4b3wcr74jswnnspa',
   },
@@ -145,7 +156,7 @@ export const memorialConfig: ProductConfig = {
       { name: 'relationship', label: 'How did you know them?', type: 'text', required: false, maxLength: 100, placeholder: 'e.g. daughter, college roommate, neighbor' },
       { name: 'memory', label: 'Share a memory', type: 'textarea', required: true, maxLength: 2000, minWordFloor: 3 },
     ],
-    minContributions: 5,
+    minContributions: 1, // M2: synthesis must be viable at N=1 — never refuse a small family at the paywall
     collectionTtlDays: 30,
     contributorConsentVersion: '2026-06-13',
 

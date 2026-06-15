@@ -1,54 +1,80 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @source "../../node_modules/@eilon-shai/venture-core/dist";
 
-/* ── Words That Matter — warm stationery palette (carried from wordsbywtm-hub) ── */
+@custom-variant dark (&:is(.dark *));
+
+/* ── TributeWords design tokens ── muted slate palette, grief-appropriate */
 :root {
-  --bg:             #f5f0e8;
-  --bg-card:        #faf7f2;
-  --text-primary:   #2a2118;
-  --text-secondary: #5c4f3d;
-  --text-muted:     #8c7c68;
-  --border:         rgba(120, 100, 75, 0.18);
-
-  /* Per-occasion accent — overridden per page via inline style or data attr. */
-  --accent:         #5a8fab; /* memorial slate-blue (default) */
-
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --max-width: 1120px;
+  --background:           oklch(98.5% 0.005 85);   /* warm off-white */
+  --foreground:           oklch(10%   0.005 60);   /* near-black warm */
+  --card:                 oklch(100%  0     0);
+  --card-foreground:      oklch(10%   0.005 60);
+  --popover:              oklch(100%  0     0);
+  --popover-foreground:   oklch(10%   0.005 60);
+  --primary:              oklch(38%   0.08  240);  /* deep slate-blue */
+  --primary-foreground:   oklch(98.5% 0.005 85);
+  --secondary:            oklch(95%   0.01  80);   /* warm light gray */
+  --secondary-foreground: oklch(25%   0.008 60);
+  --muted:                oklch(92%   0.01  80);
+  --muted-foreground:     oklch(48%   0.01  60);
+  --accent:               oklch(93%   0.02  240);  /* soft slate tint */
+  --accent-foreground:    oklch(38%   0.08  240);
+  --destructive:          oklch(48%   0.19  27);
+  --destructive-foreground: oklch(98.5% 0.005 85);
+  --border:               oklch(89%   0.01  80);
+  --input:                oklch(89%   0.01  80);
+  --ring:                 oklch(38%   0.08  240);
+  --radius:               0.625rem;
 }
 
 @theme inline {
-  --color-bg:             var(--bg);
-  --color-card:           var(--bg-card);
-  --color-text-primary:   var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-text-muted:     var(--text-muted);
-  --color-accent:         var(--accent);
-  --color-border:         var(--border);
+  --color-background:             var(--background);
+  --color-foreground:             var(--foreground);
+  --color-card:                   var(--card);
+  --color-card-foreground:        var(--card-foreground);
+  --color-popover:                var(--popover);
+  --color-popover-foreground:     var(--popover-foreground);
+  --color-primary:                var(--primary);
+  --color-primary-foreground:     var(--primary-foreground);
+  --color-secondary:              var(--secondary);
+  --color-secondary-foreground:   var(--secondary-foreground);
+  --color-muted:                  var(--muted);
+  --color-muted-foreground:       var(--muted-foreground);
+  --color-accent:                 var(--accent);
+  --color-accent-foreground:      var(--accent-foreground);
+  --color-destructive:            var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:                 var(--border);
+  --color-input:                  var(--input);
+  --color-ring:                   var(--ring);
 
-  --font-serif: var(--font-playfair), Georgia, 'Times New Roman', serif;
-  --font-sans:  var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-sans:  'Geist', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm:   calc(var(--radius) - 0.25rem);
+  --radius-md:   var(--radius);
+  --radius-lg:   calc(var(--radius) + 0.25rem);
+  --radius-xl:   calc(var(--radius) + 0.625rem);
+  --radius-2xl:  calc(var(--radius) + 1.25rem);
+  --radius-full: 9999px;
 }
 
 @layer base {
   html { scroll-behavior: smooth; }
   body {
-    background-color: var(--bg);
-    color: var(--text-primary);
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.01em; }
+}
+
+@layer base {
   select {
     appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238c7c68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.625rem center;
     padding-right: 2.25rem;
@@ -56,46 +82,13 @@
   }
 }
 
-@layer components {
-  .wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.75rem;
-  }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    background: var(--accent); color: #fff;
-    padding: 0.75rem 1.5rem; border-radius: var(--radius-sm);
-    font-weight: 600; cursor: pointer; border: none;
-    transition: filter 0.15s ease;
-  }
-  .btn:hover { filter: brightness(0.94); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-ghost {
-    background: transparent; color: var(--accent);
-    border: 1px solid var(--border);
-  }
-  .field {
-    width: 100%;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 0.7rem 0.85rem;
-    color: var(--text-primary);
-    font-family: var(--font-sans);
-  }
-  .field:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: var(--text-secondary); }
-}
-
 @layer utilities {
-  .tribute-text {
+  .font-serif { font-family: var(--font-serif); }
+  .speech-text {
     font-family: var(--font-serif);
     line-height: 1.85;
     font-size: 1.0625rem;
     white-space: pre-wrap;
-    color: var(--text-primary);
+    color: var(--foreground);
   }
 }

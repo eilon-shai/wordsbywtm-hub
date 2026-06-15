@@ -33,7 +33,7 @@ export default function RefundPage() {
       </Section>
       <Section n="3. How to Request a Refund">
         <p>
-          Email us at <a href="mailto:hello@wordsbywtm.com" style={{ color: 'var(--accent)' }}>hello@wordsbywtm.com</a>{' '}
+          Email us at <a href="mailto:hello@wordsbywtm.com" style={{ color: 'var(--primary)' }}>hello@wordsbywtm.com</a>{' '}
           with the subject line “Refund Request.” Include:
         </p>
         <ol style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', listStyle: 'decimal' }}>
@@ -48,10 +48,10 @@ export default function RefundPage() {
       </Section>
       <Section n="5. Contact">
         Questions regarding this Refund Policy? Contact{' '}
-        <a href="mailto:hello@wordsbywtm.com" style={{ color: 'var(--accent)' }}>hello@wordsbywtm.com</a>.
+        <a href="mailto:hello@wordsbywtm.com" style={{ color: 'var(--primary)' }}>hello@wordsbywtm.com</a>.
       </Section>
       <p style={{ marginTop: '2rem' }}>
-        <Link href="/" style={{ color: 'var(--accent)' }}>← Back to start</Link>
+        <Link href="/" style={{ color: 'var(--primary)' }}>← Back to start</Link>
       </p>
     </LegalChrome>
   );
@@ -60,8 +60,8 @@ export default function RefundPage() {
 function Section({ n, children }: { n: string; children: React.ReactNode }) {
   return (
     <section style={{ marginBottom: '1.75rem' }}>
-      <h2 style={{ fontSize: '1.2rem', marginBottom: '0.6rem' }}>{n}</h2>
-      <div style={{ color: 'var(--text-secondary)', lineHeight: 1.65 }}>{children}</div>
+      <h2 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem', color: 'var(--foreground)' }}>{n}</h2>
+      <div style={{ color: 'var(--muted-foreground)', lineHeight: 1.65 }}>{children}</div>
     </section>
   );
 }

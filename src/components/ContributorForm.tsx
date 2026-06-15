@@ -1,0 +1,421 @@
+'use client';
+
+// ---------------------------------------------------------------------------
+// ContributorForm (S5) — a public, no-payment form for one contributor to add
+// one memory to a collection. Forked TributeWords look (forked/FormPrimitives)
+// + the real venture-core memory guard so client and server verdicts match.
+// COLLECTION_FLOW_DESIGN.md §4 + §S5.
+// ---------------------------------------------------------------------------
+
+import * as React from 'react';
+import Link from 'next/link';
+import { validateMemoriesField } from '@eilon-shai/venture-core/validation';
+import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
+import { Button } from '@eilon-shai/venture-core/ui';
+import {
+  SectionCard,
+  FieldRow,
+  WordCounter,
+  MemoriesBlockedPanel,
+  ErrorBanner,
+  Spinner,
+  wordCount,
+  type WordCountBand,
+} from '@/components/forked/FormPrimitives';
+
+// Encouraging word bands shown live under the memory textarea. The hard gate is
+// validateMemoriesField (≥20 words); these are coaching only.
+const MEMORY_BANDS: WordCountBand[] = [
+  { gte: 0, lt: 20, message: 'a few more sentences will help', colorClass: 'text-muted-foreground' },
+  { gte: 20, lt: 60, message: 'this is good — add a detail if you can', colorClass: 'text-primary' },
+  { gte: 60, message: 'wonderful, thank you', colorClass: 'text-emerald-700' },
+];
+
+const NAME_FIELD = 'contributorName';
+const RELATIONSHIP_FIELD = 'relationship';
+const MEMORY_FIELD = 'memory';
+
+type Phase = 'form' | 'submitting' | 'done';
+
+interface SubmitErrorState {
+  message: string;
+  retryable: boolean;
+}
+
+export interface ContributorFormProps {
+  shareToken: string;
+  occasionTitle: string;
+  /** Generic pre-submit honoree label (no public read exists before submit). */
+  honoreeLabel: string;
+  /** Field definitions from collectionConfig.contributorFormFields. */
+  fields: FormFieldConfig[];
+  /** Cross-occasion home for the soft cross-sell after submit. */
+  homeHref: string;
+}
+
+export function ContributorForm({
+  shareToken,
+  occasionTitle,
+  honoreeLabel,
+  fields,
+  homeHref,
+}: ContributorFormProps) {
+  // Idempotency key generated once at mount, held across retries (§4).
+  const idempotencyKeyRef = React.useRef<string>('');
+  if (!idempotencyKeyRef.current) {
+    idempotencyKeyRef.current =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  const fieldByName = React.useMemo(() => {
+    const map: Record<string, FormFieldConfig> = {};
+    for (const f of fields) map[f.name] = f;
+    return map;
+  }, [fields]);
+
+  const nameField = fieldByName[NAME_FIELD];
+  const relationshipField = fieldByName[RELATIONSHIP_FIELD];
+  const memoryField = fieldByName[MEMORY_FIELD];
+
+  const [values, setValues] = React.useState<Record<string, string>>({
+    [NAME_FIELD]: '',
+    [RELATIONSHIP_FIELD]: '',
+    [MEMORY_FIELD]: '',
+  });
+  const [errors, setErrors] = React.useState<Record<string, string | undefined>>({});
+  const [consent, setConsent] = React.useState(false);
+  const [consentError, setConsentError] = React.useState(false);
+  const [blockedReason, setBlockedReason] = React.useState<string | null>(null);
+
+  const [phase, setPhase] = React.useState<Phase>('form');
+  const [submitError, setSubmitError] = React.useState<SubmitErrorState | null>(null);
+  const [resultHonoree, setResultHonoree] = React.useState<string>('');
+  // Terminal collection-state screens that replace the whole form.
+  const [terminal, setTerminal] = React.useState<null | 'closed' | 'notfound'>(null);
+
+  const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    if (blockedReason && blockedPanelRef.current) {
+      blockedPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [blockedReason]);
+
+  const setField = React.useCallback((name: string, v: string) => {
+    setValues((prev) => ({ ...prev, [name]: v }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+    if (name === MEMORY_FIELD) setBlockedReason(null);
+  }, []);
+
+  const memoryValue = values[MEMORY_FIELD] ?? '';
+  const memoryWc = wordCount(memoryValue);
+
+  const doSubmit = React.useCallback(async () => {
+    setSubmitError(null);
+
+    // Layer 1 — required fields.
+    const nextErrors: Record<string, string | undefined> = {};
+    if ((values[NAME_FIELD] ?? '').trim() === '') {
+      nextErrors[NAME_FIELD] = 'Please add your name';
+    }
+    if ((memoryValue ?? '').trim() === '') {
+      nextErrors[MEMORY_FIELD] = 'Please share a memory';
+    }
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    // Consent gate (T-COLL-008).
+    if (!consent) {
+      setConsentError(true);
+      return;
+    }
+
+    // Layer 2 — the exact server guard, run client-side for live coaching.
+    const check = validateMemoriesField(memoryValue);
+    if (!check.valid) {
+      setBlockedReason(check.reason);
+      return;
+    }
+    setBlockedReason(null);
+
+    setPhase('submitting');
+    try {
+      const res = await fetch('/api/collection/contribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shareToken,
+          contributorName: values[NAME_FIELD].trim(),
+          relationship: (values[RELATIONSHIP_FIELD] ?? '').trim() || undefined,
+          memory: memoryValue.trim(),
+          consent: true,
+          idempotencyKey: idempotencyKeyRef.current,
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        honoreeName?: string;
+        code?: string;
+        error?: string;
+        retryable?: boolean;
+      };
+
+      if (res.ok && data.ok) {
+        setResultHonoree(data.honoreeName ?? '');
+        setPhase('done');
+        return;
+      }
+
+      // Map server error codes to states (§S5).
+      const code = data.code ?? '';
+      if (code === 'COLLECTION_CLOSED') {
+        setTerminal('closed');
+        return;
+      }
+      if (code === 'NOT_FOUND') {
+        setTerminal('notfound');
+        return;
+      }
+      setPhase('form');
+      if (code === 'INVALID_MEMORY') {
+        // Surface the server's reason inline in the amber panel.
+        setBlockedReason(data.error ?? 'Please add a little more detail.');
+        return;
+      }
+      if (code === 'CONSENT_REQUIRED') {
+        setConsentError(true);
+        return;
+      }
+      const retryable = data.retryable ?? code === 'RATE_LIMIT';
+      setSubmitError({
+        message:
+          code === 'RATE_LIMIT'
+            ? 'You are sending these a little quickly — please wait a moment and try again.'
+            : data.error ?? 'Your words are safe — something went wrong sending them. Please try again.',
+        retryable: !!retryable,
+      });
+    } catch {
+      setPhase('form');
+      setSubmitError({
+        message: 'Your words are safe. There was a connection problem — please try again.',
+        retryable: true,
+      });
+    }
+  }, [consent, memoryValue, shareToken, values]);
+
+  const handleSubmit = React.useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      void doSubmit();
+    },
+    [doSubmit],
+  );
+
+  // ---- terminal: closed / not-found ----------------------------------------
+  if (terminal) {
+    return (
+      <CenteredCard>
+        <div className="text-5xl mb-6" aria-hidden="true">
+          {terminal === 'closed' ? '🕯️' : '🔗'}
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
+          {terminal === 'closed' ? 'This collection has closed' : 'This link isn’t active'}
+        </h1>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          {terminal === 'closed'
+            ? 'It’s no longer accepting new memories. If you’d still like to share something, reach out to whoever invited you.'
+            : 'We couldn’t find a collection for this link. Ask whoever invited you for a fresh one.'}
+        </p>
+      </CenteredCard>
+    );
+  }
+
+  // ---- success thank-you ---------------------------------------------------
+  if (phase === 'done') {
+    const who = resultHonoree || 'them';
+    return (
+      <CenteredCard>
+        <div className="text-5xl mb-6" aria-hidden="true">
+          🤍
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
+          Thank you — your memory of {who} has been added
+        </h1>
+        <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+          The person gathering these will read it and may weave it into one combined tribute. That’s
+          everything we need from you.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => {
+            // Allow sharing another memory: fresh key, reset form.
+            idempotencyKeyRef.current =
+              typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            setValues({ [NAME_FIELD]: '', [RELATIONSHIP_FIELD]: '', [MEMORY_FIELD]: '' });
+            setConsent(false);
+            setResultHonoree('');
+            setPhase('form');
+          }}
+          className="text-sm font-medium text-primary hover:opacity-80 transition-opacity mb-10"
+        >
+          Share another memory →
+        </button>
+
+        {/* Soft cross-sell — only after submitting (§7). */}
+        <div className="border-t border-border pt-8 mt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            Putting together a tribute for someone yourself? You can start your own collection — it’s
+            free to create and gather, and you only pay once at the end.
+          </p>
+          <Link
+            href={`${homeHref}?src=contributor`}
+            className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium border border-border text-foreground hover:bg-accent/20 transition-colors"
+          >
+            Start your own →
+          </Link>
+        </div>
+      </CenteredCard>
+    );
+  }
+
+  // ---- form ----------------------------------------------------------------
+  const submitting = phase === 'submitting';
+
+  return (
+    <main className="min-h-screen bg-background py-10 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+            {occasionTitle} collection
+          </p>
+          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
+            Share a memory
+          </h1>
+          <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
+            Someone invited you to add a memory of {honoreeLabel}. It takes a couple of minutes, and
+            it joins others into one combined tribute. No account, and you don’t pay anything.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <SectionCard heading="About you">
+            {nameField && (
+              <FieldRow
+                field={nameField}
+                value={values[NAME_FIELD] ?? ''}
+                error={errors[NAME_FIELD]}
+                onChange={(v) => setField(NAME_FIELD, v)}
+              />
+            )}
+            {relationshipField && (
+              <FieldRow
+                field={relationshipField}
+                value={values[RELATIONSHIP_FIELD] ?? ''}
+                error={errors[RELATIONSHIP_FIELD]}
+                onChange={(v) => setField(RELATIONSHIP_FIELD, v)}
+              />
+            )}
+          </SectionCard>
+
+          <SectionCard heading="Your memory">
+            {/* Layer 1 — elicitation scaffolding. */}
+            <p className="text-sm text-muted-foreground leading-relaxed -mt-1">
+              What did they do that was so <em>them</em>? A phrase they always said, a small moment
+              that stuck with you, the way they made you feel. Specific beats general — one real
+              story is worth more than a list of nice words.
+            </p>
+            {memoryField && (
+              <FieldRow
+                field={memoryField}
+                value={memoryValue}
+                error={errors[MEMORY_FIELD]}
+                rows={8}
+                onChange={(v) => setField(MEMORY_FIELD, v)}
+              >
+                <WordCounter value={memoryValue} bands={MEMORY_BANDS} />
+              </FieldRow>
+            )}
+          </SectionCard>
+
+          {blockedReason && (
+            <div ref={blockedPanelRef}>
+              <MemoriesBlockedPanel reason={blockedReason} />
+            </div>
+          )}
+
+          {/* Privacy disclosure + consent (§4). */}
+          <SectionCard>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              The person collecting this will read it and may include it in one combined tribute.
+              Your memory isn’t published publicly. You don’t pay and don’t make an account.
+            </p>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => {
+                  setConsent(e.target.checked);
+                  if (e.target.checked) setConsentError(false);
+                }}
+                className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-foreground leading-relaxed">
+                I’m okay with my memory being woven into a tribute for {honoreeLabel}, which the
+                organizer will receive.
+              </span>
+            </label>
+            {consentError && (
+              <p className="text-xs text-destructive" role="alert">
+                Please check the box above so we can include your memory.
+              </p>
+            )}
+          </SectionCard>
+
+          {submitError && (
+            <ErrorBanner
+              message={submitError.message}
+              retryable={submitError.retryable}
+              onRetry={() => void doSubmit()}
+              submitting={submitting}
+            />
+          )}
+
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-full py-6 text-sm font-semibold"
+          >
+            {submitting ? (
+              <span className="inline-flex items-center gap-2">
+                <Spinner size={16} /> Sending your memory…
+              </span>
+            ) : (
+              'Add my memory'
+            )}
+          </Button>
+
+          <p className="text-center text-xs text-muted-foreground pb-4">
+            {memoryWc > 0 && memoryWc < 20
+              ? 'Just a little more detail and you’re set.'
+              : 'Your memory stays private to the organizer.'}
+          </p>
+        </form>
+      </div>
+    </main>
+  );
+}
+
+function CenteredCard({ children }: { children: React.ReactNode }) {
+  return (
+    <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
+      <div className="max-w-md w-full text-center">{children}</div>
+    </main>
+  );
+}

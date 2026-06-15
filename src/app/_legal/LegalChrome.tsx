@@ -1,5 +1,9 @@
 import Link from 'next/link';
 
+// Chrome (nav + page frame) for the bespoke, attorney-adapted legal pages.
+// The legal PROSE inside `children` is verbatim attorney content (hard rule #10);
+// only this wrapper styling is owned by the app. Uses the TributeWords token
+// system (globals.css) so it matches the rest of the collection app.
 export default function LegalChrome({
   title,
   updated,
@@ -10,18 +14,26 @@ export default function LegalChrome({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ minHeight: '100vh' }}>
-      <nav style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-        <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <nav className="border-b border-border bg-card">
+        <div className="mx-auto max-w-3xl flex items-center justify-between px-6 py-4">
+          <Link
+            href="/"
+            className="font-serif text-xl text-foreground hover:opacity-80 transition-opacity"
+          >
             Words That Matter
           </Link>
-          <Link href="/" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textDecoration: 'none' }}>← Home</Link>
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Home
+          </Link>
         </div>
       </nav>
-      <main className="wrap" style={{ maxWidth: 720, paddingTop: '3rem', paddingBottom: '4rem' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '0.4rem' }}>{title}</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Last updated: {updated}</p>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 pt-12 pb-16">
+        <h1 className="font-serif text-3xl text-foreground mb-1">{title}</h1>
+        <p className="text-sm text-muted-foreground mb-10">Last updated: {updated}</p>
         {children}
       </main>
     </div>

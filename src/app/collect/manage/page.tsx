@@ -1,46 +1,68 @@
-import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
-import { getOccasionMeta, OCCASIONS } from '@/products/registry';
-import Dashboard from './Dashboard';
+import { notFound } from 'next/navigation';
+import {
+  getDbClient,
+  getCollectionByAdminToken,
+} from '@eilon-shai/venture-core/db';
+import { getConfig, getOccasionMeta } from '@/lib/registry';
+import { ManageDashboard } from '@/components/ManageDashboard';
+
+// S6 + S7 — Organizer manage / review dashboard + finalize.
+// Server component: reads the admin token from ?t=, resolves the collection to
+// its occasion (for resultPath + accent theming), then hands off to the client
+// dashboard. The dashboard fetches the actual data via the admin-scoped GET so
+// no synthesized content ever passes through this server boundary.
+// Path is baked into the backend (non-negotiable): /collect/manage?t={adminToken}.
 
 export const dynamic = 'force-dynamic';
 
-export default async function ManagePage({
-  searchParams,
-}: {
+interface PageProps {
   searchParams: Promise<{ t?: string }>;
-}) {
+}
+
+export default async function ManagePage({ searchParams }: PageProps) {
   const { t: adminToken } = await searchParams;
 
-  if (!adminToken) {
-    return (
-      <main className="wrap" style={{ maxWidth: 640, paddingTop: '4rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '1.5rem' }}>Missing link</h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.75rem' }}>
-          Open the manage link from your email to view your collection.
-        </p>
-      </main>
-    );
-  }
+  // Missing token — there is no public manage surface; send to a 404.
+  if (!adminToken) notFound();
 
   const db = getDbClient();
-  const collection = db ? await getCollectionByAdminToken(db, adminToken).catch(() => null) : null;
-
-  if (!collection) {
+  if (!db) {
+    // DB unavailable at request time: let the client dashboard surface a retry
+    // by rendering it with a placeholder occasion (its own load() will 503).
     return (
-      <main className="wrap" style={{ maxWidth: 640, paddingTop: '4rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '1.5rem' }}>Collection not found</h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.75rem' }}>
-          This manage link is invalid or has expired.
-        </p>
-      </main>
+      <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" />
     );
   }
 
-  const meta = getOccasionMeta(collection.occasion) ?? OCCASIONS[0];
+  let collection;
+  try {
+    collection = await getCollectionByAdminToken(db, adminToken);
+  } catch {
+    collection = null;
+  }
+
+  // Unknown token — do not reveal whether a collection exists; the dashboard's
+  // own NOT_FOUND copy directs the organizer back to their email link.
+  const occasion = collection?.occasion ?? 'memorial';
+  const config = getConfig(occasion);
+  const meta = getOccasionMeta(occasion);
+  const resultPath = config?.brand.resultPath ?? '/memorial/result';
+  const accent = meta?.accent;
 
   return (
-    <main className="wrap" style={{ maxWidth: 640, paddingTop: '3rem', paddingBottom: '4rem' }}>
-      <Dashboard occasion={collection.occasion} adminToken={adminToken} accent={meta.accent} />
+    <main
+      style={
+        accent
+          ? ({
+              '--primary': accent,
+              '--ring': accent,
+              '--accent': accent,
+              '--accent-foreground': '#ffffff',
+            } as React.CSSProperties)
+          : undefined
+      }
+    >
+      <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} />
     </main>
   );
 }
