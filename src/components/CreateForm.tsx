@@ -4,7 +4,9 @@ import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@eilon-shai/venture-core/ui';
 import { Input } from '@eilon-shai/venture-core/ui';
 import { Button } from '@eilon-shai/venture-core/ui';
+import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { InviteScreen } from './InviteScreen';
+import { ContributorForm } from './ContributorForm';
 
 interface CreateFormProps {
   occasion: string;
@@ -14,6 +16,10 @@ interface CreateFormProps {
   priceShown: number;
   /** Tier preselected from ?tier= (defaults to 'full'). */
   tier: string;
+  /** Occasion display title, e.g. "Memorial". */
+  occasionTitle: string;
+  /** Contributor field defs — reused for the organizer's own first memory. */
+  contributorFields: FormFieldConfig[];
 }
 
 interface CreateSuccess {
@@ -23,11 +29,11 @@ interface CreateSuccess {
   honoreeName: string;
 }
 
-type Phase = 'form' | 'submitting' | 'done';
+type Phase = 'form' | 'submitting' | 'ownMemory' | 'invite';
 
 const FIELD_ERR = 'text-destructive text-sm mt-1';
 
-export function CreateForm({ occasion, honoreeLabel, priceShown, tier }: CreateFormProps) {
+export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields }: CreateFormProps) {
   const [phase, setPhase] = React.useState<Phase>('form');
   const [honoreeName, setHonoreeName] = React.useState('');
   const [organizerEmail, setOrganizerEmail] = React.useState('');
@@ -90,14 +96,39 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier }: CreateF
 
       const data: CreateSuccess = await res.json();
       setResult(data);
-      setPhase('done');
+      setPhase('ownMemory');
     } catch {
       setPhase('form');
       setFormError('We couldn’t reach the server — your details are safe. Please try again.');
     }
   }
 
-  if (phase === 'done' && result) {
+  // After create: the organizer adds their OWN first memory (the "main customer
+  // form") via the same guarded ContributorForm, using the new collection's
+  // shareToken, then continues to the invite screen.
+  if (phase === 'ownMemory' && result) {
+    const shareToken = (() => {
+      try {
+        return new URL(result.shareUrl).pathname.split('/c/')[1] ?? '';
+      } catch {
+        return '';
+      }
+    })();
+    return (
+      <ContributorForm
+        variant="organizer"
+        shareToken={shareToken}
+        occasionTitle={occasionTitle}
+        honoreeLabel={result.honoreeName || honoreeLabel}
+        fields={contributorFields}
+        homeHref={`/${occasion}`}
+        onSubmitted={() => setPhase('invite')}
+        onSkip={() => setPhase('invite')}
+      />
+    );
+  }
+
+  if (phase === 'invite' && result) {
     return (
       <InviteScreen
         occasion={occasion}

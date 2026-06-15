@@ -25,8 +25,11 @@ import {
 
 // Encouraging word bands shown live under the memory textarea. The hard gate is
 // validateMemoriesField (≥20 words); these are coaching only.
+// The hard gate is validateMemoriesField (needs ≥20 words, ≥2 sentences). Below
+// the floor the counter is RED so it's clear more is required before the memory
+// can be added; amber→green once it qualifies.
 const MEMORY_BANDS: WordCountBand[] = [
-  { gte: 0, lt: 20, message: 'a few more sentences will help', colorClass: 'text-muted-foreground' },
+  { gte: 0, lt: 20, message: 'a little short — please add a few more sentences', colorClass: 'text-destructive' },
   { gte: 20, lt: 60, message: 'this is good — add a detail if you can', colorClass: 'text-primary' },
   { gte: 60, message: 'wonderful, thank you', colorClass: 'text-emerald-700' },
 ];
@@ -51,6 +54,14 @@ export interface ContributorFormProps {
   fields: FormFieldConfig[];
   /** Cross-occasion home for the soft cross-sell after submit. */
   homeHref: string;
+  /**
+   * 'organizer' embeds this as the customer's OWN first-memory step inside the
+   * create flow: it advances via onSubmitted instead of showing the public
+   * contributor thank-you/cross-sell, and offers a Skip link.
+   */
+  variant?: 'contributor' | 'organizer';
+  onSubmitted?: (honoreeName: string) => void;
+  onSkip?: () => void;
 }
 
 export function ContributorForm({
@@ -59,7 +70,11 @@ export function ContributorForm({
   honoreeLabel,
   fields,
   homeHref,
+  variant = 'contributor',
+  onSubmitted,
+  onSkip,
 }: ContributorFormProps) {
+  const isOrganizer = variant === 'organizer';
   // Idempotency key generated once at mount, held across retries (§4).
   const idempotencyKeyRef = React.useRef<string>('');
   if (!idempotencyKeyRef.current) {
@@ -165,6 +180,12 @@ export function ContributorForm({
       };
 
       if (res.ok && data.ok) {
+        // Organizer's own first memory: advance the create flow instead of
+        // showing the public contributor thank-you/cross-sell.
+        if (isOrganizer && onSubmitted) {
+          onSubmitted(data.honoreeName ?? '');
+          return;
+        }
         setResultHonoree(data.honoreeName ?? '');
         setPhase('done');
         return;
@@ -205,7 +226,7 @@ export function ContributorForm({
         retryable: true,
       });
     }
-  }, [consent, memoryValue, shareToken, values]);
+  }, [consent, memoryValue, shareToken, values, isOrganizer, onSubmitted]);
 
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
@@ -296,11 +317,12 @@ export function ContributorForm({
             {occasionTitle} collection
           </p>
           <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
-            Share a memory
+            {isOrganizer ? 'Start with your own memory' : 'Share a memory'}
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
-            Someone invited you to add a memory of {honoreeLabel}. It takes a couple of minutes, and
-            it joins others into one combined tribute. No account, and you don’t pay anything.
+            {isOrganizer
+              ? `Add your own memory of ${honoreeLabel} first — it becomes the heart of the tribute. You’ll invite others to add theirs next.`
+              : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account, and you don’t pay anything.`}
           </p>
         </div>
 
@@ -396,15 +418,30 @@ export function ContributorForm({
               <span className="inline-flex items-center gap-2">
                 <Spinner size={16} /> Sending your memory…
               </span>
+            ) : isOrganizer ? (
+              'Add my memory & continue'
             ) : (
               'Add my memory'
             )}
           </Button>
 
+          {isOrganizer && onSkip && (
+            <button
+              type="button"
+              onClick={onSkip}
+              disabled={submitting}
+              className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Skip for now — I’ll add mine later
+            </button>
+          )}
+
           <p className="text-center text-xs text-muted-foreground pb-4">
             {memoryWc > 0 && memoryWc < 20
-              ? 'Just a little more detail and you’re set.'
-              : 'Your memory stays private to the organizer.'}
+              ? 'A little more detail and you’re set.'
+              : isOrganizer
+                ? 'You can add more memories — and invite others — next.'
+                : 'Your memory stays private to the organizer.'}
           </p>
         </form>
       </div>

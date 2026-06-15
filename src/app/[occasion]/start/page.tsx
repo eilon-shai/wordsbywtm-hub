@@ -41,6 +41,8 @@ export default async function StartPage({ params, searchParams }: StartPageProps
         honoreeLabel={meta.honoreeLabel}
         priceShown={priceShown}
         tier={tier}
+        occasionTitle={meta.title}
+        contributorFields={config.collectionConfig.contributorFormFields}
       />
 
       <footer className="mt-auto pt-8 text-center text-xs text-muted-foreground">

@@ -85,25 +85,20 @@ export const memorialLandingConfig: LandingPageConfig = {
 
   howItWorks: {
     eyebrow: 'How it works',
-    heading: 'Four steps, one tribute',
+    heading: 'Three steps, one tribute',
     steps: [
       {
         step: '01',
         title: 'Start a collection',
-        body: 'Tell us who you’re honoring. It’s free to create — we email you a private link to come back and manage it.',
+        body: 'Tell us who you’re honoring and add your own first memory. It’s free to create — we email you a private link to manage it.',
       },
       {
         step: '02',
         title: 'Invite the people who knew them',
-        body: 'Share one link with family and friends. Each person adds a memory in about two minutes — no account, no payment, nothing to install.',
+        body: 'Share one link with family and friends. Each person adds a memory in about two minutes — no account, no payment, then you review every one and choose what to include.',
       },
       {
         step: '03',
-        title: 'Review and choose what to include',
-        body: 'Read every memory as it comes in. Everything is included by default — you simply leave out anything that doesn’t belong.',
-      },
-      {
-        step: '04',
         title: 'Weave them into one tribute',
         body: 'When you’re ready, pay once and we synthesize the memories into a single tribute — in a collective voice, true to every contribution.',
       },
