@@ -21,7 +21,7 @@ function withParam(url: string, key: string, value: string): string {
   return `${url}${sep}${key}=${encodeURIComponent(value)}`;
 }
 
-function CopyButton({ value, label }: { value: string; label: string }) {
+function CopyButton({ value, label, size = 'lg' }: { value: string; label: string; size?: 'sm' | 'lg' }) {
   const [copied, setCopied] = React.useState(false);
 
   async function copy() {
@@ -47,7 +47,13 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   }
 
   return (
-    <Button type="button" variant="outline" size="lg" className="h-11 shrink-0" onClick={copy}>
+    <Button
+      type="button"
+      variant="outline"
+      size={size}
+      className={size === 'lg' ? 'h-11 shrink-0' : 'shrink-0'}
+      onClick={copy}
+    >
       {copied ? 'Copied ✓' : label}
     </Button>
   );
@@ -129,7 +135,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
                 Email
               </Button>
             </a>
-            <CopyButton value={inviteText} label="Copy message" />
+            <CopyButton value={inviteText} label="Copy message" size="sm" />
           </div>
         </div>
 
