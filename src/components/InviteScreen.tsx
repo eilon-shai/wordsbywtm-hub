@@ -59,6 +59,120 @@ function CopyButton({ value, label, size = 'lg' }: { value: string; label: strin
   );
 }
 
+interface Row {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+/** Up to 3 people: we email the invite on the organizer's behalf; WhatsApp opens
+ *  a pre-filled per-person chat (Meta doesn't allow auto-send without the paid API). */
+function DirectInvite({ adminToken, inviteText }: { adminToken: string; inviteText: string }) {
+  const MAX = 3;
+  const [rows, setRows] = React.useState<Row[]>([
+    { name: '', email: '', phone: '' },
+    { name: '', email: '', phone: '' },
+    { name: '', email: '', phone: '' },
+  ]);
+  const [sending, setSending] = React.useState(false);
+  const [result, setResult] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  function set(i: number, key: keyof Row, v: string) {
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [key]: v } : r)));
+  }
+
+  async function sendEmails() {
+    const recipients = rows
+      .filter((r) => r.email.trim())
+      .map((r) => ({ name: r.name.trim(), email: r.email.trim() }))
+      .slice(0, MAX);
+    if (recipients.length === 0) {
+      setError('Add at least one email address.');
+      return;
+    }
+    setSending(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await fetch('/api/collection/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminToken, recipients }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(d.error ?? 'Could not send the invites. Please try again.');
+        return;
+      }
+      setResult(
+        `Sent ${d.sent} ${d.sent === 1 ? 'invite' : 'invites'}${d.simulated ? ' (preview — not actually emailed)' : ''}.`,
+      );
+    } catch {
+      setError('Network error — please try again.');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-card/50 p-4">
+      <p className="text-sm font-medium text-foreground">Invite people directly</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Add up to {MAX} people — we’ll email the invite for you. Add a phone number to open a ready-to-send
+        WhatsApp message instead.
+      </p>
+
+      <div className="mt-3 flex flex-col gap-3">
+        {rows.map((r, i) => {
+          const waDigits = r.phone.replace(/\D/g, '');
+          const waUrl = waDigits ? `https://wa.me/${waDigits}?text=${encodeURIComponent(inviteText)}` : '';
+          return (
+            <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1.3fr_1fr_auto] sm:items-center">
+              <input
+                className="rounded-md border border-border bg-background px-2.5 py-2 text-sm"
+                placeholder="Name (optional)"
+                value={r.name}
+                onChange={(e) => set(i, 'name', e.target.value)}
+              />
+              <input
+                type="email"
+                className="rounded-md border border-border bg-background px-2.5 py-2 text-sm"
+                placeholder="email@example.com"
+                value={r.email}
+                onChange={(e) => set(i, 'email', e.target.value)}
+              />
+              <input
+                type="tel"
+                className="rounded-md border border-border bg-background px-2.5 py-2 text-sm"
+                placeholder="WhatsApp # (optional)"
+                value={r.phone}
+                onChange={(e) => set(i, 'phone', e.target.value)}
+              />
+              {waUrl ? (
+                <a href={waUrl} target="_blank" rel="noopener noreferrer">
+                  <Button type="button" variant="outline" size="sm" className="w-full sm:w-auto">
+                    WhatsApp
+                  </Button>
+                </a>
+              ) : (
+                <span className="hidden sm:block" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      {result && <p className="mt-2 text-sm text-emerald-700">{result}</p>}
+
+      <Button type="button" size="sm" className="mt-3" onClick={sendEmails} disabled={sending}>
+        {sending ? 'Sending…' : 'Send email invites'}
+      </Button>
+    </div>
+  );
+}
+
 export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadline }: InviteScreenProps) {
   // Share link carries occasion + viral-attribution UTM (§7 m5).
   const shareLink = withParam(withParam(shareUrl, 'occasion', occasion), 'src', 'invite');
@@ -82,8 +196,15 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
     }
   }
 
+  const adminToken = React.useMemo(() => {
+    try {
+      return new URL(adminUrl).searchParams.get('t') ?? '';
+    } catch {
+      return '';
+    }
+  }, [adminUrl]);
+
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteText)}`;
-  const smsUrl = `sms:?&body=${encodeURIComponent(inviteText)}`;
   const emailUrl = `mailto:?subject=${encodeURIComponent(
     `Add a memory for ${honoreeName}`,
   )}&body=${encodeURIComponent(inviteText)}`;
@@ -125,19 +246,16 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
                 WhatsApp
               </Button>
             </a>
-            <a href={smsUrl}>
-              <Button type="button" variant="outline" size="sm">
-                Text message
-              </Button>
-            </a>
             <a href={emailUrl}>
               <Button type="button" variant="outline" size="sm">
                 Email
               </Button>
             </a>
-            <CopyButton value={inviteText} label="Copy message" size="sm" />
           </div>
         </div>
+
+        {/* Direct invites — we email up to 3 people on your behalf */}
+        <DirectInvite adminToken={adminToken} inviteText={inviteText} />
 
         {deadline && (
           <p className="text-sm text-muted-foreground">
