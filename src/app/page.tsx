@@ -173,8 +173,25 @@ export default function HubPage() {
         </section>
 
         {/* Final CTA */}
-        <section className="bg-foreground px-4 py-24 text-center">
-          <div className="mx-auto max-w-xl">
+        <section className="relative overflow-hidden px-4 py-24 text-center">
+          {/* dark base */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-20 bg-foreground" />
+          {/* photographic texture (same image family as the per-occasion landings) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-35"
+            style={{
+              backgroundImage:
+                "url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&q=80&auto=format&fit=crop')",
+            }}
+          />
+          {/* dark scrim to keep the light text legible */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10"
+            style={{ background: 'color-mix(in oklch, var(--foreground) 45%, transparent)' }}
+          />
+          <div className="relative mx-auto max-w-xl">
             <h2 className="font-serif text-3xl text-primary-foreground md:text-4xl">
               Gather the memories before they scatter.
             </h2>
