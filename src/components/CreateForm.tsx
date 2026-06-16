@@ -114,46 +114,6 @@ const MOMENT_FIELD: FormFieldConfig = {
   required: false,
   maxLength: 600,
 };
-const TONE_FIELD: FormFieldConfig = {
-  name: 'tone',
-  type: 'select',
-  label: 'Tone',
-  placeholder: 'Choose a tone',
-  required: false,
-  options: [
-    { value: 'solemn', label: 'Solemn & reverent' },
-    { value: 'balanced', label: 'Balanced' },
-    { value: 'warm', label: 'Warm & celebratory' },
-  ],
-};
-const LENGTH_FIELD: FormFieldConfig = {
-  name: 'length',
-  type: 'select',
-  label: 'Length',
-  placeholder: 'Choose a length',
-  required: false,
-  options: [
-    { value: 'short', label: 'Short (~3 min)' },
-    { value: 'medium', label: 'Medium (~5 min)' },
-    { value: 'long', label: 'Long (~8 min)' },
-  ],
-};
-const AVOID_FIELD: FormFieldConfig = {
-  name: 'thingsToAvoid',
-  type: 'textarea',
-  label: 'Anything to leave out?',
-  placeholder: 'Topics, details, or names you’d rather the tribute not mention.',
-  required: false,
-  maxLength: 1000,
-};
-const CONTEXT_FIELD: FormFieldConfig = {
-  name: 'additionalContext',
-  type: 'textarea',
-  label: 'Anything else we should know?',
-  placeholder: 'Faith, circumstances, or context to weave in sensitively.',
-  required: false,
-  maxLength: 1000,
-};
 const DEADLINE_FIELD: FormFieldConfig = {
   name: 'deadline',
   type: 'date',
@@ -176,10 +136,6 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   const [quality, setQuality] = React.useState('');
   const [favoriteMoment, setFavoriteMoment] = React.useState('');
   // How the tribute should read
-  const [tone, setTone] = React.useState('balanced');
-  const [length, setLength] = React.useState('medium');
-  const [thingsToAvoid, setThingsToAvoid] = React.useState('');
-  const [additionalContext, setAdditionalContext] = React.useState('');
   // When
   const [deadline, setDeadline] = React.useState('');
 
@@ -311,12 +267,6 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           occasion,
           tier,
           ...(deadline ? { deadline } : {}),
-          synthesisPrefs: {
-            tone,
-            length,
-            ...(thingsToAvoid.trim() ? { thingsToAvoid: thingsToAvoid.trim() } : {}),
-            ...(additionalContext.trim() ? { additionalContext: additionalContext.trim() } : {}),
-          },
         }),
       });
 
@@ -554,17 +504,10 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           <FieldRow field={MOMENT_FIELD} value={favoriteMoment} rows={3} onChange={setFavoriteMoment} />
         </SectionCard>
 
-        {/* Section 3 — How the tribute should read */}
-        <SectionCard heading="How the tribute should read">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <FieldRow field={TONE_FIELD} value={tone} onChange={setTone} />
-            <FieldRow field={LENGTH_FIELD} value={length} onChange={setLength} />
-          </div>
-          <FieldRow field={AVOID_FIELD} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
-          <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
-        </SectionCard>
+        {/* "How the tribute should read" (tone/length/avoid/context) now lives on
+            the result page, chosen right before the tribute is generated. */}
 
-        {/* Section 4 — When */}
+        {/* Section — When */}
         <SectionCard heading="When">
           <FieldRow field={DEADLINE_FIELD} value={deadline} onChange={setDeadline}>
             <p className="text-xs text-muted-foreground">Memories close then. You can share until that date.</p>
