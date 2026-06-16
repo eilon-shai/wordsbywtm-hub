@@ -122,6 +122,20 @@ export function ContributorForm({
   // Terminal collection-state screens that replace the whole form.
   const [terminal, setTerminal] = React.useState<null | 'closed' | 'notfound'>(null);
 
+  // One-memory-per-person guard (public contributors only). Once this browser
+  // has added a memory to this collection we remember it, so the same person
+  // can't keep re-submitting the form. Organizers manage from their dashboard.
+  const contributedKey = `wtm:contributed:${shareToken}`;
+  const [alreadyShared, setAlreadyShared] = React.useState(false);
+  React.useEffect(() => {
+    if (isOrganizer) return;
+    try {
+      if (localStorage.getItem(contributedKey)) setAlreadyShared(true);
+    } catch {
+      /* localStorage unavailable — no guard, the IP rate-limit still applies */
+    }
+  }, [isOrganizer, contributedKey]);
+
   const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
     if (blockedReason && blockedPanelRef.current) {
@@ -130,7 +144,7 @@ export function ContributorForm({
   }, [blockedReason]);
 
   // On missing consent, scroll to the checkbox and draw a box around it.
-  const consentRef = React.useRef<HTMLDivElement | null>(null);
+  const consentRef = React.useRef<HTMLLabelElement | null>(null);
   React.useEffect(() => {
     if (consentError && consentRef.current) {
       consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -212,6 +226,14 @@ export function ContributorForm({
           onSubmitted(data.honoreeName ?? '');
           return;
         }
+        // Remember this browser has contributed (public, one-per-person guard).
+        if (!isOrganizer) {
+          try {
+            localStorage.setItem(contributedKey, '1');
+          } catch {
+            /* ignore */
+          }
+        }
         setResultHonoree(data.honoreeName ?? '');
         setPhase('done');
         return;
@@ -261,6 +283,46 @@ export function ContributorForm({
     },
     [doSubmit],
   );
+
+  // ---- already contributed (public, one-per-person) ------------------------
+  if (alreadyShared && phase === 'form') {
+    return (
+      <CenteredCard>
+        <div className="text-5xl mb-6" aria-hidden="true">
+          🤍
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
+          You’ve already shared a memory
+        </h1>
+        <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+          Thank you — your memory of {honoreeLabel} is already with the organizer. There’s nothing
+          more you need to do.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            // Escape hatch: let them add a second memory if they really want to.
+            idempotencyKeyRef.current =
+              typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            try {
+              localStorage.removeItem(contributedKey);
+            } catch {
+              /* ignore */
+            }
+            setValues({ [NAME_FIELD]: '', [RELATIONSHIP_FIELD]: '', [MEMORY_FIELD]: '' });
+            setExtras({ quality: '', favoriteMoment: '', avoid: '' });
+            setConsent(false);
+            setAlreadyShared(false);
+          }}
+          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Add another memory
+        </button>
+      </CenteredCard>
+    );
+  }
 
   // ---- terminal: closed / not-found ----------------------------------------
   if (terminal) {
@@ -465,21 +527,19 @@ export function ContributorForm({
             </div>
           )}
 
-          {/* Privacy disclosure + consent (§4). */}
-          <div
-            ref={consentRef}
-            className={
-              consentError
-                ? 'rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-background transition-shadow'
-                : 'transition-shadow'
-            }
-          >
+          {/* Privacy disclosure + consent (§4). The error ring hugs only the
+              checkbox + its label — not the whole card. */}
           <SectionCard>
             <p className="text-xs text-muted-foreground leading-relaxed">
               The person collecting this will read it and may include it in one combined tribute.
               Your memory isn’t published publicly. You don’t pay and don’t make an account.
             </p>
-            <label className="flex items-start gap-3 cursor-pointer group">
+            <label
+              ref={consentRef}
+              className={`flex w-fit items-start gap-3 rounded-lg p-2 cursor-pointer group transition-shadow ${
+                consentError ? 'ring-2 ring-destructive' : ''
+              }`}
+            >
               <input
                 type="checkbox"
                 checked={consent}
@@ -500,7 +560,6 @@ export function ContributorForm({
               </p>
             )}
           </SectionCard>
-          </div>
 
           {submitError && (
             <ErrorBanner
