@@ -16,7 +16,7 @@ export const maxDuration = 30;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const MAX_PER_REQUEST = 3; // free plan
-const MAX_TOTAL_PER_COLLECTION = 12; // abuse backstop across all sends
+const DAILY_CAP = 3; // max invite emails per collection per day (#3)
 
 function appBase(domain: string): string {
   return domain.replace(/\/$/, '');
@@ -30,10 +30,13 @@ function inviteEmailHtml(opts: {
   recipientName?: string;
 }): string {
   const greeting = opts.recipientName ? `Hi ${opts.recipientName},` : 'Hi,';
-  const from = opts.organizerName ? `${opts.organizerName} is` : 'Someone is';
+  // Personalized when we know the organizer; otherwise honoree-centric — never "Someone".
+  const intro = opts.organizerName
+    ? `${opts.organizerName} is putting together a tribute for <strong>${opts.honoreeName}</strong>, woven from memories shared by the people who knew them — and you’re invited to add yours.`
+    : `You’re invited to share a memory of <strong>${opts.honoreeName}</strong> for a tribute that family and friends are putting together — woven from the memories of everyone who knew them.`;
   return `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;line-height:1.6;">
     <p>${greeting}</p>
-    <p>${from} putting together a tribute for <strong>${opts.honoreeName}</strong>, woven from memories shared by the people who knew them — and you’re invited to add yours.</p>
+    <p>${intro}</p>
     <p>It takes about two minutes. No account, nothing to pay.</p>
     <p style="margin:28px 0;">
       <a href="${opts.shareUrl}" style="background:${opts.accent};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Add a memory of ${opts.honoreeName}</a>
@@ -93,31 +96,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unknown occasion', code: 'NOT_FOUND', retryable: false }, { status: 404 });
   }
 
-  // Per-collection abuse backstop (the admin token is already secret/owner-only).
-  const redis = getRedisClient();
-  if (redis) {
-    try {
-      const key = `${config.brand.redisKeyPrefix}:invite-count:${collection.id}`;
-      const total = await redis.incrby(key, clean.length);
-      await redis.expire(key, 30 * 86400);
-      if (total > MAX_TOTAL_PER_COLLECTION) {
-        return NextResponse.json(
-          { error: 'You’ve reached the invite limit for this collection. Share your link directly instead.', code: 'RATE_LIMIT', retryable: false },
-          { status: 429 },
-        );
-      }
-    } catch {
-      /* non-fatal — proceed without the cap rather than block a legitimate send */
-    }
-  }
-
   const shareUrl = `${appBase(config.brand.domain)}/c/${collection.shareToken}?occasion=${collection.occasion}&src=invite`;
   const accent = config.email.brandColor || '#5a8fab';
   const from = config.email.fromEmail;
+  const orgName = (organizerName ?? '').toString().trim().slice(0, 100) || undefined;
+  const prefix = config.brand.redisKeyPrefix;
+  const today = new Date().toISOString().slice(0, 10);
+  const redis = getRedisClient();
 
-  // Respect DISABLE_EMAIL (preview/E2E): report success without actually sending.
+  // Respect DISABLE_EMAIL (preview/E2E): report success without consuming the
+  // daily/per-recipient quota, so previews stay testable.
   if (process.env.DISABLE_EMAIL === 'true') {
-    return NextResponse.json({ sent: clean.length, simulated: true });
+    return NextResponse.json({ sent: clean.length, skipped: 0, simulated: true });
+  }
+
+  // #3 — at most DAILY_CAP invite emails per collection per day.
+  let sentToday = 0;
+  if (redis) {
+    try {
+      sentToday = Number(await redis.get(`${prefix}:invite-day:${collection.id}:${today}`)) || 0;
+    } catch {
+      /* non-fatal */
+    }
+  }
+  const remainingToday = Math.max(0, DAILY_CAP - sentToday);
+  if (remainingToday === 0) {
+    return NextResponse.json(
+      { error: `You can send up to ${DAILY_CAP} email invites a day. Share your link directly — it's free and unlimited.`, code: 'RATE_LIMIT', retryable: false },
+      { status: 429 },
+    );
   }
 
   const resend = getResendClient();
@@ -126,25 +133,44 @@ export async function POST(req: NextRequest) {
   }
 
   let sent = 0;
+  let skipped = 0; // already emailed this person today (#1)
   for (const r of clean) {
+    if (sent >= remainingToday) {
+      skipped += 1;
+      continue;
+    }
+    const rcptKey = `${prefix}:invite-rcpt:${collection.id}:${r.email}`;
+    if (redis) {
+      try {
+        if (await redis.get(rcptKey)) {
+          skipped += 1; // #1 — one email per person per day
+          continue;
+        }
+      } catch {
+        /* non-fatal — proceed */
+      }
+    }
     try {
       await sendEmail(resend, {
         from,
         to: r.email,
         subject: `Add a memory for ${collection.honoreeName}`,
-        html: inviteEmailHtml({
-          honoreeName: collection.honoreeName,
-          shareUrl,
-          organizerName: (organizerName ?? '').toString().trim().slice(0, 100) || undefined,
-          accent,
-          recipientName: r.name || undefined,
-        }),
+        html: inviteEmailHtml({ honoreeName: collection.honoreeName, shareUrl, organizerName: orgName, accent, recipientName: r.name || undefined }),
       });
       sent += 1;
+      if (redis) {
+        try {
+          await redis.set(rcptKey, '1', { ex: 86400 }); // per-recipient/day lock
+          await redis.incr(`${prefix}:invite-day:${collection.id}:${today}`);
+          await redis.expire(`${prefix}:invite-day:${collection.id}:${today}`, 86400);
+        } catch {
+          /* non-fatal */
+        }
+      }
     } catch (err) {
       console.error('[invite] send error:', err instanceof Error ? err.message : err);
     }
   }
 
-  return NextResponse.json({ sent });
+  return NextResponse.json({ sent, skipped, dailyRemaining: Math.max(0, remainingToday - sent) });
 }

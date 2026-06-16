@@ -30,6 +30,8 @@ interface InviteScreenProps {
   adminUrl: string;
   honoreeName: string;
   deadline: string | null;
+  /** Organizer's display name — personalizes invite emails. */
+  organizerName?: string;
 }
 
 /** Append a query param to a URL, preserving any existing query string. */
@@ -38,7 +40,7 @@ function withParam(url: string, key: string, value: string): string {
   return `${url}${sep}${key}=${encodeURIComponent(value)}`;
 }
 
-export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadline }: InviteScreenProps) {
+export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadline, organizerName }: InviteScreenProps) {
   // Derive the share token from the public contributor URL, then rebuild the
   // canonical share link (occasion + viral-attribution UTM) via the shared
   // helper so it stays byte-identical to the dashboard surface.
@@ -87,6 +89,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
           whatsappUrl={whatsappUrl}
           emailUrl={emailUrl}
           surface="create"
+          organizerName={organizerName}
         />
 
         {deadline && (

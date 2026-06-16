@@ -552,6 +552,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         adminUrl={result.adminUrl}
         honoreeName={result.honoreeName}
         deadline={deadline || null}
+        organizerName={contributorName.trim() || undefined}
       />
     );
   }
@@ -577,6 +578,39 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
       </header>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        {/* Section — Your email (first, so the dedup check runs before the rest) */}
+        <SectionCard heading="Your email">
+          <div ref={refs.organizerEmail}>
+            <FieldRow
+              field={ORGANIZER_EMAIL_FIELD}
+              value={organizerEmail}
+              error={fieldError.organizerEmail}
+              onChange={(v) => {
+                setOrganizerEmail(v);
+                clearError('organizerEmail');
+              }}
+              onBlur={checkExisting}
+            />
+            {dupChecking && <p className="mt-1 text-xs text-muted-foreground">Checking…</p>}
+          </div>
+          <div ref={refs.confirmEmail}>
+            <FieldRow
+              field={CONFIRM_EMAIL_FIELD}
+              value={confirmEmail}
+              error={fieldError.confirmEmail}
+              autoComplete="off"
+              onChange={(v) => {
+                setConfirmEmail(v);
+                clearError('confirmEmail');
+              }}
+            >
+              <p className="text-xs text-muted-foreground">
+                We email your private manage link here — please double-check it.
+              </p>
+            </FieldRow>
+          </div>
+        </SectionCard>
+
         {/* Section — About you */}
         <SectionCard heading="About you">
           <div ref={refs.contributorName}>
@@ -675,39 +709,6 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             rows={3}
             onChange={setAdditionalContext}
           />
-        </SectionCard>
-
-        {/* Section — Your email */}
-        <SectionCard heading="Your email">
-          <div ref={refs.organizerEmail}>
-            <FieldRow
-              field={ORGANIZER_EMAIL_FIELD}
-              value={organizerEmail}
-              error={fieldError.organizerEmail}
-              onChange={(v) => {
-                setOrganizerEmail(v);
-                clearError('organizerEmail');
-              }}
-              onBlur={checkExisting}
-            />
-            {dupChecking && <p className="mt-1 text-xs text-muted-foreground">Checking…</p>}
-          </div>
-          <div ref={refs.confirmEmail}>
-            <FieldRow
-              field={CONFIRM_EMAIL_FIELD}
-              value={confirmEmail}
-              error={fieldError.confirmEmail}
-              autoComplete="off"
-              onChange={(v) => {
-                setConfirmEmail(v);
-                clearError('confirmEmail');
-              }}
-            >
-              <p className="text-xs text-muted-foreground">
-                We email your private manage link here — please double-check it.
-              </p>
-            </FieldRow>
-          </div>
         </SectionCard>
 
         {/* Section — When */}

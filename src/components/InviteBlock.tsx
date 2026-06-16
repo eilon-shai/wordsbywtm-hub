@@ -32,6 +32,8 @@ export interface InviteBlockProps {
   emailUrl: string;
   /** Varies only the surrounding framing copy. */
   surface: 'create' | 'dashboard';
+  /** Organizer's display name — personalizes the invite email ("{name} is…"). */
+  organizerName?: string;
   /**
    * When the collection has hit the real 12-person email backstop, render the
    * single disabled "coming soon" pack line. Defaults to false; the dashboard
@@ -56,6 +58,7 @@ export function InviteBlock({
   whatsappUrl,
   emailUrl,
   surface,
+  organizerName,
   atCap = false,
 }: InviteBlockProps) {
   const [copied, setCopied] = React.useState(false);
@@ -144,7 +147,7 @@ export function InviteBlock({
       </div>
 
       {/* ====================== ZONE 2 — SECONDARY EMAIL CARD ==================== */}
-      <DirectEmailCard adminToken={adminToken} inviteText={inviteText} atCap={atCap} />
+      <DirectEmailCard adminToken={adminToken} inviteText={inviteText} organizerName={organizerName} atCap={atCap} />
     </div>
   );
 }
@@ -154,10 +157,12 @@ export function InviteBlock({
 function DirectEmailCard({
   adminToken,
   inviteText,
+  organizerName,
   atCap,
 }: {
   adminToken: string;
   inviteText: string;
+  organizerName?: string;
   atCap: boolean;
 }) {
   const [rows, setRows] = React.useState<PersonRow[]>(
@@ -169,7 +174,7 @@ function DirectEmailCard({
   );
   const [sending, setSending] = React.useState(false);
   const [attempted, setAttempted] = React.useState(0);
-  const [result, setResult] = React.useState<{ sent: number; of: number; simulated: boolean } | null>(null);
+  const [result, setResult] = React.useState<{ sent: number; of: number; skipped: number; simulated: boolean } | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   function set(i: number, key: keyof PersonRow, v: string) {
@@ -195,14 +200,14 @@ function DirectEmailCard({
       const res = await fetch('/api/collection/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminToken, recipients: [{ name: r.name.trim(), email }] }),
+        body: JSON.stringify({ adminToken, organizerName, recipients: [{ name: r.name.trim(), email }] }),
       });
-      const d = (await res.json().catch(() => ({}))) as { sent?: number; simulated?: boolean; error?: string };
+      const d = (await res.json().catch(() => ({}))) as { sent?: number; skipped?: number; simulated?: boolean; error?: string };
       if (!res.ok) {
         setError(d.error ?? 'Could not send that invite. Please try again.');
         return;
       }
-      setResult({ sent: d.sent ?? 0, of: 1, simulated: !!d.simulated });
+      setResult({ sent: d.sent ?? 0, of: 1, skipped: d.skipped ?? 0, simulated: !!d.simulated });
     } catch {
       setError('Network error — please try again.');
     } finally {
@@ -211,15 +216,22 @@ function DirectEmailCard({
   }
 
   async function sendAll() {
-    const recipients = rows
-      .filter((r) => r.email.trim())
-      .map((r) => ({ name: r.name.trim(), email: r.email.trim() }))
-      .slice(0, MAX_EMAIL_ROWS);
+    const filled = rows.filter((r) => r.email.trim()).map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
+    // #2 — de-duplicate the same address entered twice, and warn.
+    const seen = new Set<string>();
+    const recipients: { name: string; email: string }[] = [];
+    let dupes = 0;
+    for (const r of filled) {
+      const key = r.email.toLowerCase();
+      if (seen.has(key)) { dupes += 1; continue; }
+      seen.add(key);
+      recipients.push(r);
+    }
     if (recipients.length === 0) {
       setError('Add at least one email address.');
       return;
     }
-    setError(null);
+    setError(dupes > 0 ? `Removed ${dupes} duplicate ${dupes === 1 ? 'address' : 'addresses'}.` : null);
     setResult(null);
     setSending(true);
     setAttempted(recipients.length);
@@ -227,14 +239,14 @@ function DirectEmailCard({
       const res = await fetch('/api/collection/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminToken, recipients }),
+        body: JSON.stringify({ adminToken, organizerName, recipients }),
       });
-      const d = (await res.json().catch(() => ({}))) as { sent?: number; simulated?: boolean; error?: string };
+      const d = (await res.json().catch(() => ({}))) as { sent?: number; skipped?: number; simulated?: boolean; error?: string };
       if (!res.ok) {
         setError(d.error ?? 'Could not send the invites. Please try again.');
         return;
       }
-      setResult({ sent: d.sent ?? 0, of: recipients.length, simulated: !!d.simulated });
+      setResult({ sent: d.sent ?? 0, of: recipients.length, skipped: d.skipped ?? 0, simulated: !!d.simulated });
     } catch {
       setError('Network error — please try again.');
     } finally {
@@ -246,7 +258,7 @@ function DirectEmailCard({
     <Card className="border bg-muted/30 p-4">
       <p className="text-sm font-medium text-foreground">Prefer we email it for you? (optional)</p>
       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-        We’ll email up to 12 people on your behalf. Everyone else: just share your link above — no limit.
+        We’ll email up to 3 people a day on your behalf (once each). Everyone else: just share your link above — no limit.
       </p>
       <p className="mt-2 text-xs font-medium text-muted-foreground">Email a few people directly</p>
 
@@ -322,6 +334,7 @@ function DirectEmailCard({
       {result && (
         <p className="mt-2 text-sm text-emerald-700">
           Sent {result.sent} of {result.of}
+          {result.skipped > 0 ? ` — skipped ${result.skipped} already invited today` : ''}
           {result.simulated ? ' (preview — not actually emailed)' : ''}.
         </p>
       )}
