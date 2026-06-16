@@ -49,20 +49,31 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
   const price = `$${priceShown}`;
 
-  function validate(): boolean {
+  const honoreeRef = React.useRef<HTMLDivElement | null>(null);
+  const emailRef = React.useRef<HTMLDivElement | null>(null);
+
+  function validate(): { honoreeName?: string; organizerEmail?: string } {
     const errs: { honoreeName?: string; organizerEmail?: string } = {};
     if (!honoreeName.trim()) errs.honoreeName = 'Please add a name.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(organizerEmail.trim())) {
-      errs.organizerEmail = 'Please enter a valid email address.';
+    const email = organizerEmail.trim();
+    if (!email) {
+      errs.organizerEmail = 'Please enter your email address.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      errs.organizerEmail = 'That doesn’t look like a valid email — please check it.';
     }
     setFieldError(errs);
-    return Object.keys(errs).length === 0;
+    return errs;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    if (!validate()) return;
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      const target = errs.honoreeName ? honoreeRef.current : emailRef.current;
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     setPhase('submitting');
 
     try {
@@ -163,7 +174,14 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-          <div>
+          <div
+            ref={honoreeRef}
+            className={
+              fieldError.honoreeName
+                ? 'rounded-xl p-3 -m-3 ring-2 ring-destructive ring-offset-2 ring-offset-background'
+                : ''
+            }
+          >
             <label htmlFor="honoreeName" className="mb-1.5 block text-sm font-medium">
               Who are we honoring?
             </label>
@@ -174,7 +192,10 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               value={honoreeName}
               placeholder="Their name"
               aria-invalid={fieldError.honoreeName ? true : undefined}
-              onChange={(e) => setHonoreeName(e.target.value)}
+              onChange={(e) => {
+                setHonoreeName(e.target.value);
+                if (fieldError.honoreeName) setFieldError((p) => ({ ...p, honoreeName: undefined }));
+              }}
               disabled={submitting}
             />
             <p className="mt-1 text-xs text-muted-foreground">
@@ -183,7 +204,14 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             {fieldError.honoreeName && <p className={FIELD_ERR}>{fieldError.honoreeName}</p>}
           </div>
 
-          <div>
+          <div
+            ref={emailRef}
+            className={
+              fieldError.organizerEmail
+                ? 'rounded-xl p-3 -m-3 ring-2 ring-destructive ring-offset-2 ring-offset-background'
+                : ''
+            }
+          >
             <label htmlFor="organizerEmail" className="mb-1.5 block text-sm font-medium">
               Your email
             </label>
@@ -195,7 +223,10 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               value={organizerEmail}
               placeholder="you@example.com"
               aria-invalid={fieldError.organizerEmail ? true : undefined}
-              onChange={(e) => setOrganizerEmail(e.target.value)}
+              onChange={(e) => {
+                setOrganizerEmail(e.target.value);
+                if (fieldError.organizerEmail) setFieldError((p) => ({ ...p, organizerEmail: undefined }));
+              }}
               disabled={submitting}
             />
             <p className="mt-1 text-xs text-muted-foreground">

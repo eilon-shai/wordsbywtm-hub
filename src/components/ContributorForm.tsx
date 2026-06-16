@@ -119,6 +119,14 @@ export function ContributorForm({
     }
   }, [blockedReason]);
 
+  // On missing consent, scroll to the checkbox and draw a box around it.
+  const consentRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    if (consentError && consentRef.current) {
+      consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [consentError]);
+
   const setField = React.useCallback((name: string, v: string) => {
     setValues((prev) => ({ ...prev, [name]: v }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -423,6 +431,14 @@ export function ContributorForm({
           )}
 
           {/* Privacy disclosure + consent (§4). */}
+          <div
+            ref={consentRef}
+            className={
+              consentError
+                ? 'rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-background transition-shadow'
+                : 'transition-shadow'
+            }
+          >
           <SectionCard>
             <p className="text-xs text-muted-foreground leading-relaxed">
               The person collecting this will read it and may include it in one combined tribute.
@@ -449,6 +465,7 @@ export function ContributorForm({
               </p>
             )}
           </SectionCard>
+          </div>
 
           {submitError && (
             <ErrorBanner
