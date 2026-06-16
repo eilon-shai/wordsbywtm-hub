@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -70,11 +70,12 @@ function formatDeadline(iso?: string | null): string | null {
 function statusBadge(status: string): { label: string; variant: 'default' | 'secondary' | 'outline' } {
   switch (status) {
     case 'generated':
-      return { label: 'Generated', variant: 'secondary' };
+      return { label: 'Tribute created', variant: 'secondary' };
     case 'closed':
       return { label: 'Closed', variant: 'outline' };
     default:
-      return { label: 'Open', variant: 'default' };
+      // Status indicator, not an action — outline + a dot so it doesn't read as a button.
+      return { label: 'Collecting memories', variant: 'outline' };
   }
 }
 
@@ -90,6 +91,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const [finalizing, setFinalizing] = useState(false);
   const [finalizeError, setFinalizeError] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState(false);
+  const termsRef = useRef<HTMLLabelElement | null>(null);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -203,7 +206,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const handleFinalize = useCallback(async () => {
     if (!data || finalizing) return;
     if (!termsAccepted) {
-      setFinalizeError('Please agree to the terms before finalizing.');
+      setTermsError(true);
+      termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
     setFinalizing(true);
@@ -463,13 +467,18 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
             </p>
 
             {/* Pay-time consent waiver (matches TributeWords). Required before checkout. */}
-            <label className="mt-5 flex items-start gap-2 cursor-pointer text-sm text-muted-foreground">
+            <label
+              ref={termsRef}
+              className={`mt-5 flex w-fit max-w-full items-start gap-2 rounded-lg p-2 cursor-pointer text-sm text-muted-foreground ${
+                termsError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
+              }`}
+            >
               <input
                 type="checkbox"
                 checked={termsAccepted}
                 onChange={(e) => {
                   setTermsAccepted(e.target.checked);
-                  if (e.target.checked) setFinalizeError(null);
+                  if (e.target.checked) setTermsError(false);
                 }}
                 disabled={finalizing}
                 className="mt-0.5 h-4 w-4 rounded border-border"
@@ -492,14 +501,12 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
               <Button
                 size="lg"
                 className="w-full sm:w-auto"
-                disabled={belowMin || finalizing || !termsAccepted}
+                disabled={belowMin || finalizing}
                 onClick={() => void handleFinalize()}
                 title={
                   belowMin
                     ? `Add ${remaining} more ${remaining === 1 ? 'memory' : 'memories'} to finalize`
-                    : !termsAccepted
-                      ? 'Agree to the terms to finalize'
-                      : undefined
+                    : undefined
                 }
               >
                 {finalizing

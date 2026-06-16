@@ -234,7 +234,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     confirmEmail: React.useRef<HTMLDivElement | null>(null),
   };
   const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
-  const consentRef = React.useRef<HTMLDivElement | null>(null);
+  const consentRef = React.useRef<HTMLLabelElement | null>(null);
 
   React.useEffect(() => {
     if (blockedReason && blockedPanelRef.current) {
@@ -737,37 +737,33 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           </div>
         )}
 
-        {/* Consent — the error ring wraps ONLY the checkbox + label row. */}
-        <SectionCard>
-          <div
+        {/* Consent — the error ring hugs only the checkbox + label, not a panel. */}
+        <div className="px-1">
+          <label
             ref={consentRef}
-            className={
-              consentError
-                ? 'rounded-xl p-3 -m-3 ring-2 ring-destructive ring-offset-2 ring-offset-background transition-shadow'
-                : 'transition-shadow'
-            }
+            className={`flex w-fit max-w-full items-start gap-3 rounded-lg p-2 cursor-pointer ${
+              consentError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
+            }`}
           >
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => {
-                  setConsent(e.target.checked);
-                  if (e.target.checked) setConsentError(false);
-                }}
-                className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-              />
-              <span className="text-sm text-foreground leading-relaxed">
-                I’m okay with my memory being woven into the tribute you’ll receive.
-              </span>
-            </label>
-            {consentError && (
-              <p className="mt-2 text-xs text-destructive" role="alert">
-                Please check the box above so we can include your memory.
-              </p>
-            )}
-          </div>
-        </SectionCard>
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => {
+                setConsent(e.target.checked);
+                if (e.target.checked) setConsentError(false);
+              }}
+              className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+            />
+            <span className="text-sm text-foreground leading-relaxed">
+              I’m okay with my memory being woven into the tribute you’ll receive.
+            </span>
+          </label>
+          {consentError && (
+            <p className="mt-2 px-2 text-xs text-destructive" role="alert">
+              Please check the box above so we can include your memory.
+            </p>
+          )}
+        </div>
 
         {formError && (
           <div
