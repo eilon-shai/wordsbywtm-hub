@@ -90,6 +90,29 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const [finalizing, setFinalizing] = useState(false);
   const [finalizeError, setFinalizeError] = useState<string | null>(null);
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDelete = useCallback(async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch('/api/collection/delete', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ adminToken }),
+      });
+      if (!res.ok) throw new Error('delete failed');
+      setDeleted(true);
+    } catch {
+      setDeleteError('Could not delete the collection. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
+  }, [adminToken]);
+
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
@@ -248,6 +271,18 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   }, [adminToken, data, finalizing, load, occasion, resultPath]);
 
   // --- Render --------------------------------------------------------------
+  if (deleted) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <h1 className="font-serif text-2xl text-foreground">Collection deleted</h1>
+        <p className="mt-3 text-muted-foreground">
+          Your collection and every memory in it have been permanently removed.
+        </p>
+        <a href="/" className={`${buttonVariants({ size: 'lg' })} mt-6`}>Back to home</a>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
@@ -436,6 +471,43 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
           </div>
         </>
       ) : null}
+
+      {/* Danger zone — delete the whole collection (cascades to all memories). */}
+      <div className="mt-10 border-t border-border pt-6">
+        {!confirmDelete ? (
+          <button
+            type="button"
+            className="text-sm text-muted-foreground hover:text-destructive transition-colors"
+            onClick={() => setConfirmDelete(true)}
+          >
+            Delete this collection
+          </button>
+        ) : (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+            <p className="text-sm font-medium text-foreground">
+              Delete this collection and all {data.count} {data.count === 1 ? 'memory' : 'memories'}?
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              This permanently removes everything contributors shared. It can’t be undone.
+            </p>
+            {deleteError ? <p className="mt-2 text-sm text-destructive" role="alert">{deleteError}</p> : null}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={deleting}
+                onClick={() => void handleDelete()}
+              >
+                {deleting ? 'Deleting…' : 'Yes, delete everything'}
+              </Button>
+              <Button type="button" variant="outline" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>
+                Keep collection
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

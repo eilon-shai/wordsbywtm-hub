@@ -367,6 +367,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   }
 
   // ---- existing dedup card -------------------------------------------------
+  // (ResendLinkButton defined at module scope below.)
   if (phase === 'existing') {
     return (
       <Card className="mx-auto w-full max-w-xl">
@@ -383,6 +384,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             re-sent your private manage link to that email — open it to keep adding memories and finalize when
             you’re ready.
           </p>
+          <ResendLinkButton email={organizerEmail.trim()} occasion={occasion} />
           <p className="text-xs text-muted-foreground">
             Want to start a collection for a different occasion? Head back and pick another from the home page.
           </p>
@@ -588,6 +590,37 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             : 'Free to create and collect · Pay once when you’re ready · No account needed'}
         </p>
       </form>
+    </div>
+  );
+}
+
+// Re-sends the private manage link to the organizer's email (the secure way back
+// to an existing collection — we never show the admin token on screen).
+function ResendLinkButton({ email, occasion }: { email: string; occasion: string }) {
+  const [state, setState] = React.useState<'idle' | 'sending' | 'sent'>('idle');
+  async function resend() {
+    setState('sending');
+    try {
+      await fetch('/api/collection/resend-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, occasion }),
+      });
+    } catch {
+      /* generic — always report sent */
+    }
+    setState('sent');
+  }
+  return (
+    <div>
+      <Button type="button" variant="outline" size="sm" disabled={state !== 'idle'} onClick={resend}>
+        {state === 'sending' ? 'Sending…' : state === 'sent' ? 'Link sent ✓' : 'Resend my manage link'}
+      </Button>
+      {state === 'sent' && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Check {email} for your private manage link.
+        </p>
+      )}
     </div>
   );
 }
