@@ -18,7 +18,8 @@ import {
   setActiveTransaction,
 } from '@eilon-shai/venture-core/components';
 import { MemoryCard, type Contribution } from './MemoryCard';
-import { DirectInvite } from './InviteScreen';
+import { InviteBlock } from './InviteBlock';
+import { buildShareLink, buildInviteText } from '@/lib/invite';
 
 // ---------------------------------------------------------------------------
 // S6 + S7 — Organizer review dashboard + finalize.
@@ -289,12 +290,13 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
     ? Math.min(100, Math.round((includedCount / data.minContributions) * 100))
     : 100;
 
-  const shareUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/c/${data.shareToken}`
-      : `/c/${data.shareToken}`;
-  const shareLink = `${shareUrl}?occasion=${data.occasion}&src=invite`;
-  const inviteText = `I'm putting together a tribute for ${data.honoreeName} — add a memory here, takes 2 minutes: ${shareLink}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const shareLink = buildShareLink(origin, data.shareToken, data.occasion);
+  const inviteText = buildInviteText(data.honoreeName, shareLink);
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteText)}`;
+  const emailUrl = `mailto:?subject=${encodeURIComponent(
+    `Add a memory for ${data.honoreeName}`,
+  )}&body=${encodeURIComponent(inviteText)}`;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
@@ -334,21 +336,15 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
       {/* Invite more people (any time before finalizing) */}
       {!generated ? (
         <Card className="mt-4">
-          <CardContent className="space-y-4 p-5">
-            <p className="text-sm font-medium text-foreground">Invite more people</p>
-            <div className="flex items-center gap-2">
-              <code className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-                {shareLink}
-              </code>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void navigator.clipboard?.writeText(shareLink)}
-              >
-                Copy
-              </Button>
-            </div>
-            <DirectInvite adminToken={adminToken} inviteText={inviteText} />
+          <CardContent className="p-5">
+            <InviteBlock
+              surface="dashboard"
+              adminToken={adminToken}
+              shareLink={shareLink}
+              inviteText={inviteText}
+              whatsappUrl={whatsappUrl}
+              emailUrl={emailUrl}
+            />
           </CardContent>
         </Card>
       ) : null}

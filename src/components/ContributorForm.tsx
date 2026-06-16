@@ -518,7 +518,7 @@ export function ContributorForm({
 
 // Fold the optional fields into the memory text so they enrich synthesis without
 // a backend schema change. The main memory still carries the 3-layer guard.
-function composeMemory(
+export function composeMemory(
   memory: string,
   extras: { quality: string; favoriteMoment: string; avoid: string },
   isOrganizer: boolean,

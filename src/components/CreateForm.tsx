@@ -1,12 +1,28 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@eilon-shai/venture-core/ui';
-import { Input } from '@eilon-shai/venture-core/ui';
-import { Button } from '@eilon-shai/venture-core/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Progress,
+  Button,
+} from '@eilon-shai/venture-core/ui';
 import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
+import { validateMemoriesField } from '@eilon-shai/venture-core/validation';
 import { InviteScreen } from './InviteScreen';
-import { ContributorForm } from './ContributorForm';
+import { composeMemory } from './ContributorForm';
+import {
+  SectionCard,
+  FieldRow,
+  WordCounter,
+  MemoriesBlockedPanel,
+  Spinner,
+  wordCount,
+  type WordCountBand,
+} from '@/components/forked/FormPrimitives';
 
 interface CreateFormProps {
   occasion: string;
@@ -29,31 +45,195 @@ interface CreateSuccess {
   honoreeName: string;
 }
 
-type Phase = 'form' | 'submitting' | 'ownMemory' | 'invite' | 'existing';
+type Phase = 'form' | 'submitting' | 'invite' | 'existing';
 
-const FIELD_ERR = 'text-destructive text-sm mt-1';
+// Live coaching bands under the memory textarea. The hard gate is
+// validateMemoriesField (≥20 words, ≥2 sentences); these are coaching only.
+const MEMORY_BANDS: WordCountBand[] = [
+  { gte: 0, lt: 20, message: 'a little short — please add a few more sentences', colorClass: 'text-destructive' },
+  { gte: 20, lt: 60, message: 'this is good — add a detail if you can', colorClass: 'text-primary' },
+  { gte: 60, message: 'wonderful, thank you', colorClass: 'text-emerald-700' },
+];
+
+// Inline field configs so every control renders through the forked FieldRow
+// primitive (visual parity with the contributor form).
+const HONOREE_FIELD: FormFieldConfig = {
+  name: 'honoreeName',
+  type: 'text',
+  label: 'Who are we honoring?',
+  placeholder: 'Their name',
+  required: true,
+  maxLength: 120,
+};
+const EMAIL_FIELD: FormFieldConfig = {
+  name: 'organizerEmail',
+  type: 'text',
+  label: 'Your email',
+  placeholder: 'you@example.com',
+  required: true,
+  maxLength: 254,
+};
+const RELATIONSHIP_FIELD: FormFieldConfig = {
+  name: 'relationship',
+  type: 'text',
+  label: 'How did you know them?',
+  placeholder: 'e.g. their daughter; a lifelong friend',
+  required: false,
+  maxLength: 120,
+};
+const NAME_FIELD: FormFieldConfig = {
+  name: 'contributorName',
+  type: 'text',
+  label: 'Your name',
+  placeholder: 'How you’d like to be credited',
+  required: false,
+  maxLength: 120,
+};
+const MEMORY_FIELD: FormFieldConfig = {
+  name: 'memory',
+  type: 'textarea',
+  label: 'Your memory',
+  placeholder:
+    'What did they do that was so them? A phrase they always said, a small moment that stuck with you, the way they made you feel.',
+  required: false,
+  maxLength: 4000,
+};
+const QUALITY_FIELD: FormFieldConfig = {
+  name: 'quality',
+  type: 'text',
+  label: 'A word or two that captured them',
+  placeholder: 'e.g. endlessly generous; quietly funny',
+  required: false,
+  maxLength: 120,
+};
+const MOMENT_FIELD: FormFieldConfig = {
+  name: 'favoriteMoment',
+  type: 'textarea',
+  label: 'A favorite moment',
+  placeholder: 'A specific moment or story — even a small one.',
+  required: false,
+  maxLength: 600,
+};
+const TONE_FIELD: FormFieldConfig = {
+  name: 'tone',
+  type: 'select',
+  label: 'Tone',
+  placeholder: 'Choose a tone',
+  required: false,
+  options: [
+    { value: 'solemn', label: 'Solemn & reverent' },
+    { value: 'balanced', label: 'Balanced' },
+    { value: 'warm', label: 'Warm & celebratory' },
+  ],
+};
+const LENGTH_FIELD: FormFieldConfig = {
+  name: 'length',
+  type: 'select',
+  label: 'Length',
+  placeholder: 'Choose a length',
+  required: false,
+  options: [
+    { value: 'short', label: 'Short (~3 min)' },
+    { value: 'medium', label: 'Medium (~5 min)' },
+    { value: 'long', label: 'Long (~8 min)' },
+  ],
+};
+const AVOID_FIELD: FormFieldConfig = {
+  name: 'thingsToAvoid',
+  type: 'textarea',
+  label: 'Anything to leave out?',
+  placeholder: 'Topics, details, or names you’d rather the tribute not mention.',
+  required: false,
+  maxLength: 1000,
+};
+const CONTEXT_FIELD: FormFieldConfig = {
+  name: 'additionalContext',
+  type: 'textarea',
+  label: 'Anything else we should know?',
+  placeholder: 'Faith, circumstances, or context to weave in sensitively.',
+  required: false,
+  maxLength: 1000,
+};
+const DEADLINE_FIELD: FormFieldConfig = {
+  name: 'deadline',
+  type: 'date',
+  label: 'Deadline',
+  required: false,
+};
 
 export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields }: CreateFormProps) {
+  void contributorFields; // organizer memory now lives inline in this merged form
+
   const [phase, setPhase] = React.useState<Phase>('form');
+
+  // About the collection
   const [honoreeName, setHonoreeName] = React.useState('');
   const [organizerEmail, setOrganizerEmail] = React.useState('');
-  const [deadline, setDeadline] = React.useState('');
-  // Organizer "full form" synthesis controls → stored as collection synthesisPrefs.
+  // Your memory
+  const [contributorName, setContributorName] = React.useState('');
+  const [relationship, setRelationship] = React.useState('');
+  const [memory, setMemory] = React.useState('');
+  const [quality, setQuality] = React.useState('');
+  const [favoriteMoment, setFavoriteMoment] = React.useState('');
+  // How the tribute should read
   const [tone, setTone] = React.useState('balanced');
   const [length, setLength] = React.useState('medium');
   const [thingsToAvoid, setThingsToAvoid] = React.useState('');
   const [additionalContext, setAdditionalContext] = React.useState('');
-  const [fieldError, setFieldError] = React.useState<{ honoreeName?: string; organizerEmail?: string }>({});
+  // When
+  const [deadline, setDeadline] = React.useState('');
+
+  // Consent (only required when a memory is being submitted).
+  const [consent, setConsent] = React.useState(false);
+  const [consentError, setConsentError] = React.useState(false);
+
+  const [fieldError, setFieldError] = React.useState<Record<string, string | undefined>>({});
+  const [blockedReason, setBlockedReason] = React.useState<string | null>(null);
   const [formError, setFormError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<CreateSuccess | null>(null);
 
+  // Idempotency key for the contribute POST — held across retries so a partial
+  // failure (create OK, contribute fails) never duplicates the memory.
+  const idempotencyKeyRef = React.useRef<string>('');
+  if (!idempotencyKeyRef.current) {
+    idempotencyKeyRef.current =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
   const price = `$${priceShown}`;
+  const memoryEntered = memory.trim() !== '';
+  const memoryWc = wordCount(memory);
 
   const honoreeRef = React.useRef<HTMLDivElement | null>(null);
   const emailRef = React.useRef<HTMLDivElement | null>(null);
+  const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
+  const consentRef = React.useRef<HTMLDivElement | null>(null);
 
-  function validate(): { honoreeName?: string; organizerEmail?: string } {
-    const errs: { honoreeName?: string; organizerEmail?: string } = {};
+  React.useEffect(() => {
+    if (blockedReason && blockedPanelRef.current) {
+      blockedPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [blockedReason]);
+  React.useEffect(() => {
+    if (consentError && consentRef.current) {
+      consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [consentError]);
+
+  // Header progress: required fields + an optional bonus for an entered memory.
+  const progress = (() => {
+    let done = 0;
+    const total = 3; // honoree, email, (memory bonus)
+    if (honoreeName.trim()) done += 1;
+    if (organizerEmail.trim()) done += 1;
+    if (memoryEntered) done += 1;
+    return Math.round((done / total) * 100);
+  })();
+
+  function validateSetup(): Record<string, string | undefined> {
+    const errs: Record<string, string | undefined> = {};
     if (!honoreeName.trim()) errs.honoreeName = 'Please add a name.';
     const email = organizerEmail.trim();
     if (!email) {
@@ -65,17 +245,62 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     return errs;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setFormError(null);
-    const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      const target = errs.honoreeName ? honoreeRef.current : emailRef.current;
-      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    setPhase('submitting');
+  // POST #2 — the organizer's own first memory. Returns true on success (or when
+  // intentionally skipped), false on a contribute failure (collection already
+  // exists; the user can retry the contribution only).
+  async function postContribution(created: CreateSuccess): Promise<boolean> {
+    const shareToken = (() => {
+      try {
+        return new URL(created.shareUrl).pathname.split('/c/')[1] ?? '';
+      } catch {
+        return '';
+      }
+    })();
+    if (!shareToken) return true; // nothing we can do; proceed to invite
 
+    try {
+      const res = await fetch('/api/collection/contribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shareToken,
+          contributorName: contributorName.trim() || 'Organizer',
+          relationship: relationship.trim() || undefined,
+          memory: composeMemory(memory, { quality, favoriteMoment, avoid: '' }, /* isOrganizer */ true),
+          consent: true,
+          idempotencyKey: idempotencyKeyRef.current,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        code?: string;
+        error?: string;
+      };
+      if (res.ok && data.ok) return true;
+
+      if (data.code === 'INVALID_MEMORY') {
+        setBlockedReason(data.error ?? 'Please add a little more detail.');
+        return false;
+      }
+      if (data.code === 'CONSENT_REQUIRED') {
+        setConsentError(true);
+        return false;
+      }
+      setFormError(
+        'Your collection is created and your words are safe — but we couldn’t add your memory just now. Please try again.',
+      );
+      return false;
+    } catch {
+      setFormError(
+        'Your collection is created and your words are safe — but we couldn’t reach the server to add your memory. Please try again.',
+      );
+      return false;
+    }
+  }
+
+  // POST #1 — create the collection. Returns the created collection, 'existing'
+  // on dedup, or null on failure (formError already set).
+  async function postCreate(): Promise<CreateSuccess | 'existing' | null> {
     try {
       const res = await fetch(`/api/${occasion}/collection/create`, {
         method: 'POST',
@@ -103,7 +328,6 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         } catch {
           /* ignore parse error */
         }
-        setPhase('form');
         if (res.status === 429 || code === 'RATE_LIMIT') {
           setFormError('Too many attempts just now. Give it a moment and try again.');
         } else if (res.status === 503) {
@@ -113,48 +337,86 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         } else {
           setFormError('We couldn’t create your collection. Please try again.');
         }
-        return;
+        return null;
       }
 
       const data = (await res.json()) as Partial<CreateSuccess> & { existing?: boolean };
-      // Dedup: an open collection for this occasion + email already exists.
-      if (data.existing) {
-        setPhase('existing');
-        return;
-      }
-      setResult(data as CreateSuccess);
-      setPhase('ownMemory');
+      if (data.existing) return 'existing';
+      return data as CreateSuccess;
     } catch {
-      setPhase('form');
       setFormError('We couldn’t reach the server — your details are safe. Please try again.');
+      return null;
     }
   }
 
-  // After create: the organizer adds their OWN first memory (the "main customer
-  // form") via the same guarded ContributorForm, using the new collection's
-  // shareToken, then continues to the invite screen.
-  if (phase === 'ownMemory' && result) {
-    const shareToken = (() => {
-      try {
-        return new URL(result.shareUrl).pathname.split('/c/')[1] ?? '';
-      } catch {
-        return '';
+  // The single perceived action: create the collection AND add the organizer's
+  // own first memory. `skipMemory` follows the quiet "write later" link.
+  async function runSubmit(skipMemory: boolean) {
+    setFormError(null);
+    setBlockedReason(null);
+
+    const errs = validateSetup();
+    if (Object.keys(errs).length > 0) {
+      const target = errs.honoreeName ? honoreeRef.current : emailRef.current;
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // If a memory has been entered (and we're not skipping), enforce the gate
+    // BEFORE creating the collection, so a blocked memory never strands a half-
+    // created collection.
+    const submittingMemory = !skipMemory && memoryEntered;
+    if (submittingMemory) {
+      if (!consent) {
+        setConsentError(true);
+        consentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
       }
-    })();
-    return (
-      <ContributorForm
-        variant="organizer"
-        shareToken={shareToken}
-        occasionTitle={occasionTitle}
-        honoreeLabel={result.honoreeName || honoreeLabel}
-        fields={contributorFields}
-        homeHref={`/${occasion}`}
-        onSubmitted={() => setPhase('invite')}
-        onSkip={() => setPhase('invite')}
-      />
-    );
+      const check = validateMemoriesField(memory);
+      if (!check.valid) {
+        setBlockedReason(check.reason);
+        return;
+      }
+    }
+
+    setPhase('submitting');
+
+    // If the collection already exists in state (partial-failure retry), reuse
+    // it: re-POST only the contribution under the same idempotency key.
+    let created = result;
+    if (!created) {
+      const createResult = await postCreate();
+      if (createResult === null) {
+        setPhase('form');
+        return;
+      }
+      if (createResult === 'existing') {
+        setPhase('existing');
+        return;
+      }
+      // MAJOR-3: store result/shareToken BEFORE attempting contribute, so a
+      // contribute retry never re-POSTs create.
+      created = createResult;
+      setResult(createResult);
+    }
+
+    if (submittingMemory) {
+      const ok = await postContribution(created);
+      if (!ok) {
+        setPhase('form'); // collection is in state; retry posts contribute only
+        return;
+      }
+    }
+
+    setPhase('invite');
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    void runSubmit(false);
+  }
+
+  // ---- existing dedup card -------------------------------------------------
   if (phase === 'existing') {
     return (
       <Card className="mx-auto w-full max-w-xl">
@@ -180,6 +442,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     );
   }
 
+  // ---- post-create invite --------------------------------------------------
   if (phase === 'invite' && result) {
     return (
       <InviteScreen
@@ -192,18 +455,29 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     );
   }
 
+  // ---- the merged full form ------------------------------------------------
   const submitting = phase === 'submitting';
 
   return (
-    <Card className="mx-auto w-full max-w-xl">
-      <CardHeader>
-        <CardTitle className="font-serif text-2xl">Start your collection</CardTitle>
-        <CardDescription>
+    <div className="mx-auto w-full max-w-2xl">
+      <header className="mb-8 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+          {occasionTitle} collection
+        </p>
+        <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
+          Set up the collection and write your first memory
+        </h1>
+        <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
           Free to create — you only pay once at the end, {price}, shown now so there are no surprises.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
+        </p>
+        <div className="mt-5 max-w-xs mx-auto">
+          <Progress value={progress} className="h-1.5" />
+        </div>
+      </header>
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        {/* Section 1 — About the collection */}
+        <SectionCard heading="About the collection">
           <div
             ref={honoreeRef}
             className={
@@ -212,26 +486,17 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
                 : ''
             }
           >
-            <label htmlFor="honoreeName" className="mb-1.5 block text-sm font-medium">
-              Who are we honoring?
-            </label>
-            <Input
-              id="honoreeName"
-              name="honoreeName"
-              autoFocus
+            <FieldRow
+              field={HONOREE_FIELD}
               value={honoreeName}
-              placeholder="Their name"
-              aria-invalid={fieldError.honoreeName ? true : undefined}
-              onChange={(e) => {
-                setHonoreeName(e.target.value);
+              error={fieldError.honoreeName}
+              onChange={(v) => {
+                setHonoreeName(v);
                 if (fieldError.honoreeName) setFieldError((p) => ({ ...p, honoreeName: undefined }));
               }}
-              disabled={submitting}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              The name of {honoreeLabel}.
-            </p>
-            {fieldError.honoreeName && <p className={FIELD_ERR}>{fieldError.honoreeName}</p>}
+            >
+              <p className="text-xs text-muted-foreground">The name of {honoreeLabel}.</p>
+            </FieldRow>
           </div>
 
           <div
@@ -242,131 +507,144 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
                 : ''
             }
           >
-            <label htmlFor="organizerEmail" className="mb-1.5 block text-sm font-medium">
-              Your email
-            </label>
-            <Input
-              id="organizerEmail"
-              name="organizerEmail"
-              type="email"
-              inputMode="email"
+            <FieldRow
+              field={EMAIL_FIELD}
               value={organizerEmail}
-              placeholder="you@example.com"
-              aria-invalid={fieldError.organizerEmail ? true : undefined}
-              onChange={(e) => {
-                setOrganizerEmail(e.target.value);
+              error={fieldError.organizerEmail}
+              onChange={(v) => {
+                setOrganizerEmail(v);
                 if (fieldError.organizerEmail) setFieldError((p) => ({ ...p, organizerEmail: undefined }));
               }}
-              disabled={submitting}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              We email your private manage link to this address — that’s how you’ll come back to review and finish.
-            </p>
-            {fieldError.organizerEmail && <p className={FIELD_ERR}>{fieldError.organizerEmail}</p>}
-          </div>
-
-          <div className="rounded-lg border border-border bg-card/50 p-4">
-            <p className="mb-3 text-sm font-semibold text-foreground">How should the tribute read?</p>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="tone" className="mb-1.5 block text-sm font-medium">Tone</label>
-                <select
-                  id="tone"
-                  className="field w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  value={tone}
-                  onChange={(e) => setTone(e.target.value)}
-                  disabled={submitting}
-                >
-                  <option value="solemn">Solemn &amp; reverent</option>
-                  <option value="balanced">Balanced</option>
-                  <option value="warm">Warm &amp; celebratory</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="length" className="mb-1.5 block text-sm font-medium">Length</label>
-                <select
-                  id="length"
-                  className="field w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  value={length}
-                  onChange={(e) => setLength(e.target.value)}
-                  disabled={submitting}
-                >
-                  <option value="short">Short (~3 min)</option>
-                  <option value="medium">Medium (~5 min)</option>
-                  <option value="long">Long (~8 min)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <label htmlFor="thingsToAvoid" className="mb-1.5 block text-sm font-medium">
-                Anything to leave out? <span className="font-normal text-muted-foreground">(optional)</span>
-              </label>
-              <textarea
-                id="thingsToAvoid"
-                rows={2}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                placeholder="Topics, details, or names you'd rather the tribute not mention."
-                value={thingsToAvoid}
-                onChange={(e) => setThingsToAvoid(e.target.value)}
-                disabled={submitting}
-                maxLength={1000}
-              />
-            </div>
-
-            <div className="mt-4">
-              <label htmlFor="additionalContext" className="mb-1.5 block text-sm font-medium">
-                Anything else we should know? <span className="font-normal text-muted-foreground">(optional)</span>
-              </label>
-              <textarea
-                id="additionalContext"
-                rows={2}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                placeholder="Faith, circumstances, or context to weave in sensitively."
-                value={additionalContext}
-                onChange={(e) => setAdditionalContext(e.target.value)}
-                disabled={submitting}
-                maxLength={1000}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="deadline" className="mb-1.5 block text-sm font-medium">
-              Deadline <span className="font-normal text-muted-foreground">(optional)</span>
-            </label>
-            <Input
-              id="deadline"
-              name="deadline"
-              type="date"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              disabled={submitting}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              When memories should close. You can share until then.
-            </p>
-          </div>
-
-          {formError && (
-            <div
-              role="alert"
-              className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
-              {formError}
-            </div>
-          )}
+              <p className="text-xs text-muted-foreground">
+                We email your private manage link here — that’s how you’ll come back to review and finish.
+              </p>
+            </FieldRow>
+          </div>
+        </SectionCard>
 
-          <Button type="submit" size="lg" className="h-11 w-full text-base" disabled={submitting}>
-            {submitting ? 'Creating your collection…' : 'Create collection'}
-          </Button>
-
-          <p className="text-center text-xs text-muted-foreground">
-            Free to create and collect · Pay once when you’re ready · No account needed
+        {/* Section 2 — Your memory (the centerpiece) */}
+        <SectionCard heading="Your memory">
+          <p className="text-sm text-muted-foreground leading-relaxed -mt-1">
+            What did they do that was so <em>them</em>? Specific beats general — one real story is worth
+            more than a list of nice words. Optional, but it becomes the heart of the tribute.
           </p>
-        </form>
-      </CardContent>
-    </Card>
+          <FieldRow
+            field={NAME_FIELD}
+            value={contributorName}
+            onChange={setContributorName}
+          />
+          <FieldRow
+            field={RELATIONSHIP_FIELD}
+            value={relationship}
+            onChange={setRelationship}
+          />
+          <FieldRow
+            field={MEMORY_FIELD}
+            value={memory}
+            rows={8}
+            onChange={(v) => {
+              setMemory(v);
+              setBlockedReason(null);
+            }}
+          >
+            <WordCounter value={memory} bands={MEMORY_BANDS} />
+          </FieldRow>
+          <FieldRow field={QUALITY_FIELD} value={quality} onChange={setQuality} />
+          <FieldRow field={MOMENT_FIELD} value={favoriteMoment} rows={3} onChange={setFavoriteMoment} />
+        </SectionCard>
+
+        {/* Section 3 — How the tribute should read */}
+        <SectionCard heading="How the tribute should read">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <FieldRow field={TONE_FIELD} value={tone} onChange={setTone} />
+            <FieldRow field={LENGTH_FIELD} value={length} onChange={setLength} />
+          </div>
+          <FieldRow field={AVOID_FIELD} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
+          <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
+        </SectionCard>
+
+        {/* Section 4 — When */}
+        <SectionCard heading="When">
+          <FieldRow field={DEADLINE_FIELD} value={deadline} onChange={setDeadline}>
+            <p className="text-xs text-muted-foreground">Memories close then. You can share until that date.</p>
+          </FieldRow>
+        </SectionCard>
+
+        {blockedReason && (
+          <div ref={blockedPanelRef}>
+            <MemoriesBlockedPanel reason={blockedReason} />
+          </div>
+        )}
+
+        {/* Consent — only when a memory has been entered (MINOR-2). */}
+        {memoryEntered && (
+          <div
+            ref={consentRef}
+            className={
+              consentError
+                ? 'rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-background transition-shadow'
+                : 'transition-shadow'
+            }
+          >
+            <SectionCard>
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => {
+                    setConsent(e.target.checked);
+                    if (e.target.checked) setConsentError(false);
+                  }}
+                  className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-foreground leading-relaxed">
+                  I’m okay with my memory being woven into the tribute you’ll receive.
+                </span>
+              </label>
+              {consentError && (
+                <p className="text-xs text-destructive" role="alert">
+                  Please check the box above so we can include your memory.
+                </p>
+              )}
+            </SectionCard>
+          </div>
+        )}
+
+        {formError && (
+          <div
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            {formError}
+          </div>
+        )}
+
+        <Button type="submit" size="lg" className="h-11 w-full text-base" disabled={submitting}>
+          {submitting ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner size={16} /> Creating your collection…
+            </span>
+          ) : (
+            'Create collection & add my memory'
+          )}
+        </Button>
+
+        <button
+          type="button"
+          onClick={() => void runSubmit(true)}
+          disabled={submitting}
+          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+        >
+          I’ll write my own memory later
+        </button>
+
+        <p className="text-center text-xs text-muted-foreground pb-2">
+          {memoryWc > 0 && memoryWc < 20
+            ? 'A little more detail and you’re set.'
+            : 'Free to create and collect · Pay once when you’re ready · No account needed'}
+        </p>
+      </form>
+    </div>
   );
 }

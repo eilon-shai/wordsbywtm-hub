@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { ResultPage } from '@/components/vc/ClientResultPage';
 import type { ResultPageConfig } from '@eilon-shai/venture-core/types';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
+import { EditPackCard } from './EditPackCard';
 
 // ---------------------------------------------------------------------------
 // S8 — Synthesized Result (COLLECTION_FLOW_DESIGN.md §S8)
@@ -96,5 +97,18 @@ export default async function OccasionResultPage({ params }: PageProps) {
     config.brand.redisKeyPrefix,
   );
 
-  return <ResultPage config={resultConfig} />;
+  // §4 — Optional one-time Edit/Refine pack upsell. Rendered ONLY when a Paddle
+  // price id is configured; otherwise nothing renders (we never imply a regen
+  // path that doesn't exist yet). The regen wiring is a backend follow-up — the
+  // card opens checkout but does not yet trigger regeneration.
+  const editPackPriceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_MEMORIAL_EDITPACK;
+
+  return (
+    <>
+      <ResultPage config={resultConfig} />
+      {editPackPriceId ? (
+        <EditPackCard priceId={editPackPriceId} resultPath={config.brand.resultPath} />
+      ) : null}
+    </>
+  );
 }
