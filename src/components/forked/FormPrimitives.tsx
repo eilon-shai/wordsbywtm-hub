@@ -185,11 +185,21 @@ export function TextFieldRenderer({
   value,
   error,
   onChange,
+  onBlur,
+  min,
+  max,
+  autoComplete,
 }: {
   field: FormFieldConfig;
   value: string;
   error?: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
+  /** For date fields: min/max ISO date strings. */
+  min?: string;
+  max?: string;
+  /** e.g. 'off' to block autofill on a confirm-email field. */
+  autoComplete?: string;
 }) {
   // Honor the date type so the deadline gets a native date picker.
   const inputType = field.type === 'date' ? 'date' : 'text';
@@ -199,8 +209,12 @@ export function TextFieldRenderer({
       type={inputType}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
       placeholder={field.placeholder}
       maxLength={field.maxLength}
+      min={inputType === 'date' ? min : undefined}
+      max={inputType === 'date' ? max : undefined}
+      autoComplete={autoComplete}
       aria-invalid={!!error || undefined}
       aria-describedby={error ? `${field.name}-error` : undefined}
       className={error ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -275,16 +289,26 @@ export function FieldRow({
   value,
   error,
   onChange,
+  onBlur,
   rows,
   children,
+  dateMin,
+  dateMax,
+  autoComplete,
 }: {
   field: FormFieldConfig;
   value: string;
   error?: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
   rows?: number;
   /** Extra content rendered below the control (e.g. a word counter). */
   children?: React.ReactNode;
+  /** Date field bounds (ISO yyyy-mm-dd). */
+  dateMin?: string;
+  dateMax?: string;
+  /** e.g. 'off' to block autofill (confirm-email). */
+  autoComplete?: string;
 }) {
   return (
     <div className="space-y-1.5">
@@ -303,7 +327,16 @@ export function FieldRow({
       ) : field.type === 'select' ? (
         <SelectFieldRenderer field={field} value={value} error={error} onChange={onChange} />
       ) : (
-        <TextFieldRenderer field={field} value={value} error={error} onChange={onChange} />
+        <TextFieldRenderer
+          field={field}
+          value={value}
+          error={error}
+          onChange={onChange}
+          onBlur={onBlur}
+          min={dateMin}
+          max={dateMax}
+          autoComplete={autoComplete}
+        />
       )}
       {children}
       <FieldError fieldId={field.name} message={error} />

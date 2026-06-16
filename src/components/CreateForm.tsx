@@ -162,6 +162,16 @@ const DEADLINE_FIELD: FormFieldConfig = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// Date helpers for the deadline bounds (client-side).
+function addDays(n: number): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d;
+}
+function isoDay(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
 export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields }: CreateFormProps) {
   void contributorFields; // organizer memory now lives inline in this merged form
 
@@ -182,7 +192,11 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   const [organizerEmail, setOrganizerEmail] = React.useState('');
   const [confirmEmail, setConfirmEmail] = React.useState('');
   // When
-  const [deadline, setDeadline] = React.useState('');
+  // Deadline defaults to 2 weeks out; bounded today … +1 month.
+  const [deadline, setDeadline] = React.useState(() => isoDay(addDays(14)));
+  const DEADLINE_MIN = isoDay(addDays(0));
+  const DEADLINE_MAX = isoDay(addDays(30));
+  const [dupChecking, setDupChecking] = React.useState(false);
 
   // Consent.
   const [consent, setConsent] = React.useState(false);
@@ -286,6 +300,27 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
   function clearError(name: string) {
     setFieldError((p) => (p[name] ? { ...p, [name]: undefined } : p));
+  }
+
+  // Early dedup: when the email is filled, check if an open collection already
+  // exists for this occasion — so the organizer isn't told only AFTER submitting.
+  async function checkExisting() {
+    const email = organizerEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
+    setDupChecking(true);
+    try {
+      const res = await fetch('/api/collection/check-existing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, occasion }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (d.exists) setPhase('existing');
+    } catch {
+      /* non-fatal — the create POST still dedups server-side */
+    } finally {
+      setDupChecking(false);
+    }
   }
 
   // POST #2 — the organizer's own first memory. Returns true on success,
@@ -653,13 +688,16 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
                 setOrganizerEmail(v);
                 clearError('organizerEmail');
               }}
+              onBlur={checkExisting}
             />
+            {dupChecking && <p className="mt-1 text-xs text-muted-foreground">Checking…</p>}
           </div>
           <div ref={refs.confirmEmail}>
             <FieldRow
               field={CONFIRM_EMAIL_FIELD}
               value={confirmEmail}
               error={fieldError.confirmEmail}
+              autoComplete="off"
               onChange={(v) => {
                 setConfirmEmail(v);
                 clearError('confirmEmail');
@@ -674,8 +712,16 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
         {/* Section — When */}
         <SectionCard heading="When">
-          <FieldRow field={DEADLINE_FIELD} value={deadline} onChange={setDeadline}>
-            <p className="text-xs text-muted-foreground">Memories close then. You can share until that date.</p>
+          <FieldRow
+            field={DEADLINE_FIELD}
+            value={deadline}
+            onChange={setDeadline}
+            dateMin={DEADLINE_MIN}
+            dateMax={DEADLINE_MAX}
+          >
+            <p className="text-xs text-muted-foreground">
+              Memories close then. You can share until that date — up to a month out.
+            </p>
           </FieldRow>
         </SectionCard>
 

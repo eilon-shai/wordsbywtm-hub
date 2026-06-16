@@ -373,6 +373,24 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
         </CardContent>
       </Card>
 
+      {/* Add your own memory (esp. if the organizer skipped it at create). */}
+      {!generated ? (
+        <Card className="mt-4">
+          <CardContent className="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">Add your own memory</p>
+              <p className="text-sm text-muted-foreground">Share a memory of {data.honoreeName} yourself.</p>
+            </div>
+            <a
+              href={`/c/${data.shareToken}?occasion=${data.occasion}`}
+              className={buttonVariants({ variant: 'outline', size: 'sm' })}
+            >
+              Write a memory
+            </a>
+          </CardContent>
+        </Card>
+      ) : null}
+
       {/* Invite more people (any time before finalizing) */}
       {!generated ? (
         <Card className="mt-4">
