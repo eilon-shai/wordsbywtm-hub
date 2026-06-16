@@ -182,7 +182,7 @@ export default function HubPage() {
             className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-35"
             style={{
               backgroundImage:
-                "url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&q=80&auto=format&fit=crop')",
+                "url('https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1600&q=80&auto=format&fit=crop')",
             }}
           />
           {/* dark scrim to keep the light text legible */}

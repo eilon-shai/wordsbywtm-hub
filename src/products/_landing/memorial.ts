@@ -76,7 +76,7 @@ export const memorialLandingConfig: LandingPageConfig = {
     subheading:
       'No one person holds the whole of a life. Start a collection, invite the people who knew them to each add a memory, and we weave them into one moving tribute — ready to read aloud at the service.',
     backgroundImageUrl:
-      'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1600&q=80&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_MIXED,
     sampleExcerptBadge: 'Woven from 9 memories',
     fullCtaLabel: 'Start a Memorial Collection →',
@@ -232,7 +232,7 @@ export const memorialLandingConfig: LandingPageConfig = {
       'Start a collection now — it’s free. Invite the people who knew them, and weave their memories into one tribute when you’re ready.',
     ctaLabel: 'Start a Memorial Collection →',
     backgroundImageUrl:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&q=80&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&q=80&auto=format&fit=crop',
     trustNote: 'Free to create and collect · Pay once when you finalize · No account needed',
   },
 
