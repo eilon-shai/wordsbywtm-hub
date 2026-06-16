@@ -34,11 +34,14 @@ function ClosedScreen({ kind }: { kind: 'closed' | 'notfound' }) {
 
 export default async function ContributorSharePage({
   params,
+  searchParams,
 }: {
-  // Next 15 — params is a Promise.
+  // Next 15 — params and searchParams are Promises.
   params: Promise<{ shareToken: string }>;
+  searchParams: Promise<{ as?: string; t?: string }>;
 }) {
   const { shareToken } = await params;
+  const sp = await searchParams;
 
   const db = getDbClient();
   if (!db) {
@@ -65,6 +68,15 @@ export default async function ContributorSharePage({
     return <ClosedScreen kind="notfound" />;
   }
 
+  // Organizer write-later path: the dashboard "Write a memory" link carries
+  // ?as=organizer&t={adminToken}. Only when that token actually matches THIS
+  // collection do we treat the writer as the organizer (flag isOrganizer on the
+  // contribution, pin/editable, and return them to their dashboard afterward).
+  const isOrganizer = sp.as === 'organizer' && !!sp.t && sp.t === collection.adminToken;
+  const organizerReturnHref = isOrganizer
+    ? `/collect/manage?t=${encodeURIComponent(collection.adminToken)}`
+    : undefined;
+
   return (
     <ContributorForm
       shareToken={shareToken}
@@ -72,6 +84,7 @@ export default async function ContributorSharePage({
       honoreeLabel={meta.honoreeLabel}
       fields={fields}
       homeHref="/"
+      organizerReturnHref={organizerReturnHref}
     />
   );
 }

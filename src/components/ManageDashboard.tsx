@@ -446,7 +446,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
               <p className="text-sm text-muted-foreground">Share a memory of {data.honoreeName} yourself.</p>
             </div>
             <a
-              href={`/c/${data.shareToken}?occasion=${data.occasion}`}
+              href={`/c/${data.shareToken}?occasion=${data.occasion}&as=organizer&t=${encodeURIComponent(adminToken)}`}
               className={buttonVariants({ variant: 'outline', size: 'sm' })}
             >
               Write a memory

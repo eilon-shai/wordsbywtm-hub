@@ -62,6 +62,13 @@ export interface ContributorFormProps {
   variant?: 'contributor' | 'organizer';
   onSubmitted?: (honoreeName: string) => void;
   onSkip?: () => void;
+  /**
+   * Set when the ORGANIZER adds their own memory later via the dashboard
+   * "Write a memory" link (public /c page, but the admin token matched). The
+   * memory is flagged isOrganizer (pinned/editable), and the thank-you returns
+   * here ("Back to your collection") instead of offering cross-sell.
+   */
+  organizerReturnHref?: string;
 }
 
 export function ContributorForm({
@@ -73,8 +80,11 @@ export function ContributorForm({
   variant = 'contributor',
   onSubmitted,
   onSkip,
+  organizerReturnHref,
 }: ContributorFormProps) {
-  const isOrganizer = variant === 'organizer';
+  // Embedded create-flow step OR the dashboard write-later path: either way this
+  // memory belongs to the organizer (flagged isOrganizer server-side).
+  const isOrganizer = variant === 'organizer' || !!organizerReturnHref;
   // Idempotency key generated once at mount, held across retries (§4).
   const idempotencyKeyRef = React.useRef<string>('');
   if (!idempotencyKeyRef.current) {
@@ -182,6 +192,7 @@ export function ContributorForm({
           memory: composeMemory(memoryValue, extras, isOrganizer),
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
+          ...(isOrganizer ? { isOrganizer: true } : {}),
           ...(override ? { overrideValidation: true } : {}),
         }),
       });
@@ -273,6 +284,34 @@ export function ContributorForm({
   // ---- success thank-you ---------------------------------------------------
   if (phase === 'done') {
     const who = resultHonoree || 'them';
+
+    // Organizer added their own memory from the dashboard: send them straight
+    // back to their collection. No "share another", no cross-sell.
+    if (organizerReturnHref) {
+      return (
+        <CenteredCard>
+          <div className="text-5xl mb-6" aria-hidden="true">
+            🤍
+          </div>
+          <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
+            Your memory of {who} has been added
+          </h1>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+            It’s pinned to the top of your collection as your own — you can edit it any time, and it’s
+            always part of the final tribute.
+          </p>
+          <Link
+            href={organizerReturnHref}
+            className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            ← Back to your collection
+          </Link>
+        </CenteredCard>
+      );
+    }
+
+    // Regular contributor: a simple thank-you. No "share another memory" — one
+    // memory per invite is the model; the soft cross-sell stays.
     return (
       <CenteredCard>
         <div className="text-5xl mb-6" aria-hidden="true">
@@ -281,29 +320,10 @@ export function ContributorForm({
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           Thank you — your memory of {who} has been added
         </h1>
-        <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+        <p className="text-muted-foreground text-sm leading-relaxed mb-10">
           The person gathering these will read it and may weave it into one combined tribute. That’s
           everything we need from you.
         </p>
-
-        <button
-          type="button"
-          onClick={() => {
-            // Allow sharing another memory: fresh key, reset form.
-            idempotencyKeyRef.current =
-              typeof crypto !== 'undefined' && crypto.randomUUID
-                ? crypto.randomUUID()
-                : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-            setValues({ [NAME_FIELD]: '', [RELATIONSHIP_FIELD]: '', [MEMORY_FIELD]: '' });
-            setExtras({ quality: '', favoriteMoment: '', avoid: '' });
-            setConsent(false);
-            setResultHonoree('');
-            setPhase('form');
-          }}
-          className="text-sm font-medium text-primary hover:opacity-80 transition-opacity mb-10"
-        >
-          Share another memory →
-        </button>
 
         {/* Soft cross-sell — only after submitting (§7). */}
         <div className="border-t border-border pt-8 mt-2">
@@ -333,12 +353,18 @@ export function ContributorForm({
             {occasionTitle} collection
           </p>
           <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
-            {isOrganizer ? 'Start with your own memory' : 'Share a memory'}
+            {organizerReturnHref
+              ? 'Add your own memory'
+              : isOrganizer
+                ? 'Start with your own memory'
+                : 'Share a memory'}
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
-            {isOrganizer
-              ? `Add your own memory of ${honoreeLabel} first — it becomes the heart of the tribute. You’ll invite others to add theirs next.`
-              : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account, and you don’t pay anything.`}
+            {organizerReturnHref
+              ? `Your memory of ${honoreeLabel} is pinned to the top of your collection and is always part of the final tribute.`
+              : isOrganizer
+                ? `Add your own memory of ${honoreeLabel} first — it becomes the heart of the tribute. You’ll invite others to add theirs next.`
+                : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account, and you don’t pay anything.`}
           </p>
         </div>
 
