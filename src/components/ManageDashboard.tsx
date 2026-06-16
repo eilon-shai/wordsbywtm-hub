@@ -94,6 +94,15 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const [termsError, setTermsError] = useState(false);
   const termsRef = useRef<HTMLLabelElement | null>(null);
 
+  // Inline edit of the organizer's own memory.
+  const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const openEdit = useCallback((c: Contribution) => {
+    setEditError(null);
+    setEditing({ id: c.id, text: c.memory });
+  }, []);
+
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -137,6 +146,30 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
       setLoading(false);
     }
   }, [adminToken]);
+
+  const saveEdit = useCallback(async () => {
+    if (!editing) return;
+    if (!editing.text.trim()) {
+      setEditError('Please write a memory.');
+      return;
+    }
+    setEditSaving(true);
+    setEditError(null);
+    try {
+      const res = await fetch('/api/collection/edit', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ adminToken, contributionId: editing.id, memory: editing.text.trim(), overrideValidation: true }),
+      });
+      if (!res.ok) throw new Error('edit failed');
+      setEditing(null);
+      await load();
+    } catch {
+      setEditError('Could not save your edit. Please try again.');
+    } finally {
+      setEditSaving(false);
+    }
+  }, [editing, adminToken, load]);
 
   useEffect(() => {
     void load();
@@ -344,6 +377,33 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+      {/* Edit-your-memory modal */}
+      {editing ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4">
+          <Card className="w-full max-w-lg">
+            <CardContent className="p-6">
+              <h3 className="font-serif text-xl text-foreground">Edit your memory</h3>
+              <textarea
+                className="mt-4 w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm"
+                rows={8}
+                value={editing.text}
+                onChange={(e) => setEditing((p) => (p ? { ...p, text: e.target.value } : p))}
+                disabled={editSaving}
+              />
+              {editError ? <p className="mt-2 text-sm text-destructive">{editError}</p> : null}
+              <div className="mt-4 flex justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" disabled={editSaving} onClick={() => setEditing(null)}>
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" disabled={editSaving} onClick={() => void saveEdit()}>
+                  {editSaving ? 'Saving…' : 'Save'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
+
       {/* Header card */}
       <Card>
         <CardHeader>
@@ -438,16 +498,19 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
             </CardContent>
           </Card>
         ) : (
-          data.contributions.map((c) => (
-            <MemoryCard
-              key={c.id}
-              contribution={c}
-              included={isIncluded(c)}
-              disabled={generated || savingIds.has(c.id)}
-              onToggle={handleToggle}
-              error={toggleErrors[c.id] ?? null}
-            />
-          ))
+          [...data.contributions]
+            .sort((a, b) => Number(b.isOrganizer ?? false) - Number(a.isOrganizer ?? false))
+            .map((c) => (
+              <MemoryCard
+                key={c.id}
+                contribution={c}
+                included={isIncluded(c)}
+                disabled={generated || savingIds.has(c.id)}
+                onToggle={handleToggle}
+                onEdit={openEdit}
+                error={toggleErrors[c.id] ?? null}
+              />
+            ))
         )}
       </div>
 

@@ -355,6 +355,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           memory: composed,
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
+          isOrganizer: true,
           ...(overridden ? { overrideValidation: true } : {}),
         }),
       });

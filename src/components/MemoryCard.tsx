@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent } from '@eilon-shai/venture-core/ui';
-import { Badge } from '@eilon-shai/venture-core/ui';
+import { Badge, Button } from '@eilon-shai/venture-core/ui';
 
 export interface Contribution {
   id: string;
@@ -11,6 +11,8 @@ export interface Contribution {
   /** 'pending' | 'approved' feed synthesis; 'removed' is excluded. */
   status: string;
   createdAt?: string | null;
+  /** The organizer's own memory — pinned, always included, editable. */
+  isOrganizer?: boolean;
 }
 
 interface MemoryCardProps {
@@ -23,6 +25,8 @@ interface MemoryCardProps {
   onToggle: (id: string, nextIncluded: boolean) => void;
   /** Inline error shown under the toggle when the last save failed. */
   error?: string | null;
+  /** Edit handler — only used for the organizer's own memory. */
+  onEdit?: (c: Contribution) => void;
 }
 
 function formatDate(iso?: string | null): string {
@@ -37,22 +41,27 @@ function formatDate(iso?: string | null): string {
  * default; the toggle removes/restores. No "approve" language, no editing of the
  * contributor's words (v1 — moderate-contribution-handler exposes remove/restore only).
  */
-export function MemoryCard({ contribution, included, disabled, onToggle, error }: MemoryCardProps) {
-  const { id, contributorName, relationship, memory, createdAt } = contribution;
+export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit }: MemoryCardProps) {
+  const { id, contributorName, relationship, memory, createdAt, isOrganizer } = contribution;
   const date = formatDate(createdAt);
 
   return (
-    <Card className={included ? '' : 'opacity-60'}>
+    <Card className={isOrganizer ? 'border-primary/40 ring-1 ring-primary/20' : included ? '' : 'opacity-60'}>
       <CardContent className="p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="font-medium text-foreground">{contributorName}</p>
+            <p className="font-medium text-foreground">
+              {contributorName}
+              {isOrganizer ? (
+                <Badge variant="secondary" className="ml-2 align-middle">Your memory</Badge>
+              ) : null}
+            </p>
             {relationship ? (
               <p className="text-sm text-muted-foreground">{relationship}</p>
             ) : null}
           </div>
           <div className="flex shrink-0 flex-col items-end gap-2">
-            {!included ? (
+            {!isOrganizer && !included ? (
               <Badge variant="outline" className="text-muted-foreground">
                 Won&apos;t be included
               </Badge>
@@ -66,30 +75,40 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error }
         </p>
 
         <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-          <label
-            className={`flex items-center gap-2.5 text-sm ${
-              disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-            }`}
-          >
-            <button
-              type="button"
-              role="switch"
-              aria-checked={included}
-              aria-label="Include in the tribute"
-              disabled={disabled}
-              onClick={() => onToggle(id, !included)}
-              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed ${
-                included ? 'bg-primary' : 'bg-muted'
+          {isOrganizer ? (
+            // Organizer's own memory: always included, editable — no toggle.
+            <>
+              <span className="text-sm text-muted-foreground">Always part of the tribute</span>
+              <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={() => onEdit?.(contribution)}>
+                Edit
+              </Button>
+            </>
+          ) : (
+            <label
+              className={`flex items-center gap-2.5 text-sm ${
+                disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
               }`}
             >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-background shadow transition-transform ${
-                  included ? 'translate-x-5' : 'translate-x-0.5'
+              <button
+                type="button"
+                role="switch"
+                aria-checked={included}
+                aria-label="Include in the tribute"
+                disabled={disabled}
+                onClick={() => onToggle(id, !included)}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed ${
+                  included ? 'bg-primary' : 'bg-muted'
                 }`}
-              />
-            </button>
-            <span className="select-none text-foreground">Include in the tribute</span>
-          </label>
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-background shadow transition-transform ${
+                    included ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+              <span className="select-none text-foreground">Include in the tribute</span>
+            </label>
+          )}
         </div>
 
         {error ? (
