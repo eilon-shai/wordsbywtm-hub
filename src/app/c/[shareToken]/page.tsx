@@ -9,6 +9,7 @@
 import { getDbClient, getCollectionByShareToken } from '@eilon-shai/venture-core/db';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ContributorForm } from '@/components/ContributorForm';
+import { OrganizerMemoryForm } from '@/components/OrganizerMemoryForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,9 +74,31 @@ export default async function ContributorSharePage({
   // collection do we treat the writer as the organizer (flag isOrganizer on the
   // contribution, pin/editable, and return them to their dashboard afterward).
   const isOrganizer = sp.as === 'organizer' && !!sp.t && sp.t === collection.adminToken;
-  const organizerReturnHref = isOrganizer
-    ? `/collect/manage?t=${encodeURIComponent(collection.adminToken)}`
-    : undefined;
+
+  // Organizer writing their own memory later → the RICH customer form (same
+  // fields as create), returning them to their dashboard afterward.
+  if (isOrganizer) {
+    return (
+      <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-14">
+        <header className="mb-8 text-center">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
+            {meta.title} collection
+          </p>
+          <h1 className="mb-3 font-serif text-3xl text-foreground md:text-4xl">Add your own memory</h1>
+          <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+            Your memory of {collection.honoreeName} is pinned to the top of your collection and is
+            always part of the final tribute.
+          </p>
+        </header>
+        <OrganizerMemoryForm
+          mode="create"
+          shareToken={shareToken}
+          honoreeLabel={collection.honoreeName}
+          returnHref={`/collect/manage?t=${encodeURIComponent(collection.adminToken)}`}
+        />
+      </main>
+    );
+  }
 
   return (
     <ContributorForm
@@ -84,7 +107,6 @@ export default async function ContributorSharePage({
       honoreeLabel={meta.honoreeLabel}
       fields={fields}
       homeHref="/"
-      organizerReturnHref={organizerReturnHref}
     />
   );
 }

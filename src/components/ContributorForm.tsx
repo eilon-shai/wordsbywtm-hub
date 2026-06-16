@@ -110,6 +110,10 @@ export function ContributorForm({
     [MEMORY_FIELD]: '',
   });
   const [errors, setErrors] = React.useState<Record<string, string | undefined>>({});
+  // Contributor email — required (the identity key for one-memory-per-person).
+  // Organizers (write-later) are exempt; they're capped server-side another way.
+  const [email, setEmail] = React.useState('');
+  const [emailError, setEmailError] = React.useState<string | null>(null);
   const [consent, setConsent] = React.useState(false);
   const [consentError, setConsentError] = React.useState(false);
   const [blockedReason, setBlockedReason] = React.useState<string | null>(null);
@@ -176,6 +180,13 @@ export function ContributorForm({
       return;
     }
 
+    // Email required for contributors (one-memory-per-person key); organizers exempt.
+    setEmailError(null);
+    if (!isOrganizer && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+      setEmailError('Please enter a valid email address.');
+      return;
+    }
+
     // Consent gate (T-COLL-008).
     if (!consent) {
       setConsentError(true);
@@ -202,6 +213,7 @@ export function ContributorForm({
         body: JSON.stringify({
           shareToken,
           contributorName: values[NAME_FIELD].trim(),
+          ...(email.trim() ? { contributorEmail: email.trim() } : {}),
           relationship: (values[RELATIONSHIP_FIELD] ?? '').trim() || undefined,
           memory: composeMemory(memoryValue, extras, isOrganizer),
           consent: true,
@@ -255,6 +267,14 @@ export function ContributorForm({
         setBlockedReason(data.error ?? 'Please add a little more detail.');
         return;
       }
+      if (code === 'INVALID_EMAIL') {
+        setEmailError(data.error ?? 'Please enter a valid email address.');
+        return;
+      }
+      if (code === 'CONTRIBUTION_EXISTS') {
+        setEmailError(data.error ?? 'A memory from this email is already in this collection.');
+        return;
+      }
       if (code === 'CONSENT_REQUIRED') {
         setConsentError(true);
         return;
@@ -274,7 +294,7 @@ export function ContributorForm({
         retryable: true,
       });
     }
-  }, [consent, memoryValue, shareToken, values, extras, isOrganizer, onSubmitted]);
+  }, [consent, memoryValue, shareToken, values, extras, email, isOrganizer, onSubmitted, contributedKey]);
 
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
@@ -447,6 +467,34 @@ export function ContributorForm({
                 error={errors[RELATIONSHIP_FIELD]}
                 onChange={(v) => setField(RELATIONSHIP_FIELD, v)}
               />
+            )}
+            {!isOrganizer && (
+              <div>
+                <label htmlFor="contributor-email" className="mb-1.5 block text-sm font-medium text-foreground">
+                  Your email
+                </label>
+                <input
+                  id="contributor-email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError(null);
+                  }}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  So we can keep memories tidy — one per person. We won’t publish it or sign you up for anything.
+                </p>
+                {emailError && (
+                  <p className="mt-1 text-xs text-destructive" role="alert">
+                    {emailError}
+                  </p>
+                )}
+              </div>
             )}
           </SectionCard>
 

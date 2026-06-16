@@ -351,11 +351,18 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         body: JSON.stringify({
           shareToken,
           contributorName: contributorName.trim(),
+          contributorEmail: organizerEmail.trim(),
           relationship,
           memory: composed,
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
           isOrganizer: true,
+          // Structured fields so the organizer's memory re-opens in the rich form.
+          fields: {
+            rawMemory: memory.trim(),
+            relationshipDescription: relationshipDescription.trim(),
+            qualities: qualities.trim(),
+          },
           ...(overridden ? { overrideValidation: true } : {}),
         }),
       });

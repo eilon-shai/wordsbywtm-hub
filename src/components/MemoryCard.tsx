@@ -13,6 +13,8 @@ export interface Contribution {
   createdAt?: string | null;
   /** The organizer's own memory — pinned, always included, editable. */
   isOrganizer?: boolean;
+  /** Structured raw fields (organizer memory) for re-opening the rich edit form. */
+  fields?: Record<string, string> | null;
 }
 
 interface MemoryCardProps {

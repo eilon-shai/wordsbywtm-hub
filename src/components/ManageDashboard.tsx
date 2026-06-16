@@ -18,6 +18,7 @@ import {
   setActiveTransaction,
 } from '@eilon-shai/venture-core/components';
 import { MemoryCard, type Contribution } from './MemoryCard';
+import { OrganizerMemoryForm } from './OrganizerMemoryForm';
 import { InviteBlock } from './InviteBlock';
 import { buildShareLink, buildInviteText } from '@/lib/invite';
 
@@ -99,18 +100,10 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const termsRef = useRef<HTMLLabelElement | null>(null);
 
   // Inline edit of the organizer's own memory.
-  const [editing, setEditing] = useState<{
-    id: string;
-    text: string;
-    name: string;
-    relationship: string | null;
-  } | null>(null);
-  const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-  const openEdit = useCallback((c: Contribution) => {
-    setEditError(null);
-    setEditing({ id: c.id, text: c.memory, name: c.contributorName, relationship: c.relationship ?? null });
-  }, []);
+  // The contribution being edited (organizer's own memory) — opens the rich
+  // customer form, pre-populated from its stored structured fields.
+  const [editing, setEditing] = useState<Contribution | null>(null);
+  const openEdit = useCallback((c: Contribution) => setEditing(c), []);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -156,29 +149,6 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
     }
   }, [adminToken]);
 
-  const saveEdit = useCallback(async () => {
-    if (!editing) return;
-    if (!editing.text.trim()) {
-      setEditError('Please write a memory.');
-      return;
-    }
-    setEditSaving(true);
-    setEditError(null);
-    try {
-      const res = await fetch('/api/collection/edit', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ adminToken, contributionId: editing.id, memory: editing.text.trim(), overrideValidation: true }),
-      });
-      if (!res.ok) throw new Error('edit failed');
-      setEditing(null);
-      await load();
-    } catch {
-      setEditError('Could not save your edit. Please try again.');
-    } finally {
-      setEditSaving(false);
-    }
-  }, [editing, adminToken, load]);
 
   useEffect(() => {
     void load();
@@ -395,60 +365,33 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
-      {/* Edit-your-memory modal */}
+      {/* Edit-your-memory modal — the full customer form, pre-populated. */}
       {editing ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4 py-10">
           <Card className="w-full max-w-lg">
             <CardContent className="p-6">
-              <h3 className="font-serif text-xl text-foreground">Edit your memory</h3>
-
-              {/* Read-only context — who this memory is from (not editable here). */}
-              <div className="mt-4 space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Your name
-                  </label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={editing.name}
-                    className="w-full cursor-not-allowed rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
-                  />
-                </div>
-                {editing.relationship ? (
-                  <div>
-                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Relationship
-                    </label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={editing.relationship}
-                      className="w-full cursor-not-allowed rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
-                    />
-                  </div>
-                ) : null}
-              </div>
-
-              <label className="mt-4 mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Your memory
-              </label>
-              <textarea
-                className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm"
-                rows={8}
-                value={editing.text}
-                onChange={(e) => setEditing((p) => (p ? { ...p, text: e.target.value } : p))}
-                disabled={editSaving}
+              <h3 className="mb-4 font-serif text-xl text-foreground">Edit your memory</h3>
+              <OrganizerMemoryForm
+                mode="edit"
+                adminToken={adminToken}
+                contributionId={editing.id}
+                honoreeLabel={data.honoreeName}
+                initial={{
+                  contributorName: editing.contributorName,
+                  relationship: editing.relationship ?? editing.fields?.relationship ?? '',
+                  relationshipDescription: editing.fields?.relationshipDescription ?? '',
+                  qualities: editing.fields?.qualities ?? '',
+                  favoriteMoment: editing.fields?.favoriteMoment ?? '',
+                  // Older memories have no structured fields — fall back to the
+                  // stored (composed) text so nothing is lost.
+                  rawMemory: editing.fields?.rawMemory ?? editing.memory,
+                }}
+                onSaved={() => {
+                  setEditing(null);
+                  void load();
+                }}
+                onCancel={() => setEditing(null)}
               />
-              {editError ? <p className="mt-2 text-sm text-destructive">{editError}</p> : null}
-              <div className="mt-4 flex justify-end gap-2">
-                <Button type="button" variant="outline" size="sm" disabled={editSaving} onClick={() => setEditing(null)}>
-                  Cancel
-                </Button>
-                <Button type="button" size="sm" disabled={editSaving} onClick={() => void saveEdit()}>
-                  {editSaving ? 'Saving…' : 'Save'}
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </div>
