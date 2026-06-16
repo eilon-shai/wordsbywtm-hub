@@ -111,17 +111,36 @@ export function WordCounter({ value, bands }: { value: string; bands: WordCountB
 }
 
 // ---- amber soft-block / coaching panel -------------------------------------
-// Forked from MemoriesBlockedPanel, retyped: NO override button (spec §0/§4 —
-// hard block, framed as amber coaching; the server runs the identical guard).
+// Forked from venture-core MemoriesBlockedPanel. Amber coaching panel with an
+// optional override action: when onOverride is provided, render the amber button
+// (matching IntakeForm styling) that lets the contributor proceed with what
+// they've written, bypassing the memory gate (POST overrideValidation:true).
 
-export function MemoriesBlockedPanel({ reason }: { reason: string }) {
+export function MemoriesBlockedPanel({
+  reason,
+  onOverride,
+  overrideLabel,
+}: {
+  reason: string | null;
+  onOverride?: () => void;
+  overrideLabel?: string;
+}) {
   return (
     <div role="alert" aria-live="polite" className="bg-amber-50 border border-amber-200 rounded-xl p-6 space-y-3">
       <h3 className="text-sm font-semibold text-amber-800">A little more would help</h3>
-      <p className="text-sm text-amber-700 leading-relaxed">{reason}</p>
+      {reason && <p className="text-sm text-amber-700 leading-relaxed">{reason}</p>}
       <p className="text-xs text-amber-700/80 leading-relaxed">
         One specific moment is enough — something they said, a habit, a time they showed up for you.
       </p>
+      {onOverride && (
+        <button
+          type="button"
+          onClick={onOverride}
+          className="w-full rounded-full py-2.5 text-sm font-semibold bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+        >
+          {overrideLabel ?? "Add what I've written"}
+        </button>
+      )}
     </div>
   );
 }
@@ -172,10 +191,12 @@ export function TextFieldRenderer({
   error?: string;
   onChange: (v: string) => void;
 }) {
+  // Honor the date type so the deadline gets a native date picker.
+  const inputType = field.type === 'date' ? 'date' : 'text';
   return (
     <Input
       id={field.name}
-      type="text"
+      type={inputType}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={field.placeholder}

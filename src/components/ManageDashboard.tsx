@@ -89,6 +89,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
 
   const [finalizing, setFinalizing] = useState(false);
   const [finalizeError, setFinalizeError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -201,6 +202,10 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   // --- Finalize / checkout -------------------------------------------------
   const handleFinalize = useCallback(async () => {
     if (!data || finalizing) return;
+    if (!termsAccepted) {
+      setFinalizeError('Please agree to the terms before finalizing.');
+      return;
+    }
     setFinalizing(true);
     setFinalizeError(null);
 
@@ -268,7 +273,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
       setFinalizeError("Payment couldn't start — please try again. You haven't been charged.");
       setFinalizing(false);
     }
-  }, [adminToken, data, finalizing, load, occasion, resultPath]);
+  }, [adminToken, data, finalizing, load, occasion, resultPath, termsAccepted]);
 
   // --- Render --------------------------------------------------------------
   if (deleted) {
@@ -439,16 +444,44 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
               Finalizing closes the collection{price ? ` — ${price}, one time` : ''}.
             </p>
 
+            {/* Pay-time consent waiver (matches TributeWords). Required before checkout. */}
+            <label className="mt-5 flex items-start gap-2 cursor-pointer text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => {
+                  setTermsAccepted(e.target.checked);
+                  if (e.target.checked) setFinalizeError(null);
+                }}
+                disabled={finalizing}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+                aria-label="Agree to terms and start delivery"
+              />
+              <span>
+                By paying, you agree to our{' '}
+                <a href="/terms" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+                  terms
+                </a>{' '}
+                and{' '}
+                <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+                  privacy policy
+                </a>
+                . By clicking pay, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
+              </span>
+            </label>
+
             <div className="mt-5 flex flex-col items-center gap-2">
               <Button
                 size="lg"
                 className="w-full sm:w-auto"
-                disabled={belowMin || finalizing}
+                disabled={belowMin || finalizing || !termsAccepted}
                 onClick={() => void handleFinalize()}
                 title={
                   belowMin
                     ? `Add ${remaining} more ${remaining === 1 ? 'memory' : 'memories'} to finalize`
-                    : undefined
+                    : !termsAccepted
+                      ? 'Agree to the terms to finalize'
+                      : undefined
                 }
               >
                 {finalizing

@@ -55,17 +55,87 @@ const MEMORY_BANDS: WordCountBand[] = [
   { gte: 60, message: 'wonderful, thank you', colorClass: 'text-emerald-700' },
 ];
 
-// Inline field configs so every control renders through the forked FieldRow
-// primitive (visual parity with the contributor form).
+// ---------------------------------------------------------------------------
+// Field configs — mirror the TributeWords eulogy intake (labels, placeholders,
+// relationship options). Every control renders through the forked FieldRow.
+// ---------------------------------------------------------------------------
+
+const CONTRIBUTOR_NAME_FIELD: FormFieldConfig = {
+  name: 'contributorName',
+  type: 'text',
+  label: 'Your name',
+  placeholder: 'e.g. Sarah',
+  required: true,
+  maxLength: 100,
+};
+
+const RELATIONSHIP_OPTIONS = [
+  { value: 'child', label: 'Son or Daughter' },
+  { value: 'parent', label: 'Mother or Father' },
+  { value: 'sibling', label: 'Brother or Sister' },
+  { value: 'spouse', label: 'Husband, Wife, or Partner' },
+  { value: 'friend', label: 'Close Friend' },
+  { value: 'colleague', label: 'Colleague or Mentor' },
+  { value: 'other', label: 'Other' },
+];
+
+const RELATIONSHIP_DESCRIPTION_FIELD: FormFieldConfig = {
+  name: 'relationshipDescription',
+  type: 'text',
+  label: 'Describe your relationship briefly',
+  placeholder: 'e.g. her eldest daughter, his best friend of 30 years',
+  required: true,
+  maxLength: 200,
+};
+
 const HONOREE_FIELD: FormFieldConfig = {
   name: 'honoreeName',
   type: 'text',
-  label: 'Who are we honoring?',
-  placeholder: 'Their name',
+  label: 'Their name',
+  placeholder: 'e.g. Michael, Mike, or Michael James Chen',
   required: true,
   maxLength: 120,
 };
-const EMAIL_FIELD: FormFieldConfig = {
+
+const MEMORY_FIELD: FormFieldConfig = {
+  name: 'memory',
+  type: 'textarea',
+  label: '2–3 specific memories or stories',
+  placeholder:
+    "The smell of her kimchi filling the house every Sunday. The way he'd quietly slip a $20 into your pocket on the way out. A specific moment — even a small one — beats a list of nice words.",
+  required: true,
+  maxLength: 4000,
+};
+
+const QUALITIES_FIELD: FormFieldConfig = {
+  name: 'qualities',
+  type: 'textarea',
+  label: 'What qualities made them who they were?',
+  placeholder: 'e.g. endlessly patient, quietly funny, the first to show up when anyone needed help',
+  required: true,
+  maxLength: 1000,
+};
+
+const THINGS_TO_AVOID_FIELD: FormFieldConfig = {
+  name: 'thingsToAvoid',
+  type: 'textarea',
+  label: 'Topics or details to avoid',
+  placeholder: "e.g. Please don't mention his illness or the years he was estranged from the family.",
+  required: false,
+  maxLength: 500,
+};
+
+const ADDITIONAL_CONTEXT_FIELD: FormFieldConfig = {
+  name: 'additionalContext',
+  type: 'textarea',
+  label: 'Anything else we should know',
+  placeholder:
+    'e.g. She was deeply religious — Catholic faith was central to her life; the death was sudden; the service is non-religious.',
+  required: false,
+  maxLength: 500,
+};
+
+const ORGANIZER_EMAIL_FIELD: FormFieldConfig = {
   name: 'organizerEmail',
   type: 'text',
   label: 'Your email',
@@ -73,47 +143,16 @@ const EMAIL_FIELD: FormFieldConfig = {
   required: true,
   maxLength: 254,
 };
-const RELATIONSHIP_FIELD: FormFieldConfig = {
-  name: 'relationship',
+
+const CONFIRM_EMAIL_FIELD: FormFieldConfig = {
+  name: 'confirmEmail',
   type: 'text',
-  label: 'How did you know them?',
-  placeholder: 'e.g. their daughter; a lifelong friend',
-  required: false,
-  maxLength: 120,
+  label: 'Confirm your email',
+  placeholder: 'you@example.com',
+  required: true,
+  maxLength: 254,
 };
-const NAME_FIELD: FormFieldConfig = {
-  name: 'contributorName',
-  type: 'text',
-  label: 'Your name',
-  placeholder: 'How you’d like to be credited',
-  required: false,
-  maxLength: 120,
-};
-const MEMORY_FIELD: FormFieldConfig = {
-  name: 'memory',
-  type: 'textarea',
-  label: 'Your memory',
-  placeholder:
-    'What did they do that was so them? A phrase they always said, a small moment that stuck with you, the way they made you feel.',
-  required: false,
-  maxLength: 4000,
-};
-const QUALITY_FIELD: FormFieldConfig = {
-  name: 'quality',
-  type: 'text',
-  label: 'A word or two that captured them',
-  placeholder: 'e.g. endlessly generous; quietly funny',
-  required: false,
-  maxLength: 120,
-};
-const MOMENT_FIELD: FormFieldConfig = {
-  name: 'favoriteMoment',
-  type: 'textarea',
-  label: 'A favorite moment',
-  placeholder: 'A specific moment or story — even a small one.',
-  required: false,
-  maxLength: 600,
-};
+
 const DEADLINE_FIELD: FormFieldConfig = {
   name: 'deadline',
   type: 'date',
@@ -121,30 +160,39 @@ const DEADLINE_FIELD: FormFieldConfig = {
   required: false,
 };
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields }: CreateFormProps) {
   void contributorFields; // organizer memory now lives inline in this merged form
 
   const [phase, setPhase] = React.useState<Phase>('form');
 
-  // About the collection
-  const [honoreeName, setHonoreeName] = React.useState('');
-  const [organizerEmail, setOrganizerEmail] = React.useState('');
-  // Your memory
+  // About you
   const [contributorName, setContributorName] = React.useState('');
   const [relationship, setRelationship] = React.useState('');
+  const [relationshipDescription, setRelationshipDescription] = React.useState('');
+  // About them
+  const [honoreeName, setHonoreeName] = React.useState('');
   const [memory, setMemory] = React.useState('');
-  const [quality, setQuality] = React.useState('');
-  const [favoriteMoment, setFavoriteMoment] = React.useState('');
-  // How the tribute should read
+  const [qualities, setQualities] = React.useState('');
+  // Optional
+  const [thingsToAvoid, setThingsToAvoid] = React.useState('');
+  const [additionalContext, setAdditionalContext] = React.useState('');
+  // Your email
+  const [organizerEmail, setOrganizerEmail] = React.useState('');
+  const [confirmEmail, setConfirmEmail] = React.useState('');
   // When
   const [deadline, setDeadline] = React.useState('');
 
-  // Consent (only required when a memory is being submitted).
+  // Consent.
   const [consent, setConsent] = React.useState(false);
   const [consentError, setConsentError] = React.useState(false);
 
   const [fieldError, setFieldError] = React.useState<Record<string, string | undefined>>({});
   const [blockedReason, setBlockedReason] = React.useState<string | null>(null);
+  // Once the contributor opts to override the memory gate, skip the client gate
+  // AND send overrideValidation:true on the contribute POST.
+  const [overridden, setOverridden] = React.useState(false);
   const [formError, setFormError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<CreateSuccess | null>(null);
 
@@ -159,11 +207,18 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   }
 
   const price = `$${priceShown}`;
-  const memoryEntered = memory.trim() !== '';
   const memoryWc = wordCount(memory);
 
-  const honoreeRef = React.useRef<HTMLDivElement | null>(null);
-  const emailRef = React.useRef<HTMLDivElement | null>(null);
+  const refs = {
+    contributorName: React.useRef<HTMLDivElement | null>(null),
+    relationship: React.useRef<HTMLDivElement | null>(null),
+    relationshipDescription: React.useRef<HTMLDivElement | null>(null),
+    honoreeName: React.useRef<HTMLDivElement | null>(null),
+    memory: React.useRef<HTMLDivElement | null>(null),
+    qualities: React.useRef<HTMLDivElement | null>(null),
+    organizerEmail: React.useRef<HTMLDivElement | null>(null),
+    confirmEmail: React.useRef<HTMLDivElement | null>(null),
+  };
   const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
   const consentRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -178,32 +233,63 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     }
   }, [consentError]);
 
-  // Header progress: required fields + an optional bonus for an entered memory.
+  // Header progress: the required fields.
   const progress = (() => {
     let done = 0;
-    const total = 3; // honoree, email, (memory bonus)
+    const total = 7;
+    if (contributorName.trim()) done += 1;
+    if (relationship) done += 1;
+    if (relationshipDescription.trim()) done += 1;
     if (honoreeName.trim()) done += 1;
-    if (organizerEmail.trim()) done += 1;
-    if (memoryEntered) done += 1;
+    if (memory.trim()) done += 1;
+    if (qualities.trim()) done += 1;
+    if (organizerEmail.trim() && confirmEmail.trim()) done += 1;
     return Math.round((done / total) * 100);
   })();
 
-  function validateSetup(): Record<string, string | undefined> {
+  // Validate every required field except the memory gate (which is handled
+  // separately so the override path can bypass it). Returns the error map.
+  function validateRequired(): Record<string, string | undefined> {
     const errs: Record<string, string | undefined> = {};
+    if (!contributorName.trim()) errs.contributorName = 'Please add your name.';
+    if (!relationship) errs.relationship = 'Please choose your relationship.';
+    if (!relationshipDescription.trim()) errs.relationshipDescription = 'Please describe your relationship.';
     if (!honoreeName.trim()) errs.honoreeName = 'Please add a name.';
+    if (!memory.trim()) errs.memory = 'Please share a memory.';
+    if (!qualities.trim()) errs.qualities = 'Please add a few words about them.';
+
     const email = organizerEmail.trim();
     if (!email) {
       errs.organizerEmail = 'Please enter your email address.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    } else if (!EMAIL_RE.test(email)) {
       errs.organizerEmail = 'That doesn’t look like a valid email — please check it.';
     }
-    setFieldError(errs);
+    const confirm = confirmEmail.trim();
+    if (!confirm) {
+      errs.confirmEmail = 'Please confirm your email address.';
+    } else if (confirm.toLowerCase() !== email.toLowerCase()) {
+      errs.confirmEmail = "Emails don't match.";
+    }
     return errs;
   }
 
-  // POST #2 — the organizer's own first memory. Returns true on success (or when
-  // intentionally skipped), false on a contribute failure (collection already
-  // exists; the user can retry the contribution only).
+  const FIELD_ORDER: Array<keyof typeof refs> = [
+    'contributorName',
+    'relationship',
+    'relationshipDescription',
+    'honoreeName',
+    'memory',
+    'qualities',
+    'organizerEmail',
+    'confirmEmail',
+  ];
+
+  function clearError(name: string) {
+    setFieldError((p) => (p[name] ? { ...p, [name]: undefined } : p));
+  }
+
+  // POST #2 — the organizer's own first memory. Returns true on success,
+  // false on a contribute failure (the user can retry the contribution only).
   async function postContribution(created: CreateSuccess): Promise<boolean> {
     const shareToken = (() => {
       try {
@@ -214,17 +300,27 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     })();
     if (!shareToken) return true; // nothing we can do; proceed to invite
 
+    const composed = composeMemory(
+      memory +
+        '\n\nWhat made them who they were: ' +
+        qualities +
+        (relationshipDescription ? '\n\nRelationship: ' + relationshipDescription : ''),
+      { quality: '', favoriteMoment: '', avoid: '' },
+      true,
+    );
+
     try {
       const res = await fetch('/api/collection/contribute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           shareToken,
-          contributorName: contributorName.trim() || 'Organizer',
-          relationship: relationship.trim() || undefined,
-          memory: composeMemory(memory, { quality, favoriteMoment, avoid: '' }, /* isOrganizer */ true),
+          contributorName: contributorName.trim(),
+          relationship,
+          memory: composed,
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
+          ...(overridden ? { overrideValidation: true } : {}),
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -257,16 +353,21 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   // POST #1 — create the collection. Returns the created collection, 'existing'
   // on dedup, or null on failure (formError already set).
   async function postCreate(): Promise<CreateSuccess | 'existing' | null> {
+    const synthesisPrefs: Record<string, string> = {
+      ...(thingsToAvoid.trim() ? { thingsToAvoid: thingsToAvoid.trim() } : {}),
+      ...(additionalContext.trim() ? { additionalContext: additionalContext.trim() } : {}),
+    };
     try {
       const res = await fetch(`/api/${occasion}/collection/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          organizerEmail: organizerEmail.trim(),
           honoreeName: honoreeName.trim(),
+          organizerEmail: organizerEmail.trim(),
           occasion,
           tier,
           ...(deadline ? { deadline } : {}),
+          synthesisPrefs,
         }),
       });
 
@@ -301,31 +402,38 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
   // The single perceived action: create the collection AND add the organizer's
   // own first memory. `skipMemory` follows the quiet "write later" link.
-  async function runSubmit(skipMemory: boolean) {
+  // `forceOverride` retries past the client memory gate after the user clicks
+  // the override button in MemoriesBlockedPanel.
+  async function runSubmit(skipMemory: boolean, forceOverride = false) {
     setFormError(null);
     setBlockedReason(null);
 
-    const errs = validateSetup();
+    const errs = validateRequired();
+    // When skipping the memory, the memory field itself is not required.
+    if (skipMemory) delete errs.memory;
     if (Object.keys(errs).length > 0) {
-      const target = errs.honoreeName ? honoreeRef.current : emailRef.current;
-      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setFieldError(errs);
+      const first = FIELD_ORDER.find((name) => errs[name]);
+      if (first) refs[first].current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    setFieldError({});
 
-    // If a memory has been entered (and we're not skipping), enforce the gate
-    // BEFORE creating the collection, so a blocked memory never strands a half-
-    // created collection.
-    const submittingMemory = !skipMemory && memoryEntered;
+    const submittingMemory = !skipMemory;
     if (submittingMemory) {
       if (!consent) {
         setConsentError(true);
         consentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-      const check = validateMemoriesField(memory);
-      if (!check.valid) {
-        setBlockedReason(check.reason);
-        return;
+      // Run the client memory gate UNLESS the user has already chosen to override.
+      const useOverride = forceOverride || overridden;
+      if (!useOverride) {
+        const check = validateMemoriesField(memory);
+        if (!check.valid) {
+          setBlockedReason(check.reason);
+          return;
+        }
       }
     }
 
@@ -344,8 +452,8 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         setPhase('existing');
         return;
       }
-      // MAJOR-3: store result/shareToken BEFORE attempting contribute, so a
-      // contribute retry never re-POSTs create.
+      // Store result/shareToken BEFORE attempting contribute, so a contribute
+      // retry never re-POSTs create.
       created = createResult;
       setResult(createResult);
     }
@@ -366,8 +474,14 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     void runSubmit(false);
   }
 
+  // Override button in the blocked panel — remember the choice and retry.
+  function handleOverride() {
+    setOverridden(true);
+    setBlockedReason(null);
+    void runSubmit(false, true);
+  }
+
   // ---- existing dedup card -------------------------------------------------
-  // (ResendLinkButton defined at module scope below.)
   if (phase === 'existing') {
     return (
       <Card className="mx-auto w-full max-w-xl">
@@ -428,86 +542,135 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
       </header>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        {/* Section 1 — About the collection */}
-        <SectionCard heading="About the collection">
-          <div
-            ref={honoreeRef}
-            className={
-              fieldError.honoreeName
-                ? 'rounded-xl p-3 -m-3 ring-2 ring-destructive ring-offset-2 ring-offset-background'
-                : ''
-            }
-          >
+        {/* Section — About you */}
+        <SectionCard heading="About you">
+          <div ref={refs.contributorName}>
+            <FieldRow
+              field={CONTRIBUTOR_NAME_FIELD}
+              value={contributorName}
+              error={fieldError.contributorName}
+              onChange={(v) => {
+                setContributorName(v);
+                clearError('contributorName');
+              }}
+            />
+          </div>
+
+          <div ref={refs.relationship}>
+            <FieldRow
+              field={{
+                ...RELATIONSHIP_FIELD_BASE,
+                label: `Your relationship to ${honoreeLabel}`,
+                options: RELATIONSHIP_OPTIONS,
+              }}
+              value={relationship}
+              error={fieldError.relationship}
+              onChange={(v) => {
+                setRelationship(v);
+                clearError('relationship');
+              }}
+            />
+          </div>
+
+          <div ref={refs.relationshipDescription}>
+            <FieldRow
+              field={RELATIONSHIP_DESCRIPTION_FIELD}
+              value={relationshipDescription}
+              error={fieldError.relationshipDescription}
+              onChange={(v) => {
+                setRelationshipDescription(v);
+                clearError('relationshipDescription');
+              }}
+            />
+          </div>
+        </SectionCard>
+
+        {/* Section — About them */}
+        <SectionCard heading="About them">
+          <div ref={refs.honoreeName}>
             <FieldRow
               field={HONOREE_FIELD}
               value={honoreeName}
               error={fieldError.honoreeName}
               onChange={(v) => {
                 setHonoreeName(v);
-                if (fieldError.honoreeName) setFieldError((p) => ({ ...p, honoreeName: undefined }));
+                clearError('honoreeName');
               }}
             >
               <p className="text-xs text-muted-foreground">The name of {honoreeLabel}.</p>
             </FieldRow>
           </div>
 
-          <div
-            ref={emailRef}
-            className={
-              fieldError.organizerEmail
-                ? 'rounded-xl p-3 -m-3 ring-2 ring-destructive ring-offset-2 ring-offset-background'
-                : ''
-            }
-          >
+          <div ref={refs.memory}>
             <FieldRow
-              field={EMAIL_FIELD}
+              field={MEMORY_FIELD}
+              value={memory}
+              error={fieldError.memory}
+              rows={8}
+              onChange={(v) => {
+                setMemory(v);
+                setBlockedReason(null);
+                clearError('memory');
+              }}
+            >
+              <WordCounter value={memory} bands={MEMORY_BANDS} />
+            </FieldRow>
+          </div>
+
+          <div ref={refs.qualities}>
+            <FieldRow
+              field={QUALITIES_FIELD}
+              value={qualities}
+              error={fieldError.qualities}
+              rows={4}
+              onChange={(v) => {
+                setQualities(v);
+                clearError('qualities');
+              }}
+            />
+          </div>
+        </SectionCard>
+
+        {/* Section — Optional */}
+        <SectionCard heading="Optional">
+          <FieldRow field={THINGS_TO_AVOID_FIELD} value={thingsToAvoid} rows={3} onChange={setThingsToAvoid} />
+          <FieldRow
+            field={ADDITIONAL_CONTEXT_FIELD}
+            value={additionalContext}
+            rows={3}
+            onChange={setAdditionalContext}
+          />
+        </SectionCard>
+
+        {/* Section — Your email */}
+        <SectionCard heading="Your email">
+          <div ref={refs.organizerEmail}>
+            <FieldRow
+              field={ORGANIZER_EMAIL_FIELD}
               value={organizerEmail}
               error={fieldError.organizerEmail}
               onChange={(v) => {
                 setOrganizerEmail(v);
-                if (fieldError.organizerEmail) setFieldError((p) => ({ ...p, organizerEmail: undefined }));
+                clearError('organizerEmail');
+              }}
+            />
+          </div>
+          <div ref={refs.confirmEmail}>
+            <FieldRow
+              field={CONFIRM_EMAIL_FIELD}
+              value={confirmEmail}
+              error={fieldError.confirmEmail}
+              onChange={(v) => {
+                setConfirmEmail(v);
+                clearError('confirmEmail');
               }}
             >
               <p className="text-xs text-muted-foreground">
-                We email your private manage link here — that’s how you’ll come back to review and finish.
+                We email your private manage link here — please double-check it.
               </p>
             </FieldRow>
           </div>
         </SectionCard>
-
-        {/* Section 2 — Your memory (the centerpiece) */}
-        <SectionCard heading="Your memory">
-          <p className="text-sm text-muted-foreground leading-relaxed -mt-1">
-            What did they do that was so <em>them</em>? Specific beats general — one real story is worth
-            more than a list of nice words. Optional, but it becomes the heart of the tribute.
-          </p>
-          <FieldRow
-            field={NAME_FIELD}
-            value={contributorName}
-            onChange={setContributorName}
-          />
-          <FieldRow
-            field={RELATIONSHIP_FIELD}
-            value={relationship}
-            onChange={setRelationship}
-          />
-          <FieldRow
-            field={MEMORY_FIELD}
-            value={memory}
-            rows={8}
-            onChange={(v) => {
-              setMemory(v);
-              setBlockedReason(null);
-            }}
-          >
-            <WordCounter value={memory} bands={MEMORY_BANDS} />
-          </FieldRow>
-          <FieldRow field={QUALITY_FIELD} value={quality} onChange={setQuality} />
-          <FieldRow field={MOMENT_FIELD} value={favoriteMoment} rows={3} onChange={setFavoriteMoment} />
-        </SectionCard>
-
-        {/* "How the tribute should read" (tone/length/avoid/context) now lives on
-            the result page, chosen right before the tribute is generated. */}
 
         {/* Section — When */}
         <SectionCard heading="When">
@@ -518,43 +681,45 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
         {blockedReason && (
           <div ref={blockedPanelRef}>
-            <MemoriesBlockedPanel reason={blockedReason} />
+            <MemoriesBlockedPanel
+              reason={blockedReason}
+              onOverride={handleOverride}
+              overrideLabel="Generate with what I’ve shared"
+            />
           </div>
         )}
 
-        {/* Consent — only when a memory has been entered (MINOR-2). */}
-        {memoryEntered && (
+        {/* Consent — the error ring wraps ONLY the checkbox + label row. */}
+        <SectionCard>
           <div
             ref={consentRef}
             className={
               consentError
-                ? 'rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-background transition-shadow'
+                ? 'rounded-xl p-3 -m-3 ring-2 ring-destructive ring-offset-2 ring-offset-background transition-shadow'
                 : 'transition-shadow'
             }
           >
-            <SectionCard>
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  onChange={(e) => {
-                    setConsent(e.target.checked);
-                    if (e.target.checked) setConsentError(false);
-                  }}
-                  className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                />
-                <span className="text-sm text-foreground leading-relaxed">
-                  I’m okay with my memory being woven into the tribute you’ll receive.
-                </span>
-              </label>
-              {consentError && (
-                <p className="text-xs text-destructive" role="alert">
-                  Please check the box above so we can include your memory.
-                </p>
-              )}
-            </SectionCard>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => {
+                  setConsent(e.target.checked);
+                  if (e.target.checked) setConsentError(false);
+                }}
+                className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-foreground leading-relaxed">
+                I’m okay with my memory being woven into the tribute you’ll receive.
+              </span>
+            </label>
+            {consentError && (
+              <p className="mt-2 text-xs text-destructive" role="alert">
+                Please check the box above so we can include your memory.
+              </p>
+            )}
           </div>
-        )}
+        </SectionCard>
 
         {formError && (
           <div
@@ -593,6 +758,16 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     </div>
   );
 }
+
+// Base for the relationship select — label is filled in per honoreeLabel.
+const RELATIONSHIP_FIELD_BASE: FormFieldConfig = {
+  name: 'relationship',
+  type: 'select',
+  label: 'Your relationship',
+  placeholder: 'Select your relationship…',
+  required: true,
+  maxLength: 50,
+};
 
 // Re-sends the private manage link to the organizer's email (the secure way back
 // to an existing collection — we never show the admin token on screen).

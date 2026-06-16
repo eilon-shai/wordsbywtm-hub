@@ -136,7 +136,7 @@ export function ContributorForm({
   const memoryValue = values[MEMORY_FIELD] ?? '';
   const memoryWc = wordCount(memoryValue);
 
-  const doSubmit = React.useCallback(async () => {
+  const doSubmit = React.useCallback(async (override = false) => {
     setSubmitError(null);
 
     // Layer 1 — required fields.
@@ -159,10 +159,14 @@ export function ContributorForm({
     }
 
     // Layer 2 — the exact server guard, run client-side for live coaching.
-    const check = validateMemoriesField(memoryValue);
-    if (!check.valid) {
-      setBlockedReason(check.reason);
-      return;
+    // When the contributor has chosen to proceed anyway (override), skip the
+    // client gate and let the server bypass via overrideValidation:true.
+    if (!override) {
+      const check = validateMemoriesField(memoryValue);
+      if (!check.valid) {
+        setBlockedReason(check.reason);
+        return;
+      }
     }
     setBlockedReason(null);
 
@@ -178,6 +182,7 @@ export function ContributorForm({
           memory: composeMemory(memoryValue, extras, isOrganizer),
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
+          ...(override ? { overrideValidation: true } : {}),
         }),
       });
 
@@ -426,7 +431,11 @@ export function ContributorForm({
 
           {blockedReason && (
             <div ref={blockedPanelRef}>
-              <MemoriesBlockedPanel reason={blockedReason} />
+              <MemoriesBlockedPanel
+                reason={blockedReason}
+                onOverride={() => void doSubmit(true)}
+                overrideLabel="Generate with what I’ve shared"
+              />
             </div>
           )}
 
