@@ -29,7 +29,7 @@ interface CreateSuccess {
   honoreeName: string;
 }
 
-type Phase = 'form' | 'submitting' | 'ownMemory' | 'invite';
+type Phase = 'form' | 'submitting' | 'ownMemory' | 'invite' | 'existing';
 
 const FIELD_ERR = 'text-destructive text-sm mt-1';
 
@@ -116,8 +116,13 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         return;
       }
 
-      const data: CreateSuccess = await res.json();
-      setResult(data);
+      const data = (await res.json()) as Partial<CreateSuccess> & { existing?: boolean };
+      // Dedup: an open collection for this occasion + email already exists.
+      if (data.existing) {
+        setPhase('existing');
+        return;
+      }
+      setResult(data as CreateSuccess);
       setPhase('ownMemory');
     } catch {
       setPhase('form');
@@ -147,6 +152,31 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         onSubmitted={() => setPhase('invite')}
         onSkip={() => setPhase('invite')}
       />
+    );
+  }
+
+  if (phase === 'existing') {
+    return (
+      <Card className="mx-auto w-full max-w-xl">
+        <CardHeader>
+          <CardTitle className="font-serif text-2xl">You already have a collection for this</CardTitle>
+          <CardDescription>
+            There’s already an open {occasionTitle.toLowerCase()} collection under{' '}
+            <span className="font-medium text-foreground">{organizerEmail.trim()}</span>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <p className="text-sm text-muted-foreground">
+            To keep things simple we keep one open {occasionTitle.toLowerCase()} collection per person. We’ve
+            re-sent your private manage link to that email — open it to keep adding memories and finalize when
+            you’re ready.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Want to start a collection for a different occasion? Head back and pick another from the home page.
+          </p>
+          <a href="/" className="text-sm font-medium text-primary hover:opacity-80">← Back to home</a>
+        </CardContent>
+      </Card>
     );
   }
 
