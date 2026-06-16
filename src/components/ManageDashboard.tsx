@@ -95,12 +95,17 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const termsRef = useRef<HTMLLabelElement | null>(null);
 
   // Inline edit of the organizer's own memory.
-  const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
+  const [editing, setEditing] = useState<{
+    id: string;
+    text: string;
+    name: string;
+    relationship: string | null;
+  } | null>(null);
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const openEdit = useCallback((c: Contribution) => {
     setEditError(null);
-    setEditing({ id: c.id, text: c.memory });
+    setEditing({ id: c.id, text: c.memory, name: c.contributorName, relationship: c.relationship ?? null });
   }, []);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -360,6 +365,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
   const remaining = Math.max(0, data.minContributions - includedCount);
   const belowMin = includedCount < data.minContributions;
   const generated = data.status === 'generated';
+  // The organizer's own memory exists once any contribution is flagged isOrganizer.
+  const hasOrganizerMemory = data.contributions.some((c) => c.isOrganizer);
   const badge = statusBadge(data.status);
   const deadline = formatDeadline(data.deadline);
   const price = data.priceShown ? `$${data.priceShown}` : null;
@@ -383,8 +390,40 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
           <Card className="w-full max-w-lg">
             <CardContent className="p-6">
               <h3 className="font-serif text-xl text-foreground">Edit your memory</h3>
+
+              {/* Read-only context — who this memory is from (not editable here). */}
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Your name
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={editing.name}
+                    className="w-full cursor-not-allowed rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+                  />
+                </div>
+                {editing.relationship ? (
+                  <div>
+                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Relationship
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={editing.relationship}
+                      className="w-full cursor-not-allowed rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+                    />
+                  </div>
+                ) : null}
+              </div>
+
+              <label className="mt-4 mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Your memory
+              </label>
               <textarea
-                className="mt-4 w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm"
+                className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm"
                 rows={8}
                 value={editing.text}
                 onChange={(e) => setEditing((p) => (p ? { ...p, text: e.target.value } : p))}
@@ -437,8 +476,10 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
         </CardContent>
       </Card>
 
-      {/* Add your own memory (esp. if the organizer skipped it at create). */}
-      {!generated ? (
+      {/* Add your own memory — only while the organizer hasn't added theirs yet
+          (e.g. they chose "write later" at create). Once it exists it's pinned
+          above with its own Edit button, so this prompt would be redundant. */}
+      {!generated && !hasOrganizerMemory ? (
         <Card className="mt-4">
           <CardContent className="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>

@@ -43,6 +43,7 @@ export default async function OccasionResultPage({ params }: PageProps) {
 
   return (
     <ResultFlow
+      occasion={occasion}
       occasionTitle={meta.title}
       accent={meta.accent}
       supportEmail={SUPPORT_EMAIL}

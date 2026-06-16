@@ -16,8 +16,32 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { Button } from '@eilon-shai/venture-core/ui';
+import { FeedbackWidget } from '@eilon-shai/venture-core/components';
 import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitives';
 import { EditPackCard } from './EditPackCard';
+
+// Download the tribute as a Word-openable .doc (HTML payload — no dependency).
+function downloadWord(honoree: string, content: string) {
+  const safe = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const paragraphs = content
+    .split(/\n{2,}/)
+    .map((p) => `<p style="margin:0 0 14pt 0">${safe(p).replace(/\n/g, '<br/>')}</p>`)
+    .join('');
+  const html =
+    `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">` +
+    `<head><meta charset="utf-8"><title>A tribute for ${safe(honoree)}</title></head>` +
+    `<body style="font-family:Georgia,serif;font-size:13pt;line-height:1.6;color:#1a1a1a">` +
+    `<h1 style="font-size:18pt;text-align:center;margin:0 0 18pt 0">A tribute for ${safe(honoree)}</h1>${paragraphs}</body></html>`;
+  const blob = new Blob(['﻿', html], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Tribute for ${honoree || 'them'}.doc`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 const TONE_FIELD: FormFieldConfig = {
   name: 'tone', type: 'select', label: 'Tone', required: false,
@@ -45,6 +69,7 @@ const CONTEXT_FIELD: FormFieldConfig = {
 };
 
 interface ResultFlowProps {
+  occasion: string;
   occasionTitle: string;
   accent: string;
   supportEmail: string;
@@ -71,6 +96,14 @@ function ResultFlowInner(props: ResultFlowProps) {
     txnId ? null : 'We couldn’t find your tribute session. Please reopen the link from your collection.',
   );
   const [copied, setCopied] = React.useState(false);
+  // The feedback prompt eases in a few seconds after the tribute appears, so it
+  // never competes with the first read (matches TributeWords).
+  const [showFeedback, setShowFeedback] = React.useState(false);
+  React.useEffect(() => {
+    if (phase !== 'done') return;
+    const t = setTimeout(() => setShowFeedback(true), 6000);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   const generate = React.useCallback(async () => {
     setPhase('generating');
@@ -169,34 +202,71 @@ function ResultFlowInner(props: ResultFlowProps) {
 
   // ---- done ----
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-12">
-      <header className="mb-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">A tribute for {honoree}</p>
+    <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+      <header className="mb-10 text-center">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          A tribute for {honoree}
+        </p>
         {count > 0 && (
-          <p className="text-sm text-muted-foreground">Woven from {count} {count === 1 ? 'memory' : 'memories'}.</p>
+          <p className="text-sm text-muted-foreground">
+            Woven from {count} {count === 1 ? 'memory' : 'memories'}.
+          </p>
         )}
       </header>
 
-      <article className="card">
-        <p className="tribute-text">{content}</p>
+      {/* The tribute itself — generous serif typography, like a printed page. */}
+      <article className="rounded-2xl border border-border bg-card px-6 py-10 shadow-sm sm:px-12 sm:py-14">
+        <div className="speech-text mx-auto max-w-prose whitespace-pre-wrap font-serif text-[1.15rem] leading-[1.85] text-foreground/90">
+          {content}
+        </div>
       </article>
 
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+      {/* Actions */}
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <Button
+          type="button"
+          size="lg"
+          className="rounded-full px-6"
+          onClick={() => downloadWord(honoree, content)}
+        >
+          Download as Word
+        </Button>
         <Button
           type="button"
           variant="outline"
+          size="lg"
+          className="rounded-full px-6"
           onClick={async () => {
-            try { await navigator.clipboard.writeText(content); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* */ }
+            try {
+              await navigator.clipboard.writeText(content);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            } catch {
+              /* clipboard blocked — the Word download still works */
+            }
           }}
         >
-          {copied ? 'Copied ✓' : 'Copy tribute'}
+          {copied ? 'Copied ✓' : 'Copy text'}
         </Button>
       </div>
 
-      <p className="mt-4 text-center text-xs text-muted-foreground">We’ve also emailed this tribute to you.</p>
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        We’ve also emailed this tribute to you, ready to read aloud.
+      </p>
 
       {props.editPackPriceId ? (
         <EditPackCard priceId={props.editPackPriceId} resultPath={props.resultPath} />
+      ) : null}
+
+      {/* Feedback — eases in a few seconds after the tribute is shown. */}
+      {showFeedback && txnId ? (
+        <div className="mt-12">
+          <FeedbackWidget
+            transactionId={txnId}
+            productSlug={props.occasion}
+            feedbackEndpoint={`/api/${props.occasion}/feedback`}
+          />
+        </div>
       ) : null}
     </main>
   );

@@ -445,8 +445,14 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     setBlockedReason(null);
 
     const errs = validateRequired();
-    // When skipping the memory, the memory field itself is not required.
-    if (skipMemory) delete errs.memory;
+    // When writing the memory later, NONE of the organizer's own-memory fields
+    // are required — only what's needed to create the collection (honoree name +
+    // email). Everything else is part of the deferred contribution.
+    if (skipMemory) {
+      for (const f of ['memory', 'qualities', 'relationship', 'relationshipDescription', 'contributorName'] as const) {
+        delete errs[f];
+      }
+    }
     if (Object.keys(errs).length > 0) {
       setFieldError(errs);
       const first = FIELD_ORDER.find((name) => errs[name]);
@@ -718,7 +724,15 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           <FieldRow
             field={DEADLINE_FIELD}
             value={deadline}
-            onChange={setDeadline}
+            onChange={(v) => {
+              // Native date inputs enforce min/max only in the picker — a typed
+              // value can exceed them. Clamp into [MIN, MAX] (ISO day strings
+              // compare lexicographically). Empty clears (deadline is optional).
+              if (!v) return setDeadline('');
+              if (v > DEADLINE_MAX) return setDeadline(DEADLINE_MAX);
+              if (v < DEADLINE_MIN) return setDeadline(DEADLINE_MIN);
+              setDeadline(v);
+            }}
             dateMin={DEADLINE_MIN}
             dateMax={DEADLINE_MAX}
           >
