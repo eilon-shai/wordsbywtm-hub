@@ -53,7 +53,24 @@ export default function HubPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="px-4 pb-16 pt-24 text-center">
+        <section className="relative overflow-hidden px-4 pb-16 pt-24 text-center">
+          {/* Soft background image — kept faint so the warm palette and text stay legible */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-[0.12]"
+            style={{
+              backgroundImage:
+                "url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1600&q=80&auto=format&fit=crop')",
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10"
+            style={{
+              background:
+                'linear-gradient(to bottom, color-mix(in oklch, var(--background) 55%, transparent), var(--background) 88%)',
+            }}
+          />
           <div className="mx-auto flex max-w-3xl flex-col items-center">
             <span className="mb-8 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Gathered · Woven · Read Aloud

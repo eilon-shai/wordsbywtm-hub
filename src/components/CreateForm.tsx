@@ -38,6 +38,11 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   const [honoreeName, setHonoreeName] = React.useState('');
   const [organizerEmail, setOrganizerEmail] = React.useState('');
   const [deadline, setDeadline] = React.useState('');
+  // Organizer "full form" synthesis controls → stored as collection synthesisPrefs.
+  const [tone, setTone] = React.useState('balanced');
+  const [length, setLength] = React.useState('medium');
+  const [thingsToAvoid, setThingsToAvoid] = React.useState('');
+  const [additionalContext, setAdditionalContext] = React.useState('');
   const [fieldError, setFieldError] = React.useState<{ honoreeName?: string; organizerEmail?: string }>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<CreateSuccess | null>(null);
@@ -70,6 +75,12 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           occasion,
           tier,
           ...(deadline ? { deadline } : {}),
+          synthesisPrefs: {
+            tone,
+            length,
+            ...(thingsToAvoid.trim() ? { thingsToAvoid: thingsToAvoid.trim() } : {}),
+            ...(additionalContext.trim() ? { additionalContext: additionalContext.trim() } : {}),
+          },
         }),
       });
 
@@ -191,6 +202,73 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               We email your private manage link to this address — that’s how you’ll come back to review and finish.
             </p>
             {fieldError.organizerEmail && <p className={FIELD_ERR}>{fieldError.organizerEmail}</p>}
+          </div>
+
+          <div className="rounded-lg border border-border bg-card/50 p-4">
+            <p className="mb-3 text-sm font-semibold text-foreground">How should the tribute read?</p>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="tone" className="mb-1.5 block text-sm font-medium">Tone</label>
+                <select
+                  id="tone"
+                  className="field w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  value={tone}
+                  onChange={(e) => setTone(e.target.value)}
+                  disabled={submitting}
+                >
+                  <option value="solemn">Solemn &amp; reverent</option>
+                  <option value="balanced">Balanced</option>
+                  <option value="warm">Warm &amp; celebratory</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="length" className="mb-1.5 block text-sm font-medium">Length</label>
+                <select
+                  id="length"
+                  className="field w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  value={length}
+                  onChange={(e) => setLength(e.target.value)}
+                  disabled={submitting}
+                >
+                  <option value="short">Short (~3 min)</option>
+                  <option value="medium">Medium (~5 min)</option>
+                  <option value="long">Long (~8 min)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label htmlFor="thingsToAvoid" className="mb-1.5 block text-sm font-medium">
+                Anything to leave out? <span className="font-normal text-muted-foreground">(optional)</span>
+              </label>
+              <textarea
+                id="thingsToAvoid"
+                rows={2}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                placeholder="Topics, details, or names you'd rather the tribute not mention."
+                value={thingsToAvoid}
+                onChange={(e) => setThingsToAvoid(e.target.value)}
+                disabled={submitting}
+                maxLength={1000}
+              />
+            </div>
+
+            <div className="mt-4">
+              <label htmlFor="additionalContext" className="mb-1.5 block text-sm font-medium">
+                Anything else we should know? <span className="font-normal text-muted-foreground">(optional)</span>
+              </label>
+              <textarea
+                id="additionalContext"
+                rows={2}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                placeholder="Faith, circumstances, or context to weave in sensitively."
+                value={additionalContext}
+                onChange={(e) => setAdditionalContext(e.target.value)}
+                disabled={submitting}
+                maxLength={1000}
+              />
+            </div>
           </div>
 
           <div>

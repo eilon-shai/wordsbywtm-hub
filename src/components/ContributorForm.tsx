@@ -103,6 +103,8 @@ export function ContributorForm({
   const [consent, setConsent] = React.useState(false);
   const [consentError, setConsentError] = React.useState(false);
   const [blockedReason, setBlockedReason] = React.useState<string | null>(null);
+  // Optional content fields, composed into the memory text before submit.
+  const [extras, setExtras] = React.useState({ quality: '', favoriteMoment: '', avoid: '' });
 
   const [phase, setPhase] = React.useState<Phase>('form');
   const [submitError, setSubmitError] = React.useState<SubmitErrorState | null>(null);
@@ -165,7 +167,7 @@ export function ContributorForm({
           shareToken,
           contributorName: values[NAME_FIELD].trim(),
           relationship: (values[RELATIONSHIP_FIELD] ?? '').trim() || undefined,
-          memory: memoryValue.trim(),
+          memory: composeMemory(memoryValue, extras, isOrganizer),
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
         }),
@@ -226,7 +228,7 @@ export function ContributorForm({
         retryable: true,
       });
     }
-  }, [consent, memoryValue, shareToken, values, isOrganizer, onSubmitted]);
+  }, [consent, memoryValue, shareToken, values, extras, isOrganizer, onSubmitted]);
 
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
@@ -280,6 +282,7 @@ export function ContributorForm({
                 ? crypto.randomUUID()
                 : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
             setValues({ [NAME_FIELD]: '', [RELATIONSHIP_FIELD]: '', [MEMORY_FIELD]: '' });
+            setExtras({ quality: '', favoriteMoment: '', avoid: '' });
             setConsent(false);
             setResultHonoree('');
             setPhase('form');
@@ -366,6 +369,53 @@ export function ContributorForm({
             )}
           </SectionCard>
 
+          <SectionCard heading="A little more (optional)">
+            <div>
+              <label htmlFor="x-quality" className="mb-1.5 block text-sm font-medium text-foreground">
+                A word or two that captured them
+              </label>
+              <input
+                id="x-quality"
+                type="text"
+                maxLength={120}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                placeholder="e.g. endlessly generous; quietly funny"
+                value={extras.quality}
+                onChange={(e) => setExtras((p) => ({ ...p, quality: e.target.value }))}
+              />
+            </div>
+            <div className="mt-4">
+              <label htmlFor="x-moment" className="mb-1.5 block text-sm font-medium text-foreground">
+                A favorite moment, if one comes to mind
+              </label>
+              <textarea
+                id="x-moment"
+                rows={3}
+                maxLength={600}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                placeholder="A specific moment or story — even a small one."
+                value={extras.favoriteMoment}
+                onChange={(e) => setExtras((p) => ({ ...p, favoriteMoment: e.target.value }))}
+              />
+            </div>
+            {!isOrganizer && (
+              <div className="mt-4">
+                <label htmlFor="x-avoid" className="mb-1.5 block text-sm font-medium text-foreground">
+                  Anything you’d rather wasn’t included?
+                </label>
+                <textarea
+                  id="x-avoid"
+                  rows={2}
+                  maxLength={400}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  placeholder="Optional — we’ll keep it out of the tribute."
+                  value={extras.avoid}
+                  onChange={(e) => setExtras((p) => ({ ...p, avoid: e.target.value }))}
+                />
+              </div>
+            )}
+          </SectionCard>
+
           {blockedReason && (
             <div ref={blockedPanelRef}>
               <MemoriesBlockedPanel reason={blockedReason} />
@@ -447,6 +497,21 @@ export function ContributorForm({
       </div>
     </main>
   );
+}
+
+// Fold the optional fields into the memory text so they enrich synthesis without
+// a backend schema change. The main memory still carries the 3-layer guard.
+function composeMemory(
+  memory: string,
+  extras: { quality: string; favoriteMoment: string; avoid: string },
+  isOrganizer: boolean,
+): string {
+  const parts = [memory.trim()];
+  if (extras.quality.trim()) parts.push(`A word that captured them: ${extras.quality.trim()}`);
+  if (extras.favoriteMoment.trim()) parts.push(`A favorite moment: ${extras.favoriteMoment.trim()}`);
+  // Contributor-level "leave out" note (organizer sets this collection-wide at create).
+  if (!isOrganizer && extras.avoid.trim()) parts.push(`Please leave out: ${extras.avoid.trim()}`);
+  return parts.join('\n\n');
 }
 
 function CenteredCard({ children }: { children: React.ReactNode }) {
