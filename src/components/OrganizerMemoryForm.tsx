@@ -63,6 +63,9 @@ interface OrganizerMemoryFormProps {
   honoreeLabel: string;
   /** create: contributor share token. */
   shareToken?: string;
+  /** create: the organizer's email (from the collection) — sent so the memory
+   *  carries an identity even though it's the organizer's own. */
+  organizerEmail?: string;
   /** edit: admin token + the contribution being edited. */
   adminToken?: string;
   contributionId?: string;
@@ -85,7 +88,7 @@ function compose(f: { memory: string; qualities: string; favoriteMoment: string;
 }
 
 export function OrganizerMemoryForm({
-  mode, honoreeLabel, shareToken, adminToken, contributionId, initial, returnHref, onSaved, onCancel,
+  mode, honoreeLabel, shareToken, organizerEmail, adminToken, contributionId, initial, returnHref, onSaved, onCancel,
 }: OrganizerMemoryFormProps) {
   const [name, setName] = React.useState(initial?.contributorName ?? '');
   const [relationship, setRelationship] = React.useState(initial?.relationship ?? '');
@@ -135,7 +138,7 @@ export function OrganizerMemoryForm({
       const res = mode === 'create'
         ? await fetch('/api/collection/contribute', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ shareToken, contributorName: name.trim(), relationship, memory: composed, consent: true, idempotencyKey: idem.current, isOrganizer: true, fields, ...(useOverride ? { overrideValidation: true } : {}) }),
+            body: JSON.stringify({ shareToken, contributorName: name.trim(), ...(organizerEmail ? { contributorEmail: organizerEmail } : {}), relationship, memory: composed, consent: true, idempotencyKey: idem.current, isOrganizer: true, fields, ...(useOverride ? { overrideValidation: true } : {}) }),
           })
         : await fetch('/api/collection/edit', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },

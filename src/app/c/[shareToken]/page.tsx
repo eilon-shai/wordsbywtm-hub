@@ -93,6 +93,7 @@ export default async function ContributorSharePage({
         <OrganizerMemoryForm
           mode="create"
           shareToken={shareToken}
+          organizerEmail={collection.organizerEmail}
           honoreeLabel={collection.honoreeName}
           returnHref={`/collect/manage?t=${encodeURIComponent(collection.adminToken)}`}
         />
