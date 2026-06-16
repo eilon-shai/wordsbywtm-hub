@@ -585,6 +585,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               field={ORGANIZER_EMAIL_FIELD}
               value={organizerEmail}
               error={fieldError.organizerEmail}
+              autoComplete="email"
               onChange={(v) => {
                 setOrganizerEmail(v);
                 clearError('organizerEmail');
@@ -598,7 +599,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               field={CONFIRM_EMAIL_FIELD}
               value={confirmEmail}
               error={fieldError.confirmEmail}
-              autoComplete="off"
+              autoComplete="new-password"
               onChange={(v) => {
                 setConfirmEmail(v);
                 clearError('confirmEmail');
