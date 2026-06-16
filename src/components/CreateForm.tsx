@@ -737,7 +737,9 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             dateMax={DEADLINE_MAX}
           >
             <p className="text-xs text-muted-foreground">
-              Memories close then. You can share until that date — up to a month out.
+              Memories close on this date (up to a month out). If you’ve paid, we’ll create your
+              tribute then with whatever’s been gathered. If you haven’t, the collection is deleted —
+              we’ll email a reminder 3 days before either way.
             </p>
           </FieldRow>
         </SectionCard>

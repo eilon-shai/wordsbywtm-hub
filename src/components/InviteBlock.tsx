@@ -18,6 +18,12 @@
 
 import * as React from 'react';
 import { Button, Card, Input, Separator, Badge } from '@eilon-shai/venture-core/ui';
+import { initSharedPaddle, getSharedPaddle, setActiveTransaction } from '@eilon-shai/venture-core/components';
+
+// Where Paddle returns after an ADVANCE payment. A clean path (no query) so the
+// shared callback's `${path}?txnId=...` redirect stays well-formed; that page
+// records the payment and bounces back to the dashboard.
+const ADVANCE_RETURN_PATH = '/collect/paid';
 
 export interface InviteBlockProps {
   /** Private admin token — authorizes server-sent email invites. */
@@ -34,6 +40,10 @@ export interface InviteBlockProps {
   surface: 'create' | 'dashboard';
   /** Organizer's display name — personalizes the invite email ("{name} is…"). */
   organizerName?: string;
+  /** True once the one payment has been made (in advance). Hides the pay CTA. */
+  paid?: boolean;
+  /** Price label for the advance-pay CTA (e.g. "$49"). */
+  price?: string | null;
   /**
    * When the collection has hit the real 12-person email backstop, render the
    * single disabled "coming soon" pack line. Defaults to false; the dashboard
@@ -59,6 +69,8 @@ export function InviteBlock({
   emailUrl,
   surface,
   organizerName,
+  paid = false,
+  price = null,
   atCap = false,
 }: InviteBlockProps) {
   const [copied, setCopied] = React.useState(false);
@@ -147,7 +159,91 @@ export function InviteBlock({
       </div>
 
       {/* ====================== ZONE 2 — SECONDARY EMAIL CARD ==================== */}
-      <DirectEmailCard adminToken={adminToken} inviteText={inviteText} organizerName={organizerName} atCap={atCap} />
+      <DirectEmailCard
+        adminToken={adminToken}
+        inviteText={inviteText}
+        organizerName={organizerName}
+        paid={paid}
+        price={price}
+        atCap={atCap}
+      />
+    </div>
+  );
+}
+
+// Advance-pay: pay the one fee now to email up to 10 people a day (vs 3) and make
+// finalizing free later. Same Paddle price as finalize — just paid up front.
+function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid: boolean; price: string | null }) {
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  if (paid) {
+    return (
+      <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground">
+        <Badge variant="secondary">Paid</Badge>
+        You can email up to <span className="font-medium">10 people a day</span>, and finalizing is free.
+      </div>
+    );
+  }
+
+  async function payAdvance() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/collection/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminToken, intent: 'advance' }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        transactionId?: string;
+        redirectUrl?: string;
+        error?: string;
+      };
+      if (!res.ok || !json.transactionId) {
+        setError(json.error ?? "Payment couldn't start — please try again. You haven't been charged.");
+        setBusy(false);
+        return;
+      }
+
+      // Mock mode: no overlay — record payment directly, then refresh.
+      if (json.transactionId.startsWith('mock_')) {
+        await fetch('/api/collection/mark-paid', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transactionId: json.transactionId }),
+        });
+        window.location.reload();
+        return;
+      }
+
+      // Real mode: stash the admin token so the return page can bounce back to
+      // this dashboard, then open the Paddle overlay.
+      try {
+        sessionStorage.setItem('wtm:advance-admin', adminToken);
+      } catch {
+        /* sessionStorage may be unavailable — return page still records payment */
+      }
+      await initSharedPaddle(ADVANCE_RETURN_PATH);
+      setActiveTransaction(json.transactionId, 'basic', ADVANCE_RETURN_PATH);
+      const paddle = await getSharedPaddle();
+      paddle.Checkout.open({ transactionId: json.transactionId });
+      setBusy(false);
+    } catch {
+      setError("Payment couldn't start — please try again. You haven't been charged.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void payAdvance()}>
+        {busy ? 'Starting…' : `Pay now to email up to 10 people${price ? ` — ${price}` : ''}`}
+      </Button>
+      <p className="mt-1.5 text-xs text-muted-foreground">
+        It’s the same one-time fee as finalizing — paid now, so finalizing later is free. Sharing your link stays free and unlimited.
+      </p>
+      {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }
@@ -158,11 +254,15 @@ function DirectEmailCard({
   adminToken,
   inviteText,
   organizerName,
+  paid,
+  price,
   atCap,
 }: {
   adminToken: string;
   inviteText: string;
   organizerName?: string;
+  paid: boolean;
+  price: string | null;
   atCap: boolean;
 }) {
   const [rows, setRows] = React.useState<PersonRow[]>(
@@ -258,8 +358,12 @@ function DirectEmailCard({
     <Card className="border bg-muted/30 p-4">
       <p className="text-sm font-medium text-foreground">Prefer we email it for you? (optional)</p>
       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-        We’ll email up to 3 people a day on your behalf (once each). Everyone else: just share your link above — no limit.
+        We’ll email up to {paid ? 10 : 3} people a day on your behalf (once each). Everyone else: just share your link above — no limit.
       </p>
+
+      {/* Advance-pay: unlock 10/day + free finalize. */}
+      <AdvancePayBlock adminToken={adminToken} paid={paid} price={price} />
+
       <p className="mt-2 text-xs font-medium text-muted-foreground">Email a few people directly</p>
 
       <div className="mt-3 flex flex-col gap-3">

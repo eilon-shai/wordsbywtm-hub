@@ -110,7 +110,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sent: clean.length, skipped: 0, simulated: true });
   }
 
-  // #3 — at most DAILY_CAP invite emails per collection per day.
+  // #3 — at most `dailyCap` invite emails per collection per day. Paying in
+  // advance ("unlock up to 10 friends") raises the cap from 3 to 10.
+  const dailyCap = collection.paidAt ? 10 : DAILY_CAP;
   let sentToday = 0;
   if (redis) {
     try {
@@ -119,10 +121,10 @@ export async function POST(req: NextRequest) {
       /* non-fatal */
     }
   }
-  const remainingToday = Math.max(0, DAILY_CAP - sentToday);
+  const remainingToday = Math.max(0, dailyCap - sentToday);
   if (remainingToday === 0) {
     return NextResponse.json(
-      { error: `You can send up to ${DAILY_CAP} email invites a day. Share your link directly — it's free and unlimited.`, code: 'RATE_LIMIT', retryable: false },
+      { error: `You can send up to ${dailyCap} email invites a day. Share your link directly — it's free and unlimited.`, code: 'RATE_LIMIT', retryable: false },
       { status: 429 },
     );
   }

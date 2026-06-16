@@ -41,6 +41,10 @@ interface CollectionData {
   count: number;
   minContributions: number;
   canFinalize: boolean;
+  /** Paid in advance (from the invite panel) — finalize is then free. */
+  paid?: boolean;
+  /** Max invite emails/day (10 if paid, else 3). */
+  inviteCap?: number;
   contributions: Contribution[];
 }
 
@@ -256,6 +260,13 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
       sessionStorage.setItem('wtm:occasion', occasion);
     } catch {
       /* sessionStorage may be unavailable; result page falls back to txn resolution */
+    }
+
+    // Already paid in advance → no checkout. Go straight to the result page in
+    // paid-finalize mode (prefs step → /api/collection/finalize-paid, no charge).
+    if (data.paid) {
+      window.location.href = `${resultPath}?t=${encodeURIComponent(adminToken)}`;
+      return;
     }
 
     try {
@@ -507,6 +518,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
               inviteText={inviteText}
               whatsappUrl={whatsappUrl}
               emailUrl={emailUrl}
+              paid={!!data.paid}
+              price={price}
             />
           </CardContent>
         </Card>
@@ -614,10 +627,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
                 }
               >
                 {finalizing
-                  ? 'Starting checkout…'
-                  : price
-                    ? `Finalize & create the tribute — ${price}`
-                    : 'Finalize & create the tribute'}
+                  ? data.paid
+                    ? 'Creating the tribute…'
+                    : 'Starting checkout…'
+                  : data.paid
+                    ? 'Finalize & create the tribute' // already paid in advance — no charge
+                    : price
+                      ? `Pay & finalize — ${price}`
+                      : 'Pay & finalize'}
               </Button>
               {belowMin ? (
                 <p className="text-sm text-muted-foreground">

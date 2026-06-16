@@ -83,8 +83,13 @@ type Phase = 'prefs' | 'generating' | 'done' | 'error';
 function ResultFlowInner(props: ResultFlowProps) {
   const params = useSearchParams();
   const txnId = params.get('txn') ?? params.get('txnId') ?? '';
+  // Paid-in-advance finalize: the dashboard sends ?t={adminToken} (no txn). The
+  // tribute is generated via /api/collection/finalize-paid (no new charge).
+  const adminToken = params.get('t') ?? '';
+  const paidFinalize = !txnId && !!adminToken;
+  const canStart = !!txnId || paidFinalize;
 
-  const [phase, setPhase] = React.useState<Phase>(txnId ? 'prefs' : 'error');
+  const [phase, setPhase] = React.useState<Phase>(canStart ? 'prefs' : 'error');
   const [tone, setTone] = React.useState('balanced');
   const [length, setLength] = React.useState('medium');
   const [thingsToAvoid, setThingsToAvoid] = React.useState('');
@@ -93,7 +98,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   const [honoree, setHonoree] = React.useState('');
   const [count, setCount] = React.useState(0);
   const [error, setError] = React.useState<string | null>(
-    txnId ? null : 'We couldn’t find your tribute session. Please reopen the link from your collection.',
+    canStart ? null : 'We couldn’t find your tribute session. Please reopen the link from your collection.',
   );
   const [copied, setCopied] = React.useState(false);
   // The feedback prompt eases in a few seconds after the tribute appears, so it
@@ -114,13 +119,19 @@ function ResultFlowInner(props: ResultFlowProps) {
       ...(thingsToAvoid.trim() ? { thingsToAvoid: thingsToAvoid.trim() } : {}),
       ...(additionalContext.trim() ? { additionalContext: additionalContext.trim() } : {}),
     };
+    // Two finalize paths: pay-at-finalize verifies the txn; paid-in-advance uses
+    // the admin token (server requires paid_at — still pay-before-generate).
+    const endpoint = paidFinalize ? '/api/collection/finalize-paid' : '/api/collection/generate';
+    const payload = paidFinalize
+      ? { adminToken, synthesisPrefs }
+      : { transactionId: txnId, synthesisPrefs };
     // Generation can take a moment; retry on 202 (payment still settling).
     for (let attempt = 0; attempt < 8; attempt++) {
       try {
-        const res = await fetch('/api/collection/generate', {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transactionId: txnId, synthesisPrefs }),
+          body: JSON.stringify(payload),
         });
         if (res.status === 202) {
           await new Promise((r) => setTimeout(r, 2500));
@@ -143,7 +154,7 @@ function ResultFlowInner(props: ResultFlowProps) {
     }
     setError('Creating your tribute is taking longer than expected. Please check your email shortly.');
     setPhase('error');
-  }, [txnId, tone, length, thingsToAvoid, additionalContext]);
+  }, [txnId, adminToken, paidFinalize, tone, length, thingsToAvoid, additionalContext]);
 
   // ---- prefs ----
   if (phase === 'prefs') {
