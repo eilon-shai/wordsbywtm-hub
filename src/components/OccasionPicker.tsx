@@ -47,10 +47,10 @@ export default function OccasionPicker({ focus }: { focus?: string | null }) {
     );
   }
 
-  // Focused → full-width hero + the rest as a smaller, dimmed secondary row.
+  // Focused → a (modestly) featured card + the rest as a smaller, dimmed row.
   const others = OCCASIONS.filter((o) => o.slug !== featured.slug);
   return (
-    <div id="occasions" className="mx-auto max-w-4xl">
+    <div id="occasions" className="mx-auto max-w-2xl">
       <FeaturedOccasionCard o={featured} />
       {others.length > 0 && (
         <div className="mt-8">
@@ -77,27 +77,26 @@ function FeaturedOccasionCard({ o }: { o: OccasionMeta }) {
       aria-current="true"
       style={accentVar(o)}
       className={[
-        'group relative flex flex-col rounded-3xl border-2 bg-card p-8 text-left shadow-lg transition-all sm:p-10',
-        o.live ? 'hover:-translate-y-0.5 hover:shadow-xl' : 'opacity-90',
+        'group relative flex flex-col rounded-2xl border-2 bg-card p-6 text-left shadow-md transition-all',
+        o.live ? 'hover:-translate-y-0.5 hover:shadow-lg' : 'opacity-90',
       ].join(' ')}
     >
       <span
-        className="absolute -top-3 left-8 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white"
+        className="absolute -top-2.5 left-6 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white"
         style={{ backgroundColor: o.accent }}
       >
         What you’re after
       </span>
 
-      <span
-        className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full"
-        style={{ backgroundColor: `color-mix(in oklab, ${o.accent} 16%, white)` }}
-        aria-hidden
-      >
-        <span className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: o.accent }} />
-      </span>
-
       <div className="mb-2 flex items-center gap-3">
-        <h3 className="font-serif text-4xl text-foreground">{o.title}</h3>
+        <span
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+          style={{ backgroundColor: `color-mix(in oklab, ${o.accent} 16%, white)` }}
+          aria-hidden
+        >
+          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: o.accent }} />
+        </span>
+        <h3 className="font-serif text-2xl text-foreground">{o.title}</h3>
         {!o.live && (
           <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
             Coming soon
@@ -105,10 +104,10 @@ function FeaturedOccasionCard({ o }: { o: OccasionMeta }) {
         )}
       </div>
 
-      <p className="max-w-xl text-base leading-relaxed text-muted-foreground">{o.blurb}</p>
+      <p className="text-sm leading-relaxed text-muted-foreground">{o.blurb}</p>
 
       <span
-        className="mt-6 inline-flex w-fit items-center rounded-full px-6 py-3 text-sm font-semibold text-white transition-opacity group-hover:opacity-90"
+        className="mt-4 inline-flex w-fit items-center rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity group-hover:opacity-90"
         style={{ backgroundColor: o.live ? o.accent : 'var(--muted-foreground)' }}
       >
         {o.live ? `Start a ${o.title} collection →` : 'Notify me →'}
