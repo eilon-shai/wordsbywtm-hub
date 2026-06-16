@@ -18,6 +18,7 @@ import {
   setActiveTransaction,
 } from '@eilon-shai/venture-core/components';
 import { MemoryCard, type Contribution } from './MemoryCard';
+import { DirectInvite } from './InviteScreen';
 
 // ---------------------------------------------------------------------------
 // S6 + S7 — Organizer review dashboard + finalize.
@@ -292,6 +293,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
     typeof window !== 'undefined'
       ? `${window.location.origin}/c/${data.shareToken}`
       : `/c/${data.shareToken}`;
+  const shareLink = `${shareUrl}?occasion=${data.occasion}&src=invite`;
+  const inviteText = `I'm putting together a tribute for ${data.honoreeName} — add a memory here, takes 2 minutes: ${shareLink}`;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
@@ -328,25 +331,24 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
         </CardContent>
       </Card>
 
-      {/* Invite-reminder strip (below minimum) */}
-      {!generated && belowMin ? (
-        <Card className="mt-4 border-dashed">
-          <CardContent className="space-y-3 p-5">
-            <p className="text-sm text-foreground">
-              Share your invite link so more people can add a memory:
-            </p>
+      {/* Invite more people (any time before finalizing) */}
+      {!generated ? (
+        <Card className="mt-4">
+          <CardContent className="space-y-4 p-5">
+            <p className="text-sm font-medium text-foreground">Invite more people</p>
             <div className="flex items-center gap-2">
               <code className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-                {shareUrl}
+                {shareLink}
               </code>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => void navigator.clipboard?.writeText(shareUrl)}
+                onClick={() => void navigator.clipboard?.writeText(shareLink)}
               >
                 Copy
               </Button>
             </div>
+            <DirectInvite adminToken={adminToken} inviteText={inviteText} />
           </CardContent>
         </Card>
       ) : null}

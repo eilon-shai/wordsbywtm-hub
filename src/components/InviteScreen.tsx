@@ -67,7 +67,7 @@ interface Row {
 
 /** Up to 3 people: we email the invite on the organizer's behalf; WhatsApp opens
  *  a pre-filled per-person chat (Meta doesn't allow auto-send without the paid API). */
-function DirectInvite({ adminToken, inviteText }: { adminToken: string; inviteText: string }) {
+export function DirectInvite({ adminToken, inviteText }: { adminToken: string; inviteText: string }) {
   const MAX = 3;
   const [rows, setRows] = React.useState<Row[]>([
     { name: '', email: '', phone: '' },
