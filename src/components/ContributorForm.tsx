@@ -314,32 +314,10 @@ export function ContributorForm({
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           You’ve already shared a memory
         </h1>
-        <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+        <p className="text-muted-foreground text-sm leading-relaxed">
           Thank you — your memory of {honoreeLabel} is already with the organizer. There’s nothing
           more you need to do.
         </p>
-        <button
-          type="button"
-          onClick={() => {
-            // Escape hatch: let them add a second memory if they really want to.
-            idempotencyKeyRef.current =
-              typeof crypto !== 'undefined' && crypto.randomUUID
-                ? crypto.randomUUID()
-                : `ck-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-            try {
-              localStorage.removeItem(contributedKey);
-            } catch {
-              /* ignore */
-            }
-            setValues({ [NAME_FIELD]: '', [RELATIONSHIP_FIELD]: '', [MEMORY_FIELD]: '' });
-            setExtras({ quality: '', favoriteMoment: '', avoid: '' });
-            setConsent(false);
-            setAlreadyShared(false);
-          }}
-          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Add another memory
-        </button>
       </CenteredCard>
     );
   }
