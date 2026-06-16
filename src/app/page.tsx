@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import OccasionPicker from '@/components/OccasionPicker';
+import OccasionPicker, { resolveFocusSlug } from '@/components/OccasionPicker';
+import FocusScroll from '@/components/FocusScroll';
 
 // ---------------------------------------------------------------------------
 // S1 — Root hub / occasion picker.
@@ -28,9 +29,18 @@ const STEPS = [
   { n: '04', t: 'Weave it together', b: 'When you’re ready, pay once and we synthesize it all into one tribute.' },
 ];
 
-export default function HubPage() {
+export default async function HubPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ focus?: string }>;
+}) {
+  // ?focus=<occasion-or-alias> (set per ad group) puts one product in focus.
+  const { focus } = await searchParams;
+  const focusSlug = resolveFocusSlug(focus);
+
   return (
     <div className="flex min-h-screen flex-col">
+      {focusSlug ? <FocusScroll /> : null}
       {/* Nav — no login, ever */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
@@ -117,7 +127,7 @@ export default function HubPage() {
               many voices into one.
             </p>
           </div>
-          <OccasionPicker />
+          <OccasionPicker focus={focus} />
         </section>
 
         {/* How it differs from solo AI */}
