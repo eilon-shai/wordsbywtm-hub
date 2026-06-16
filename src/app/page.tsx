@@ -54,21 +54,22 @@ export default function HubPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden px-4 pb-16 pt-24 text-center">
-          {/* Soft background image — kept faint so the warm palette and text stay legible */}
+          {/* Background image — visible, with a soft scrim so the text stays legible */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-[0.12]"
+            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-40"
             style={{
               backgroundImage:
                 "url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1600&q=80&auto=format&fit=crop')",
             }}
           />
+          {/* Lighter scrim: mostly clear at top, fades into the page only at the bottom edge */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10"
             style={{
               background:
-                'linear-gradient(to bottom, color-mix(in oklch, var(--background) 55%, transparent), var(--background) 88%)',
+                'linear-gradient(to bottom, color-mix(in oklch, var(--background) 20%, transparent) 0%, color-mix(in oklch, var(--background) 35%, transparent) 55%, var(--background) 100%)',
             }}
           />
           <div className="mx-auto flex max-w-3xl flex-col items-center">
