@@ -74,6 +74,13 @@ function formatDeadline(iso?: string | null): string | null {
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+function daysUntil(iso?: string | null): number | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return Math.ceil((d.getTime() - Date.now()) / 86_400_000);
+}
+
 function statusBadge(status: string): { label: string; variant: 'default' | 'secondary' | 'outline' } {
   switch (status) {
     case 'generated':
@@ -352,6 +359,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
   const hasOrganizerMemory = data.contributions.some((c) => c.isOrganizer);
   const badge = statusBadge(data.status);
   const deadline = formatDeadline(data.deadline);
+  const deadlineDaysLeft = daysUntil(data.deadline);
   const price = data.priceShown ? `$${data.priceShown}` : null;
   const progressValue = data.minContributions
     ? Math.min(100, Math.round((includedCount / data.minContributions) * 100))
@@ -445,8 +453,37 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
             </div>
           ) : null}
 
-          {deadline ? (
-            <p className="text-sm text-muted-foreground">Memories close {deadline}</p>
+          {deadline && !generated ? (
+            <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+              <span aria-hidden className="mt-0.5 text-lg">🗓️</span>
+              <div className="min-w-0 flex-1">
+                <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-foreground">
+                  <span>Deadline: {deadline}</span>
+                  {deadlineDaysLeft != null && deadlineDaysLeft >= 0 ? (
+                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
+                      {deadlineDaysLeft === 0 ? 'today' : `${deadlineDaysLeft} day${deadlineDaysLeft === 1 ? '' : 's'} left`}
+                    </span>
+                  ) : null}
+                  <span
+                    className="cursor-help text-muted-foreground"
+                    title={
+                      data.paid
+                        ? 'On this date, memories close and we automatically create your tribute from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.'
+                        : 'On this date, memories close. Finalize before then to create your tribute — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.'
+                    }
+                    aria-label="What the deadline means"
+                  >
+                    ⓘ
+                  </span>
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {data.paid
+                    ? 'Memories close then — we’ll create your tribute automatically with whatever’s gathered.'
+                    : 'Finalize before then, or the collection and its memories are deleted.'}{' '}
+                  We’ll email a reminder 3 days before.
+                </p>
+              </div>
+            </div>
           ) : null}
         </CardContent>
       </Card>
