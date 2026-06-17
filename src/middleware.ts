@@ -10,6 +10,18 @@ import { NextRequest, NextResponse } from 'next/server';
 // allowed so local work isn't blocked.
 // ---------------------------------------------------------------------------
 
+// Constant-time string compare. The edge runtime has no crypto.timingSafeEqual,
+// so compare every char (length-padded) and OR the diffs — avoids leaking the
+// password length / prefix via response timing.
+function safeEqual(a: string, b: string): boolean {
+  const len = Math.max(a.length, b.length);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < len; i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return diff === 0;
+}
+
 function unauthorized(): NextResponse {
   return new NextResponse('Authentication required', {
     status: 401,
@@ -35,7 +47,7 @@ export function middleware(req: NextRequest): NextResponse {
       // "Basic base64(user:pass)" — accept any username, check the password.
       const decoded = atob(header.slice(6));
       const pass = decoded.slice(decoded.indexOf(':') + 1);
-      if (pass === password) return NextResponse.next();
+      if (safeEqual(pass, password)) return NextResponse.next();
     } catch {
       /* malformed header — fall through to 401 */
     }

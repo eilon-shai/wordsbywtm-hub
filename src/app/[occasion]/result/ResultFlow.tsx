@@ -205,6 +205,14 @@ function ResultFlowInner(props: ResultFlowProps) {
     return () => clearTimeout(t);
   }, [phase, txnId, props.paidTxnId, props.occasion]);
 
+  // a11y (FE-009): move focus to the result heading when the tribute appears so
+  // screen-reader / keyboard users aren't left on a silently-replaced page after
+  // a money-path action (generate OR re-view both land on 'done').
+  const doneHeadingRef = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    if (phase === 'done') doneHeadingRef.current?.focus();
+  }, [phase]);
+
   // Remember the last generate attempt (mode + prefs) so the error phase can
   // offer a safe retry — the generate endpoint re-verifies the Paddle txn fresh
   // on every call (no one-time consume), so re-invoking is replayable.
@@ -248,6 +256,29 @@ function ResultFlowInner(props: ResultFlowProps) {
           }
           const d = await res.json().catch(() => ({}));
           if (!res.ok) {
+            // Already finalized (e.g. a spent ?txn= refresh): don't dead-end — try
+            // to show the existing tribute via the admin token, else a clear note.
+            if (d.code === 'ALREADY_USED' && adminToken) {
+              try {
+                const t = await fetch('/api/collection/tribute', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ adminToken }),
+                });
+                if (t.ok) {
+                  const td = await t.json().catch(() => ({}));
+                  setContent(td.content ?? '');
+                  setHonoree(td.honoreeName ?? '');
+                  setPhase('done');
+                  return;
+                }
+              } catch {
+                /* fall through to the error message */
+              }
+              setError('This tribute was already created. Open it from the link in your email, or from your collection.');
+              setPhase('error');
+              return;
+            }
             setError(d.error ?? 'Something went wrong creating your tribute.');
             setPhase('error');
             return;
@@ -642,7 +673,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   // ---- done ----
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
-      <header className="mb-10 text-center">
+      <header className="mb-10 text-center" ref={doneHeadingRef} tabIndex={-1} role="status" aria-live="polite" style={{ outline: 'none' }}>
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
           A tribute for {honoree}
         </p>
