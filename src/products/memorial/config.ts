@@ -176,7 +176,7 @@ export const memorialConfig: ProductConfig = {
   },
 
   legal: { termsUrl: '/terms', privacyUrl: '/privacy', refundUrl: '/refund' },
-  termsVersion: '2026-05-27',
+  termsVersion: '2026-06-17',
 
   collectionConfig: {
     contributorFormFields: [

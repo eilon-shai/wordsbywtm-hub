@@ -78,6 +78,6 @@ export const retirementConfig: ProductConfig = {
     ownerEmailSubjectTemplate: (info) => `New retirement collection — ${info.customerEmail}`,
   },
   legal: { termsUrl: '/terms', privacyUrl: '/privacy', refundUrl: '/refund' },
-  termsVersion: '2026-05-27',
+  termsVersion: '2026-06-17',
   // No collectionConfig — occasion not live.
 };
