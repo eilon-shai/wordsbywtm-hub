@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Card,
   CardContent,
@@ -94,6 +95,63 @@ function statusBadge(status: string): { label: string; variant: 'default' | 'sec
       // Status indicator, not an action — outline + a dot so it doesn't read as a button.
       return { label: 'Collecting memories', variant: 'outline' };
   }
+}
+
+// Small info "ⓘ" with a tooltip rendered through a portal to <body>. A portal is
+// required because the dashboard cards use overflow-hidden, which would clip any
+// normally-positioned tooltip in either direction.
+function InfoTooltip({ text, label }: { text: string; label: string }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  const show = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    // Anchor above the icon, horizontally centred on it. Fixed coords = viewport.
+    setPos({ top: r.top, left: r.left + r.width / 2 });
+  }, []);
+  const hide = useCallback(() => setPos(null), []);
+
+  useEffect(() => {
+    if (!pos) return;
+    const onScroll = () => hide();
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [pos, hide]);
+
+  return (
+    <>
+      <button
+        ref={ref}
+        type="button"
+        className="flex h-5 w-5 cursor-help items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        aria-label={label}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
+      >
+        ⓘ
+      </button>
+      {pos && typeof document !== 'undefined'
+        ? createPortal(
+            <span
+              role="tooltip"
+              className="pointer-events-none fixed z-[100] w-64 -translate-x-1/2 -translate-y-full rounded-lg bg-foreground px-3 py-2 text-left text-xs font-normal leading-relaxed text-background shadow-lg"
+              style={{ top: pos.top - 8, left: pos.left }}
+            >
+              {text}
+            </span>,
+            document.body,
+          )
+        : null}
+    </>
+  );
 }
 
 export function ManageDashboard({ adminToken, resultPath, occasion, justCreated = false }: ManageDashboardProps) {
@@ -479,23 +537,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
                       {deadlineDaysLeft === 0 ? 'today' : `${deadlineDaysLeft} day${deadlineDaysLeft === 1 ? '' : 's'} left`}
                     </span>
                   ) : null}
-                  <span className="group relative inline-flex">
-                    <button
-                      type="button"
-                      className="flex h-5 w-5 cursor-help items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                      aria-label="What the deadline means"
-                    >
-                      ⓘ
-                    </button>
-                    <span
-                      role="tooltip"
-                      className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 rounded-lg bg-foreground px-3 py-2 text-left text-xs font-normal leading-relaxed text-background opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
-                    >
-                      {data.paid
+                  <InfoTooltip
+                    label="What the deadline means"
+                    text={
+                      data.paid
                         ? 'On this date, memories close and we automatically create your tribute from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.'
-                        : 'On this date, memories close. Finalize before then to create your tribute — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.'}
-                    </span>
-                  </span>
+                        : 'On this date, memories close. Finalize before then to create your tribute — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.'
+                    }
+                  />
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {data.paid
