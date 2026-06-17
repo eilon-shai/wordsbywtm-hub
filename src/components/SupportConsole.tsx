@@ -178,7 +178,9 @@ export function SupportConsole({ products }: { products: Product[] }) {
                   <p className="font-serif text-lg text-foreground">{row.honoreeName}</p>
                   <p className="text-xs text-muted-foreground">
                     {row.status}
-                    {row.paid ? ' · paid' : ' · unpaid'} · created {fmt(row.createdAt)} · deadline {fmt(row.deadline)}
+                    {/* A generated collection was necessarily paid (pay-before-generate),
+                        even if paid_at wasn't recorded on the pay-at-finalize path. */}
+                    {row.paid || row.generated ? ' · paid' : ' · unpaid'} · created {fmt(row.createdAt)} · deadline {fmt(row.deadline)}
                     {row.generated ? (row.hasTribute ? ' · tribute available' : ' · tribute unavailable (expired/empty)') : ''}
                   </p>
                 </div>
