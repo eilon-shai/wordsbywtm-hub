@@ -63,7 +63,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
           : undefined
       }
     >
-      <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} justCreated={justCreated} />
+      <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} organizerEmail={collection?.organizerEmail} justCreated={justCreated} />
     </main>
   );
 }

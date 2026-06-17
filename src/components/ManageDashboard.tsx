@@ -65,6 +65,8 @@ interface ManageDashboardProps {
   resultPath: string;
   /** Occasion slug — stashed in sessionStorage so the result page can theme/resolve. */
   occasion: string;
+  /** Organizer's email — prefilled (read-only) into the Paddle checkout. */
+  organizerEmail?: string;
   /** True right after creation (?new=1) — show a "ready, invite people" banner. */
   justCreated?: boolean;
 }
@@ -154,7 +156,7 @@ function InfoTooltip({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function ManageDashboard({ adminToken, resultPath, occasion, justCreated = false }: ManageDashboardProps) {
+export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false }: ManageDashboardProps) {
   const [data, setData] = useState<CollectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
@@ -354,7 +356,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
         await initSharedPaddle(resultPath);
         setActiveTransaction(transactionId, 'basic', resultPath);
         const paddle = await getSharedPaddle();
-        paddle.Checkout.open({ transactionId });
+        // Prefill the organizer's email and lock it (allowLogout:false) so the
+        // payer can't change it — matches the single-product checkout UX.
+        paddle.Checkout.open({
+          transactionId,
+          ...(organizerEmail
+            ? { customer: { email: organizerEmail }, settings: { allowLogout: false } }
+            : {}),
+        });
         // Overlay is open; clear the spinner so the page stays interactive behind it.
         setFinalizing(false);
         return;
@@ -589,6 +598,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
               inviteText={inviteText}
               whatsappUrl={whatsappUrl}
               emailUrl={emailUrl}
+              organizerEmail={organizerEmail}
               paid={!!data.paid}
               price={price}
             />
