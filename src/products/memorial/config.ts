@@ -146,7 +146,7 @@ export const memorialConfig: ProductConfig = {
   primaryDimension: 'relationship',
   toneDimension: 'tone',
   narrativeFieldName: 'memory',
-  lockTtlMs: 30000,
+  lockTtlMs: 90000, // >= synthesis maxDuration(60s)+margin so the lock outlives generation (BE-01)
 
   rateLimits: {
     generate: { requests: 5, windowSeconds: 600 },

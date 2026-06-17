@@ -56,7 +56,7 @@ export const weddingConfig: ProductConfig = {
   primaryDimension: 'relationship',
   toneDimension: 'tone',
   narrativeFieldName: 'memory',
-  lockTtlMs: 30000,
+  lockTtlMs: 90000, // >= synthesis maxDuration(60s)+margin so the lock outlives generation (BE-01)
   email: {
     fromEmail: FROM_EMAIL,
     ownerEmail: 'eilon.shai@gmail.com',
