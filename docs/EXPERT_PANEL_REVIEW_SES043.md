@@ -279,6 +279,31 @@ Lowest dimension; Legal (6), Marketing (6), QA (6), plus Frontend (7) and Archit
 
 ---
 
+## Remediation Status — updated 2026-06-17 (post-review fixes)
+
+Fixes shipped across app branch `feat/collection-app` and venture-core PRs **#289 (→1.15.0)** and **#291 (→1.15.1)**. App re-pinned to **1.15.0** (re-pin to 1.15.1 after #291 publishes).
+
+### All 5 CRITICALs — resolved ✅
+| Finding | Fix | Where |
+|---|---|---|
+| MKT-001 fake testimonials | removed `MOCK_TESTIMONIALS` from live landing | app `0689f8f` |
+| FE-001 tribute re-view dead end | store `generated_content` + `createGetTributeHandler`; `/api/collection/tribute` + dashboard `?t=` link + ResultFlow read-back | core #289 + app `f2cd923` |
+| LC-01 PII kept forever | post-gen `purge_after` (30d) + `purgeExpired` + `/api/cron/purge` daily | core #289 + app `f2cd923` |
+| LC-02 consent not recorded | per-contribution consent record (ts + version) | core #289 |
+| QA-1 no webhook backstop | `transaction.completed` → `markCollectionPaid` | core #289 |
+
+### HIGH — resolved ✅
+FE-002/UX-02/MKT-006 edit-pack no-op charge (app `0689f8f`) · BE-01 lock TTL 90s (app `cf3c3ae`) · BE-02/ARCH-02 sweep product-scoped + BE-03 get-collection guard (#289) · SEC-02/QA-3 deadline validation (#289) · UX-01 result recovery (app `f2cd923`) · LC-05 accurate copy (app `0689f8f`) · QA-4 202 polling (app `0689f8f`) · MKT-003/UX-06 advance-pay reframe (app `5eed25a`) · SEC-01 fail-closed mock (#291) · ARCH-03 double-charge guard (#291) · QA-2 handler tests (#291).
+
+### Path-to-9 — resolved ✅
+ARCH-06 keyed HMAC dedup · SEC-03 price verification · SEC-04 wider share token · BE-06 SQLSTATE dup match (all #291) · FE-004 dialog a11y · FE-005 aria-live · FE-006 dedup-race guard · FE-007 filename sanitize · UX-03 ISO date · UX-05 warm dup screen · UX-07 paid-finalize feedback · ARCH-05 review-vs-shipped version reconciled (now 1.15.x).
+
+### Still open
+- **Founder-owned:** LC-03 (attorney ratification of collection ToS/Privacy — retention is **30 days**) · MKT-002 (GA4/PostHog keys) · prod env (`ENABLE_MOCK_PAYMENT` off, edit-pack price unset, set `CRON_SECRET`) · run the 1.15.0 ALTER TABLE (done).
+- **Remaining engineering (lower severity / path-to-9):** LC-04 contributor erasure path · BE-04 mark-paid mock product guard · BE-05 finalize crash-window sentinel · ARCH-04 durable txn→collection resolution · ARCH-07 atomic invite counter · SEC-05 occasion from route not body · UX-04 progress-bar/CTA for write-later · MKT-004 email friction · MKT-005 waitlist capture · QA-5 db-level dedup tests · QA-6 fail-fast empty stub product id · QA-7 app E2E · QA-8 productless-txn guard.
+
+---
+
 ## How to re-run this review (SES-044)
 
 1. **Land the 🔴 must-do fixes** (especially the 5 CRITICALs + SEC-01/SEC-02 + LC-03 attorney ratification), publish a new venture-core version, and pin wordsbywtm-hub to it.
