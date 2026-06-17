@@ -279,6 +279,12 @@ Lowest dimension; Legal (6), Marketing (6), QA (6), plus Frontend (7) and Archit
 
 ---
 
+## Database verification — 2026-06-17 ✅
+
+Live Neon schema confirmed against the code: `collections` has all 20 columns (incl. `paid_at`, `paid_txn_id`, `reminder_sent_at`, `deadline_extended_count`, `generated_at`, `generated_content`); `collections_purge_idx` is non-partial (covers finalized rows — LC-01); `collections_deadline_idx` present. `contributions` has `contributor_email_hash` + `is_organizer` with both partial unique indexes. Schema matches 1.15.x.
+
+---
+
 ## Remediation Status — updated 2026-06-17 (post-review fixes)
 
 Fixes shipped across app branch `feat/collection-app` and venture-core PRs **#289 (→1.15.0)** and **#291 (→1.15.1)**. App re-pinned to **1.15.0** (re-pin to 1.15.1 after #291 publishes).
