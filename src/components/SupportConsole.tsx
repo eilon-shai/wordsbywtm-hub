@@ -16,6 +16,7 @@ interface CollectionRow {
   createdAt: string | null;
   deadline: string | null;
   generated: boolean;
+  hasTribute: boolean;
   adminToken: string;
   manageUrl: string;
   tributeUrl: string;
@@ -177,31 +178,41 @@ export function SupportConsole({ products }: { products: Product[] }) {
                   <p className="font-serif text-lg text-foreground">{row.honoreeName}</p>
                   <p className="text-xs text-muted-foreground">
                     {row.status}
-                    {row.paid ? ' · paid' : ' · unpaid'} · created {fmt(row.createdAt)} · deadline {fmt(row.deadline)}
+                    {/* A generated collection was necessarily paid (pay-before-generate),
+                        even if paid_at wasn't recorded on the pay-at-finalize path. */}
+                    {row.paid || row.generated ? ' · paid' : ' · unpaid'} · created {fmt(row.createdAt)} · deadline {fmt(row.deadline)}
+                    {row.generated ? (row.hasTribute ? ' · tribute available' : ' · tribute unavailable (expired/empty)') : ''}
                   </p>
                 </div>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={busy === `${row.id}:collection`}
-                  onClick={() => void resend(row, 'collection')}
-                >
-                  {busy === `${row.id}:collection` ? 'Sending…' : 'Restore collection link'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={!row.generated || busy === `${row.id}:tribute`}
-                  title={row.generated ? undefined : 'No tribute generated yet'}
-                  onClick={() => void resend(row, 'tribute')}
-                >
-                  {busy === `${row.id}:tribute` ? 'Sending…' : 'Restore tribute link'}
-                </Button>
+                {/* Collection (manage) link only matters while the collection is
+                    still open; once generated, the tribute link is the relevant one. */}
+                {row.status === 'open' ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={busy === `${row.id}:collection`}
+                    onClick={() => void resend(row, 'collection')}
+                  >
+                    {busy === `${row.id}:collection` ? 'Sending…' : 'Restore collection link'}
+                  </Button>
+                ) : null}
+                {/* Tribute link only for generated collections whose content is
+                    still stored (removed at the retention purge). */}
+                {row.hasTribute ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={busy === `${row.id}:tribute`}
+                    onClick={() => void resend(row, 'tribute')}
+                  >
+                    {busy === `${row.id}:tribute` ? 'Sending…' : 'Restore tribute link'}
+                  </Button>
+                ) : null}
                 {confirmDelete === row.id ? (
                   <span className="inline-flex items-center gap-2">
                     <Button

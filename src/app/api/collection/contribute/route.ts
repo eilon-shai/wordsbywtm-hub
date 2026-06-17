@@ -1,12 +1,82 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
+import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { createSubmitContributionHandler } from '@eilon-shai/venture-core/api';
+import { getDbClient, getCollectionByShareToken } from '@eilon-shai/venture-core/db';
+import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
 import { resolveForTokenPost } from '@/lib/route-helpers';
 
 export const maxDuration = 60;
+
+function appBase(domain: string): string {
+  return domain.startsWith('http') ? domain.replace(/\/$/, '') : `https://${domain}`;
+}
+
+// Notify the organizer that a (non-organizer) contributor added a memory, so they
+// know to come back and review. Best-effort: never blocks or fails the
+// contribution. Runs after the response via after().
+async function notifyOrganizer(
+  config: ProductConfig,
+  shareToken: string,
+  contributorName: string,
+): Promise<void> {
+  const db = getDbClient();
+  if (!db) return;
+  const collection = await getCollectionByShareToken(db, shareToken).catch(() => null);
+  if (!collection) return;
+
+  const resend = getResendClient();
+  if (!resend || process.env.DISABLE_EMAIL === 'true') return;
+
+  const manageUrl = `${appBase(config.brand.domain)}/collect/manage?t=${collection.adminToken}`;
+  const who = contributorName.trim() || 'Someone';
+  const accent = config.email.brandColor;
+  try {
+    await sendEmail(resend, {
+      from: config.email.fromEmail,
+      to: collection.organizerEmail,
+      subject: `A new memory was added for ${collection.honoreeName}`,
+      html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;line-height:1.6;">
+        <p><strong>${who}</strong> just added a memory to your collection for <strong>${collection.honoreeName}</strong>.</p>
+        <p style="margin:24px 0;"><a href="${manageUrl}" style="background:${accent};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Review the memories</a></p>
+        <p style="font-size:13px;color:#8c7c68;">When you're ready, you can review everything and create the tribute from your collection.</p>
+      </div>`,
+      text: `${who} added a memory to your collection for ${collection.honoreeName}. Review: ${manageUrl}`,
+    });
+  } catch (err) {
+    console.warn('[contribute] organizer notify failed:', err instanceof Error ? err.message : err);
+  }
+}
 
 // POST /api/collection/contribute — handler 2. Public; share-token scoped.
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const resolved = await resolveForTokenPost(request, 'shareToken', 'share');
   if (resolved instanceof NextResponse) return resolved;
-  return createSubmitContributionHandler(resolved)(request);
+
+  // Peek at the body (clone) BEFORE the handler consumes it, so we can notify the
+  // organizer after a successful, non-organizer contribution.
+  let peek: { shareToken?: unknown; contributorName?: unknown; isOrganizer?: unknown } = {};
+  try {
+    peek = await request.clone().json();
+  } catch {
+    /* unparseable — the handler will reject it; no notify */
+  }
+
+  const res = await createSubmitContributionHandler(resolved)(request);
+
+  if (
+    res.ok &&
+    peek.isOrganizer !== true &&
+    typeof peek.shareToken === 'string' &&
+    peek.shareToken
+  ) {
+    const shareToken = peek.shareToken;
+    const contributorName = typeof peek.contributorName === 'string' ? peek.contributorName : '';
+    try {
+      after(() => notifyOrganizer(resolved, shareToken, contributorName));
+    } catch {
+      /* not in a request scope (e.g. unit tests) — skip the deferred notify */
+    }
+  }
+
+  return res;
 }
