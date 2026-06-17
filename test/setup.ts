@@ -15,7 +15,7 @@ if (process.env.DATABASE_URL) {
 }
 
 // Safe, deterministic test config. Mock-payment + sandbox so nothing real fires.
-process.env.NODE_ENV = 'test';
+(process.env as Record<string, string>).NODE_ENV = 'test';
 process.env.ENABLE_MOCK_PAYMENT = 'true';
 process.env.PADDLE_ENVIRONMENT = 'sandbox';
 process.env.DISABLE_EMAIL = 'true';

@@ -1,0 +1,841 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for wordsbywtm-hub/src/products/_landing/memorial.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">wordsbywtm-hub/src/products/_landing</a> memorial.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/194</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/194</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import type { LandingPageConfig } from '@eilon-shai/venture-core';<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+import { memorialConfig } from '@/products/memorial/config';
+&nbsp;
+// ---------------------------------------------------------------------------
+// Memorial per-occasion landing page config (S2).
+//
+// Reuses venture-core's LandingPage in formFirst nav mode — every CTA routes to
+// `/memorial/start?tier=` with no Paddle init. The collaborative-collection
+// narrative replaces the single-author eulogy story: gather many voices, review,
+// pay once to weave them into one tribute read aloud at the service.
+//
+// All copy describes what the product does (gather, weave, read aloud), never
+// who it is for (portfolio hard rule #7 — no demographic/identity language).
+// ---------------------------------------------------------------------------
+&nbsp;
+<span class="cstat-no" title="statement not covered" >const FINALIZE_PRICE = `$${memorialConfig.tiers.full.displayPrice}`;</span>
+&nbsp;
+// The single most important conversion asset: a real synthesized multi-voice
+// tribute in the collective "Some remember… others recall…" register that only
+// the collaborative model can produce.
+<span class="cstat-no" title="statement not covered" >const SAMPLE_MIXED = `Ask anyone who knew Eleanor and the same word surfaces before any other: present. Not busy, not performing — present. Some remember the way she'd put down whatever she was holding the moment you walked into a room, as if the rest of the day could wait. Others recall that she did this for the mail carrier and the cardiologist alike, with no detectable change in warmth.</span>
+&nbsp;
+Her granddaughter remembers the index cards. Eleanor kept a recipe box that was never really about recipes — tucked between the cards for pot roast and lemon bars were birthdays, the names of people's dogs, the date someone had started a new job so she'd know to ask about it next time. "She didn't have a good memory," one of us wrote. "She had a system, because remembering mattered to her that much."
+&nbsp;
+A colleague of thirty years recalls a different Eleanor entirely, and yet exactly the same one: the one who, in a meeting full of people talking past each other, would wait, and then ask the one question that made everyone realize what they'd actually been arguing about. She was not loud. She was, several people independently noted, almost never the first to speak — and almost always the last word anyone remembered.
+&nbsp;
+There are the small things, too many to fit, that together make a life. The way she hummed while she gardened, off-key and unbothered. The standing Sunday calls she made to three different people in three different time zones. The fact that she signed every card, even the store-bought ones, with a line of her own so it wouldn't be only Hallmark's words.
+&nbsp;
+What comes through most, across every memory gathered here, is that Eleanor made people feel known. Not flattered, not entertained — known. To be on the receiving end of her attention was to feel, however briefly, that you were the most interesting thing in her day.
+&nbsp;
+She is not gone from this room. She's in the recipe box, in the unasked questions her family will now learn to ask, in the off-key humming someone in this family will catch themselves doing years from now without knowing where it came from. We carry that forward. All of us. Together.`;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >const SAMPLE_FAMILY = `Some of us knew Tom as a father, some as a brother, one of us as the man who taught half the neighborhood to ride a bike. Put the memories side by side and a single figure steps forward: steady, dry-humored, quietly unshakeable.</span>
+&nbsp;
+His son remembers the garage — the radio always on a baseball game, the coffee can of mismatched screws Tom swore he could find anything in, and somehow could. His sister remembers a much younger Tom, the one who covered for her more than once and never once mentioned it again. A neighbor remembers being new on the street, knowing no one, and Tom appearing at the door with a rake and the words, "Looked like you could use a hand."
+&nbsp;
+Several people used almost the same phrase, without coordinating: he showed up. Not with speeches. With a rake, a ride to the airport at 4 a.m., a folding chair carried over to whoever was setting up. He believed, as one memory put it, that love was mostly a verb.
+&nbsp;
+He had his particulars. The dishwasher had a correct loading order known only to him. He pronounced certain words wrong on purpose, for forty years, purely to be told he was wrong. He kept every ticket stub from every game he ever attended in a shoebox no one was allowed to throw out — and which, it turns out, none of us will ever throw out now.
+&nbsp;
+What gathers from all of it is a man who made the people around him feel safe — that whatever broke, Tom would help fix it, and whatever happened, Tom would show up. That is not a small thing to leave behind. It may be the largest thing there is.`;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >const SAMPLE_FRIENDS = `Margaret collected people the way other people collect stamps — carefully, with genuine delight, and a memory for exactly where each one came from. The memories gathered here come from a book club, a hiking group, two former coworkers, and a woman she met in a hospital waiting room in 1994 and never stopped calling. That range is the point.</span>
+&nbsp;
+Her oldest friend remembers the laugh first — the real one, the one that started silent and arrived a full second late. Several people remember her advice, which was unsolicited, frequently correct, and impossible to be angry about. "She'd tell you the truth," one wrote, "and then make you a sandwich, so you couldn't stay mad."
+&nbsp;
+A hiking companion remembers her at the back of the group, not because she was slow but because she'd stop for every overlook, every odd mushroom, every dog on the trail. "She refused to hurry through a good day," the memory reads. More than one person, it turns out, learned how to slow down from watching Margaret.
+&nbsp;
+She was generous in the unglamorous ways — the rides, the casseroles, the phone calls on the anniversaries other people forgot. She remembered. That recurs across nearly every memory here: she remembered what mattered to you, and she brought it up, sometimes years later, so you'd know it had stayed with her.
+&nbsp;
+To have been chosen by Margaret — and everyone here was, specifically, chosen — was to be kept. That is what we hold now. Not the absence of her, but the long evidence that we were, each of us, kept.`;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export const memorialLandingConfig: LandingPageConfig = {</span>
+<span class="cstat-no" title="statement not covered" >  brand: { name: 'Memorial Collection' },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  seo: {</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: 'Memorial Collection — Gather memories into one tribute | Words That Matter',</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription:</span>
+<span class="cstat-no" title="statement not covered" >      'Start a memorial collection, invite everyone who knew them to add a memory, then weave it all into one tribute read aloud at the service. Free to create and collect. Pay once when you finalize. No account needed.',</span>
+<span class="cstat-no" title="statement not covered" >    canonicalUrl: 'https://wordsbywtm.com/memorial',</span>
+<span class="cstat-no" title="statement not covered" >    ogImageUrl: 'https://wordsbywtm.com/og-memorial.png',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  nav: {</span>
+<span class="cstat-no" title="statement not covered" >    links: [</span>
+<span class="cstat-no" title="statement not covered" >      { href: '/memorial', label: 'Memorial' },</span>
+<span class="cstat-no" title="statement not covered" >      { href: '/wedding', label: 'Wedding' },</span>
+<span class="cstat-no" title="statement not covered" >      { href: '/retirement', label: 'Retirement' },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  hero: {</span>
+<span class="cstat-no" title="statement not covered" >    badge: 'Gathered · Woven · Read Aloud',</span>
+<span class="cstat-no" title="statement not covered" >    headline: 'One tribute,',</span>
+<span class="cstat-no" title="statement not covered" >    headlineEmphasis: 'in everyone’s voice.',</span>
+<span class="cstat-no" title="statement not covered" >    subheading:</span>
+<span class="cstat-no" title="statement not covered" >      'No one person holds the whole of a life. Start a collection, invite the people who knew them to each add a memory, and we weave them into one moving tribute — ready to read aloud at the service.',</span>
+<span class="cstat-no" title="statement not covered" >    backgroundImageUrl:</span>
+<span class="cstat-no" title="statement not covered" >      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&amp;q=80&amp;auto=format&amp;fit=crop',</span>
+<span class="cstat-no" title="statement not covered" >    sampleExcerpt: SAMPLE_MIXED,</span>
+<span class="cstat-no" title="statement not covered" >    sampleExcerptBadge: 'Woven from 9 memories',</span>
+<span class="cstat-no" title="statement not covered" >    fullCtaLabel: 'Start a Memorial Collection →',</span>
+<span class="cstat-no" title="statement not covered" >    trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  howItWorks: {</span>
+<span class="cstat-no" title="statement not covered" >    eyebrow: 'How it works',</span>
+<span class="cstat-no" title="statement not covered" >    heading: 'Three steps, one tribute',</span>
+<span class="cstat-no" title="statement not covered" >    steps: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        step: '01',</span>
+<span class="cstat-no" title="statement not covered" >        title: 'Start a collection',</span>
+<span class="cstat-no" title="statement not covered" >        body: 'Tell us who you’re honoring and add your own first memory. It’s free to create — we email you a private link to manage it.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        step: '02',</span>
+<span class="cstat-no" title="statement not covered" >        title: 'Invite the people who knew them',</span>
+<span class="cstat-no" title="statement not covered" >        body: 'Share one link with family and friends. Each person adds a memory in about two minutes — no account, no payment, then you review every one and choose what to include.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        step: '03',</span>
+<span class="cstat-no" title="statement not covered" >        title: 'Weave them into one tribute',</span>
+<span class="cstat-no" title="statement not covered" >        body: 'When you’re ready, pay once and we synthesize the memories into a single tribute — in a collective voice, true to every contribution.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  vsAI: {</span>
+<span class="cstat-no" title="statement not covered" >    eyebrow: 'Why gather instead of write',</span>
+<span class="cstat-no" title="statement not covered" >    heading: 'A solo AI writes from one memory. This writes from everyone’s.',</span>
+<span class="cstat-no" title="statement not covered" >    themLabel: 'Solo AI tool',</span>
+<span class="cstat-no" title="statement not covered" >    usLabel: 'Memorial Collection',</span>
+<span class="cstat-no" title="statement not covered" >    rows: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        aspect: 'Where the words come from',</span>
+<span class="cstat-no" title="statement not covered" >        them: 'Whatever one grieving person can manage to type into a box, often through tears, often alone.',</span>
+<span class="cstat-no" title="statement not covered" >        us: 'Real memories from everyone who knew them — the recipe box, the garage radio, the late laugh — details no one person could supply.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        aspect: 'Whose voice it carries',</span>
+<span class="cstat-no" title="statement not covered" >        them: 'A single perspective, however heartfelt — one angle on a whole life.',</span>
+<span class="cstat-no" title="statement not covered" >        us: 'A genuine collective voice: “Some remember… others recall…” — the chorus only many contributors can create.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        aspect: 'What it asks of you in grief',</span>
+<span class="cstat-no" title="statement not covered" >        them: 'You do all the remembering and all the writing, by yourself, in the hardest week of your life.',</span>
+<span class="cstat-no" title="statement not covered" >        us: 'You invite people and they show up — gathering memories becomes something the whole circle does together.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        aspect: 'What it leaves behind',</span>
+<span class="cstat-no" title="statement not covered" >        them: 'A document.',</span>
+<span class="cstat-no" title="statement not covered" >        us: 'A keepsake woven from many hands — and the memories themselves, gathered in one place.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    closingLine: 'No one should have to remember a whole life alone.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  samples: {</span>
+<span class="cstat-no" title="statement not covered" >    eyebrow: 'Sample tributes',</span>
+<span class="cstat-no" title="statement not covered" >    heading: 'Woven from many voices',</span>
+<span class="cstat-no" title="statement not covered" >    subheading: 'Each of these was synthesized from real memories shared by a different group of people.',</span>
+<span class="cstat-no" title="statement not covered" >    tabs: [</span>
+<span class="cstat-no" title="statement not covered" >      { value: 'mixed', label: 'Family &amp; friends', content: SAMPLE_MIXED },</span>
+<span class="cstat-no" title="statement not covered" >      { value: 'family', label: 'Mostly family', content: SAMPLE_FAMILY },</span>
+<span class="cstat-no" title="statement not covered" >      { value: 'friends', label: 'Friends &amp; circles', content: SAMPLE_FRIENDS },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  pricing: {</span>
+<span class="cstat-no" title="statement not covered" >    eyebrow: 'Simple, one-time pricing',</span>
+<span class="cstat-no" title="statement not covered" >    heading: 'Free to gather.\nPay once to weave it together.',</span>
+<span class="cstat-no" title="statement not covered" >    subheading:</span>
+<span class="cstat-no" title="statement not covered" >      'Creating the collection and inviting people is free. You only pay when you finalize — one time, no subscription, no account.',</span>
+<span class="cstat-no" title="statement not covered" >    full: {</span>
+<span class="cstat-no" title="statement not covered" >      price: FINALIZE_PRICE,</span>
+<span class="cstat-no" title="statement not covered" >      label: 'Memorial Tribute',</span>
+<span class="cstat-no" title="statement not covered" >      badge: 'Pay only at the end',</span>
+<span class="cstat-no" title="statement not covered" >      description: 'One tribute, woven from every memory you choose to include, in a collective voice meant to be read aloud.',</span>
+<span class="cstat-no" title="statement not covered" >      features: [</span>
+<span class="cstat-no" title="statement not covered" >        'Invite up to 10 people to add a memory (3 on the free plan)',</span>
+<span class="cstat-no" title="statement not covered" >        'Free to create and collect — pay only when you finalize',</span>
+<span class="cstat-no" title="statement not covered" >        'One synthesized tribute woven from the memories you include',</span>
+<span class="cstat-no" title="statement not covered" >        'A warm, collective voice, true to every contribution',</span>
+<span class="cstat-no" title="statement not covered" >        'Emailed to you, ready to read aloud at the service',</span>
+<span class="cstat-no" title="statement not covered" >      ],</span>
+<span class="cstat-no" title="statement not covered" >      ctaLabel: 'Start a Memorial Collection →',</span>
+<span class="cstat-no" title="statement not covered" >      featured: true,</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >    basic: {</span>
+<span class="cstat-no" title="statement not covered" >      price: '$0',</span>
+<span class="cstat-no" title="statement not covered" >      label: 'To create &amp; collect',</span>
+<span class="cstat-no" title="statement not covered" >      description: 'Start a collection, invite people, and read every memory — all free, with nothing due until you finalize.',</span>
+<span class="cstat-no" title="statement not covered" >      features: [</span>
+<span class="cstat-no" title="statement not covered" >        'Create a collection in under a minute',</span>
+<span class="cstat-no" title="statement not covered" >        'Invite up to 3 people with one link (10 once you finalize/pay)',</span>
+<span class="cstat-no" title="statement not covered" >        'Read and review every memory as it arrives',</span>
+<span class="cstat-no" title="statement not covered" >        'No account, no card, nothing due upfront',</span>
+<span class="cstat-no" title="statement not covered" >      ],</span>
+<span class="cstat-no" title="statement not covered" >      ctaLabel: 'Start a Memorial Collection →',</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  faq: {</span>
+<span class="cstat-no" title="statement not covered" >    heading: 'Common questions',</span>
+<span class="cstat-no" title="statement not covered" >    items: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'Do the people I invite have to pay?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'No. Contributors never pay and never make an account. They open your link, add a memory in a couple of minutes, and they’re done. Only you, the organizer, pay — once, at the very end.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'Can I see the memories before I pay?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'Yes. Reading and reviewing every memory is completely free. You only pay when you decide to finalize and have the tribute woven together. Nothing is generated before you pay.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'Who can see what others wrote?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'Only you. Memories are not published anywhere public. Each contributor sees only their own submission; you’re the one who reads them all and decides what to include.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'What if someone shares something I don’t want in the tribute?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'You’re in control. Every memory is included by default, but you can leave any of them out with one tap before you finalize. Nothing you exclude appears in the tribute.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'What is the link — do people need an account?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'It’s a private link, no account required. You share one link with everyone you invite. We also email you a separate, private link so you can come back to manage and finish whenever you’re ready.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'What if only a few people contribute?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'That’s fine. The tribute can be woven from even a single heartfelt memory — we never hold your collection hostage to a quota. More voices make a richer tribute, but a small, close circle is enough.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'How is this different from writing it with ChatGPT?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'A solo AI tool can only work from what one grieving person manages to type. This gathers real memories from everyone who knew them and weaves them into one collective voice — the “some remember, others recall” register that only many contributions can create.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'Is using AI for something this personal appropriate?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'The words come from the people who loved them — the memories are real and theirs. We help organize and weave those genuine memories into one coherent tribute. What everyone feels is real; we help it be said well.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'How long does it take?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'Creating a collection takes under a minute. Collecting memories happens over hours or days as people respond. Once you finalize, the tribute is woven and emailed to you within a minute or two.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        q: 'What if it’s not right?',</span>
+<span class="cstat-no" title="statement not covered" >        a: 'If the finished tribute doesn’t feel right, email memorial@wordsbywtm.com and we’ll make it right. The memories you gathered are always yours.',</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  finalCta: {</span>
+<span class="cstat-no" title="statement not covered" >    heading: 'Gather the memories before they scatter.',</span>
+<span class="cstat-no" title="statement not covered" >    subheading:</span>
+<span class="cstat-no" title="statement not covered" >      'Start a collection now — it’s free. Invite the people who knew them, and weave their memories into one tribute when you’re ready.',</span>
+<span class="cstat-no" title="statement not covered" >    ctaLabel: 'Start a Memorial Collection →',</span>
+<span class="cstat-no" title="statement not covered" >    backgroundImageUrl:</span>
+<span class="cstat-no" title="statement not covered" >      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&amp;q=80&amp;auto=format&amp;fit=crop',</span>
+<span class="cstat-no" title="statement not covered" >    trustNote: 'Free to create and collect · Pay once when you finalize · No account needed',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  legal: {</span>
+<span class="cstat-no" title="statement not covered" >    termsUrl: '/terms',</span>
+<span class="cstat-no" title="statement not covered" >    privacyUrl: '/privacy',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  footer: {</span>
+<span class="cstat-no" title="statement not covered" >    links: [</span>
+<span class="cstat-no" title="statement not covered" >      { href: '/terms', label: 'Terms' },</span>
+<span class="cstat-no" title="statement not covered" >      { href: '/privacy', label: 'Privacy' },</span>
+<span class="cstat-no" title="statement not covered" >      { href: '/refund', label: 'Refund Policy' },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    copyright: `© ${new Date().getFullYear()} Words That Matter LLC. All rights reserved.`,</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >};</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-06-17T11:28:06.786Z
+            </div>
+        <script src="../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
+    </body>
+</html>
+    
