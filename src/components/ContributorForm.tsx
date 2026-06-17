@@ -567,6 +567,8 @@ export function ContributorForm({
               The person collecting this will read it and may include it in one combined tribute.
               Your memory isn’t published publicly. You don’t pay, and we use your email only to keep
               memories to one per person — see our <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Privacy Policy</a>.
+              You can ask us to remove your memory any time at{' '}
+              <a href="mailto:hello@wordsbywtm.com" className="underline hover:text-foreground">hello@wordsbywtm.com</a>.
             </p>
             <label
               ref={consentRef}

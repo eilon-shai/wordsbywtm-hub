@@ -55,6 +55,15 @@ export const OCCASIONS: OccasionMeta[] = [
   },
 ];
 
+// QA-6: fail fast at startup if any LIVE occasion is misconfigured (empty
+// paddleProductId would collapse dedup + cross-product guards). Stub occasions
+// (live:false) are allowed to have a placeholder id.
+for (const o of OCCASIONS) {
+  if (o.live && !CONFIGS[o.slug]?.brand?.paddleProductId) {
+    throw new Error(`[registry] live occasion "${o.slug}" must have a non-empty brand.paddleProductId`);
+  }
+}
+
 /** Returns the ProductConfig for an occasion slug, or undefined if unknown. */
 export const getConfig = (slug: string): ProductConfig | undefined => CONFIGS[slug];
 

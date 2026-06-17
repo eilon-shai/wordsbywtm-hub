@@ -134,13 +134,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Email is temporarily unavailable', code: 'INVALID_SESSION', retryable: true }, { status: 503 });
   }
 
+  const dayKey = `${prefix}:invite-day:${collection.id}:${today}`;
   let sent = 0;
   let skipped = 0; // already emailed this person today (#1)
   for (const r of clean) {
-    if (sent >= remainingToday) {
-      skipped += 1;
-      continue;
-    }
     const rcptKey = `${prefix}:invite-rcpt:${collection.id}:${r.email}`;
     if (redis) {
       try {
@@ -152,6 +149,29 @@ export async function POST(req: NextRequest) {
         /* non-fatal — proceed */
       }
     }
+
+    // ARCH-07 — atomic daily-cap reservation: INCR first, then check, so two
+    // concurrent requests can't both slip past the cap. Roll back on overflow.
+    let reserved = false;
+    if (redis) {
+      try {
+        const n = await redis.incr(dayKey);
+        if (n === 1) await redis.expire(dayKey, 86400);
+        if (n > dailyCap) {
+          await redis.decr(dayKey);
+          skipped += 1;
+          continue;
+        }
+        reserved = true;
+      } catch {
+        /* redis hiccup — fall back to the best-effort in-memory window */
+        if (sent >= remainingToday) { skipped += 1; continue; }
+      }
+    } else if (sent >= remainingToday) {
+      skipped += 1;
+      continue;
+    }
+
     try {
       await sendEmail(resend, {
         from,
@@ -163,14 +183,16 @@ export async function POST(req: NextRequest) {
       if (redis) {
         try {
           await redis.set(rcptKey, '1', { ex: 86400 }); // per-recipient/day lock
-          await redis.incr(`${prefix}:invite-day:${collection.id}:${today}`);
-          await redis.expire(`${prefix}:invite-day:${collection.id}:${today}`, 86400);
         } catch {
           /* non-fatal */
         }
       }
     } catch (err) {
       console.error('[invite] send error:', err instanceof Error ? err.message : err);
+      // Release the reserved daily slot so a failed send doesn't consume the cap.
+      if (redis && reserved) {
+        try { await redis.decr(dayKey); } catch { /* non-fatal */ }
+      }
     }
   }
 

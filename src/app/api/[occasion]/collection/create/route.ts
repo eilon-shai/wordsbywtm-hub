@@ -18,5 +18,19 @@ export async function POST(
       { status: 404 },
     );
   }
-  return createCreateCollectionHandler(config)(request);
+  // SEC-05: the stored occasion is derived from the validated route, never the
+  // client body. Rebuild the request with occasion forced to the route value.
+  let forwarded = request;
+  try {
+    const body = (await request.clone().json()) as Record<string, unknown>;
+    body.occasion = occasion;
+    forwarded = new NextRequest(request.url, {
+      method: 'POST',
+      headers: request.headers,
+      body: JSON.stringify(body),
+    });
+  } catch {
+    // Unparseable body — let the handler return its own validation error.
+  }
+  return createCreateCollectionHandler(config)(forwarded);
 }
