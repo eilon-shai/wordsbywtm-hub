@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-progress runs on the same branch/PR to save spend.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: Type check + unit/integration tests (Vitest) ──────────────────
+  # In-process, hermetic (no DB/AI/email/Paddle) — fast and safe to run on
+  # every PR and on push to main.
+  unit:
+    name: Type check + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "@eilon-shai:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  # ── Job 2: Render/hydration smoke (Playwright, Tier A) ───────────────────
+  # Safe browser smoke — NO DB writes (DATABASE_URL deliberately unset, so the
+  # app's null-db paths render gracefully). Catches Next build / client-component
+  # / Paddle.js wiring breakage the Vitest layer can't. The mutating Tier-B
+  # happy-path is gated behind E2E_ALLOW_DB_WRITES and is NOT run here.
+  e2e-smoke:
+    name: Render/hydration smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [unit]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "@eilon-shai:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+
+      - run: npm ci
+
+      - name: Get Playwright version for cache key
+        id: pw-version
+        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.pw-version.outputs.version }}-chromium
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run render/hydration smoke
+        run: npm run e2e:smoke
+        env:
+          CI: "true"
+          # Test-only key so client/redis init never throws at boot. NOT a secret.
+          REDIS_FORM_ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+          # DATABASE_URL intentionally UNSET — keeps the smoke DB-free and safe.
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-report
+          path: playwright-report/
+          retention-days: 7
