@@ -518,7 +518,22 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
       }
     }
 
-    setPhase('invite');
+    // Go straight to the manage dashboard (it already has the invite link, review,
+    // and finalize) — no separate invite page. We hold the admin token from create,
+    // so redirect via a RELATIVE path (stays on this origin) with ?new=1 so the
+    // dashboard leads with "invite people" + the emailed-link reassurance.
+    const adminTok = (() => {
+      try {
+        return new URL(created.adminUrl).searchParams.get('t') ?? '';
+      } catch {
+        return '';
+      }
+    })();
+    if (adminTok) {
+      window.location.href = `/collect/manage?t=${encodeURIComponent(adminTok)}&new=1`;
+      return;
+    }
+    setPhase('invite'); // fallback if the token couldn't be parsed
   }
 
   function handleSubmit(e: React.FormEvent) {

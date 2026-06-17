@@ -16,11 +16,12 @@ import { ManageDashboard } from '@/components/ManageDashboard';
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  searchParams: Promise<{ t?: string }>;
+  searchParams: Promise<{ t?: string; new?: string }>;
 }
 
 export default async function ManagePage({ searchParams }: PageProps) {
-  const { t: adminToken } = await searchParams;
+  const { t: adminToken, new: isNew } = await searchParams;
+  const justCreated = isNew === '1';
 
   // Missing token — there is no public manage surface; send to a 404.
   if (!adminToken) notFound();
@@ -30,7 +31,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
     // DB unavailable at request time: let the client dashboard surface a retry
     // by rendering it with a placeholder occasion (its own load() will 503).
     return (
-      <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" />
+      <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" justCreated={justCreated} />
     );
   }
 
@@ -62,7 +63,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
           : undefined
       }
     >
-      <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} />
+      <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} justCreated={justCreated} />
     </main>
   );
 }

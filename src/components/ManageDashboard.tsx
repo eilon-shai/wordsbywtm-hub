@@ -61,6 +61,8 @@ interface ManageDashboardProps {
   resultPath: string;
   /** Occasion slug — stashed in sessionStorage so the result page can theme/resolve. */
   occasion: string;
+  /** True right after creation (?new=1) — show a "ready, invite people" banner. */
+  justCreated?: boolean;
 }
 
 const isIncluded = (c: Contribution) => c.status !== 'removed';
@@ -84,7 +86,7 @@ function statusBadge(status: string): { label: string; variant: 'default' | 'sec
   }
 }
 
-export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDashboardProps) {
+export function ManageDashboard({ adminToken, resultPath, occasion, justCreated = false }: ManageDashboardProps) {
   const [data, setData] = useState<CollectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
@@ -401,6 +403,18 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
               />
             </CardContent>
           </Card>
+        </div>
+      ) : null}
+
+      {/* Just-created banner — replaces the old standalone invite page: leads with
+          "invite people" + the emailed-link reassurance. */}
+      {justCreated && !generated ? (
+        <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+          <p className="font-serif text-lg text-foreground">Your collection is ready 🤍</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Share your invite link below to gather memories of {data.honoreeName}. We’ve also emailed you
+            this private link — it’s how you’ll come back to review and finalize.
+          </p>
         </div>
       ) : null}
 
