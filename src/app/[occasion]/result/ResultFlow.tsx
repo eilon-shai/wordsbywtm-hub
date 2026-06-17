@@ -16,8 +16,17 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { Button } from '@eilon-shai/venture-core/ui';
-import { FeedbackWidget } from '@eilon-shai/venture-core/components';
+import {
+  FeedbackWidget,
+  initSharedPaddle,
+  getSharedPaddle,
+  setActiveTransaction,
+} from '@eilon-shai/venture-core/components';
 import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitives';
+
+// sessionStorage key for the chosen synthesis prefs — persisted right before we
+// open Paddle on the unpaid path so they survive the redirect back with ?txn=.
+const PREFS_KEY = 'wtm:collection-prefs';
 
 // Download the tribute as a Word-openable .doc (HTML payload — no dependency).
 function downloadWord(honoree: string, content: string) {
@@ -76,6 +85,10 @@ interface ResultFlowProps {
   homeHref: string;
   resultPath: string;
   editPackPriceId?: string;
+  /** Organizer's email — prefilled (read-only) into the Paddle checkout. */
+  organizerEmail?: string;
+  /** True when the organizer paid in advance — no Terms, no charge at finalize. */
+  paidInAdvance?: boolean;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
@@ -83,16 +96,20 @@ type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
 function ResultFlowInner(props: ResultFlowProps) {
   const params = useSearchParams();
   const txnId = params.get('txn') ?? params.get('txnId') ?? '';
-  // Paid-in-advance finalize: the dashboard sends ?t={adminToken} (no txn). The
-  // tribute is generated via /api/collection/finalize-paid (no new charge).
+  // The dashboard sends ?t={adminToken} (no txn) to the prefs step. Both the
+  // pay-at-finalize and paid-in-advance flows now decide HOW to read here, then:
+  //   - paid-in-advance → /api/collection/finalize-paid (no charge)
+  //   - unpaid          → /api/collection/checkout → Paddle → return with ?txn=
+  //                       → /api/collection/generate (server verifies the txn).
   const adminToken = params.get('t') ?? '';
-  const paidFinalize = !txnId && !!adminToken;
-  const canStart = !!txnId || paidFinalize;
+  const hasToken = !!adminToken;
+  const canStart = !!txnId || hasToken;
 
-  // Re-view path: when opened with ?t= (from the dashboard), first check for an
-  // already-generated tribute and show it read-only (FE-001). Otherwise it's the
-  // paid-finalize prefs flow.
-  const [phase, setPhase] = React.useState<Phase>(paidFinalize ? 'checking' : canStart ? 'prefs' : 'error');
+  // Initial phase:
+  //   - txn present  → auto-generate (we just returned from Paddle).
+  //   - token only   → check for an existing tribute first (re-view), else prefs.
+  //   - neither      → error.
+  const [phase, setPhase] = React.useState<Phase>(txnId ? 'generating' : hasToken ? 'checking' : 'error');
   const [tone, setTone] = React.useState('balanced');
   const [length, setLength] = React.useState('medium');
   const [thingsToAvoid, setThingsToAvoid] = React.useState('');
@@ -104,19 +121,101 @@ function ResultFlowInner(props: ResultFlowProps) {
     canStart ? null : 'We couldn’t find your tribute session. Please reopen the link from your collection.',
   );
   const [copied, setCopied] = React.useState(false);
+  // Prefs-screen submit state.
+  const [submitting, setSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [termsError, setTermsError] = React.useState(false);
+  const termsRef = React.useRef<HTMLLabelElement | null>(null);
+  // Paid-in-advance one-way confirmation.
+  const [confirmingPaid, setConfirmingPaid] = React.useState(false);
   // The feedback prompt eases in a few seconds after the tribute appears, so it
   // never competes with the first read (matches TributeWords).
   const [showFeedback, setShowFeedback] = React.useState(false);
   React.useEffect(() => {
     if (phase !== 'done') return;
-    const t = setTimeout(() => setShowFeedback(true), 6000);
+    const t = setTimeout(() => setShowFeedback(true), 2500);
     return () => clearTimeout(t);
   }, [phase]);
 
-  // Re-view: if a tribute already exists for this admin token, show it read-only;
-  // otherwise fall through to the paid-finalize prefs flow (FE-001).
+  // generate(): runs the actual synthesis POST + 202-retry loop and shows the
+  // result. `prefs` is supplied explicitly so the two entry points can pass
+  // either the live prefs-form state or the sessionStorage-restored prefs.
+  const generate = React.useCallback(
+    async (
+      mode: 'txn' | 'paid',
+      prefs: { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string },
+    ) => {
+      setPhase('generating');
+      setError(null);
+      const synthesisPrefs = {
+        tone: prefs.tone,
+        length: prefs.length,
+        ...(prefs.thingsToAvoid?.trim() ? { thingsToAvoid: prefs.thingsToAvoid.trim() } : {}),
+        ...(prefs.additionalContext?.trim() ? { additionalContext: prefs.additionalContext.trim() } : {}),
+      };
+      // Two finalize paths: pay-at-finalize verifies the txn; paid-in-advance uses
+      // the admin token (server requires paid_at — still pay-before-generate).
+      const endpoint = mode === 'paid' ? '/api/collection/finalize-paid' : '/api/collection/generate';
+      const payload = mode === 'paid'
+        ? { adminToken, synthesisPrefs }
+        : { transactionId: txnId, synthesisPrefs };
+      // Generation can take a moment; retry on 202 (payment still settling).
+      for (let attempt = 0; attempt < 8; attempt++) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (res.status === 202) {
+            await new Promise((r) => setTimeout(r, 2500));
+            continue;
+          }
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            setError(d.error ?? 'Something went wrong creating your tribute.');
+            setPhase('error');
+            return;
+          }
+          setContent(d.content ?? '');
+          setHonoree(d.honoreeName ?? '');
+          setCount(d.contributorCount ?? 0);
+          setPhase('done');
+          return;
+        } catch {
+          await new Promise((r) => setTimeout(r, 2500));
+        }
+      }
+      setError('Creating your tribute is taking longer than expected. Please check your email shortly.');
+      setPhase('error');
+    },
+    [txnId, adminToken],
+  );
+
+  // ---- AUTO-GENERATE after returning from Paddle (?txn=) ----
+  // We just paid; read the prefs stashed before checkout and generate. The server
+  // verifies the txn — pay-before-generate stays enforced.
   React.useEffect(() => {
-    if (!paidFinalize) return;
+    if (!txnId) return;
+    let saved: { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string } = {
+      tone: 'balanced',
+      length: 'medium',
+    };
+    try {
+      const raw = sessionStorage.getItem(PREFS_KEY);
+      if (raw) saved = { ...saved, ...JSON.parse(raw) };
+    } catch {
+      /* sessionStorage unavailable / bad JSON — fall back to defaults */
+    }
+    void generate('txn', saved);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---- Re-view: token-only open. If a tribute already exists show it read-only;
+  // otherwise fall through to the prefs flow (FE-001). ----
+  React.useEffect(() => {
+    if (txnId || !hasToken) return;
     let cancelled = false;
     (async () => {
       try {
@@ -133,7 +232,7 @@ function ResultFlowInner(props: ResultFlowProps) {
           setPhase('done');
           return;
         }
-        setPhase('prefs'); // 404 = not generated yet → let them choose prefs + finalize
+        setPhase('prefs'); // not generated yet → let them choose prefs + finalize
       } catch {
         if (!cancelled) setPhase('prefs');
       }
@@ -144,51 +243,129 @@ function ResultFlowInner(props: ResultFlowProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const generate = React.useCallback(async () => {
-    setPhase('generating');
-    setError(null);
-    const synthesisPrefs = {
-      tone,
-      length,
-      ...(thingsToAvoid.trim() ? { thingsToAvoid: thingsToAvoid.trim() } : {}),
-      ...(additionalContext.trim() ? { additionalContext: additionalContext.trim() } : {}),
-    };
-    // Two finalize paths: pay-at-finalize verifies the txn; paid-in-advance uses
-    // the admin token (server requires paid_at — still pay-before-generate).
-    const endpoint = paidFinalize ? '/api/collection/finalize-paid' : '/api/collection/generate';
-    const payload = paidFinalize
-      ? { adminToken, synthesisPrefs }
-      : { transactionId: txnId, synthesisPrefs };
-    // Generation can take a moment; retry on 202 (payment still settling).
-    for (let attempt = 0; attempt < 8; attempt++) {
+  // ---- Prefs-screen submit ----
+  const onPrefsSubmit = React.useCallback(async () => {
+    if (submitting) return;
+    const prefs = { tone, length, thingsToAvoid, additionalContext };
+
+    // Persist the admin token so the post-payment (txn) done view can link back
+    // to the organizer's collection even after the Paddle redirect drops ?t=.
+    if (adminToken) {
       try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (res.status === 202) {
-          await new Promise((r) => setTimeout(r, 2500));
-          continue;
-        }
-        const d = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          setError(d.error ?? 'Something went wrong creating your tribute.');
-          setPhase('error');
-          return;
-        }
-        setContent(d.content ?? '');
-        setHonoree(d.honoreeName ?? '');
-        setCount(d.contributorCount ?? 0);
-        setPhase('done');
-        return;
+        sessionStorage.setItem('wtm:collection-admin', adminToken);
       } catch {
-        await new Promise((r) => setTimeout(r, 2500));
+        /* sessionStorage unavailable — back link just won't render */
       }
     }
-    setError('Creating your tribute is taking longer than expected. Please check your email shortly.');
-    setPhase('error');
-  }, [txnId, adminToken, paidFinalize, tone, length, thingsToAvoid, additionalContext]);
+
+    // Paid-in-advance: no charge — show a one-way confirm, then finalize-paid.
+    if (props.paidInAdvance) {
+      setConfirmingPaid(true);
+      return;
+    }
+
+    // Unpaid: require Terms, persist prefs, then start checkout.
+    if (!termsAccepted) {
+      setTermsError(true);
+      termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      sessionStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    } catch {
+      /* sessionStorage unavailable — defaults will be used after redirect */
+    }
+    try {
+      const res = await fetch('/api/collection/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminToken }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        transactionId?: string;
+        redirectUrl?: string;
+        error?: string;
+        code?: string;
+      };
+
+      if (!res.ok) {
+        if (json.code === 'ALREADY_USED') {
+          // Already finalized elsewhere — re-check for the tribute and show it.
+          setSubmitting(false);
+          setPhase('checking');
+          try {
+            const t = await fetch('/api/collection/tribute', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ adminToken }),
+            });
+            if (t.ok) {
+              const d = await t.json().catch(() => ({}));
+              setContent(d.content ?? '');
+              setHonoree(d.honoreeName ?? '');
+              setPhase('done');
+              return;
+            }
+          } catch {
+            /* fall through to prefs */
+          }
+          setPhase('prefs');
+          return;
+        }
+        if (json.code === 'NOT_ENOUGH_CONTRIBUTIONS') {
+          setSubmitError('You need a few more memories before you can finalize.');
+        } else {
+          setSubmitError("Payment couldn't start — please try again. You haven't been charged.");
+        }
+        setSubmitting(false);
+        return;
+      }
+
+      const { transactionId, redirectUrl } = json;
+      if (!transactionId) {
+        setSubmitError("Payment couldn't start — please try again. You haven't been charged.");
+        setSubmitting(false);
+        return;
+      }
+
+      // Mock mode: synthetic txn + redirectUrl — just navigate to the return URL.
+      if (transactionId.startsWith('mock_')) {
+        window.location.href =
+          redirectUrl ?? `${props.resultPath}?txn=${encodeURIComponent(transactionId)}`;
+        return;
+      }
+
+      // Real mode: open the Paddle overlay with the organizer's email prefilled +
+      // locked. The shared callback redirects to `${resultPath}?txnId=...`.
+      await initSharedPaddle(props.resultPath);
+      setActiveTransaction(transactionId, 'basic', props.resultPath);
+      const paddle = await getSharedPaddle();
+      paddle.Checkout.open({
+        transactionId,
+        ...(props.organizerEmail
+          ? { customer: { email: props.organizerEmail }, settings: { allowLogout: false } }
+          : {}),
+      });
+      // Overlay is open; clear the spinner so the page stays interactive behind it.
+      setSubmitting(false);
+    } catch {
+      setSubmitError("Payment couldn't start — please try again. You haven't been charged.");
+      setSubmitting(false);
+    }
+  }, [
+    submitting,
+    tone,
+    length,
+    thingsToAvoid,
+    additionalContext,
+    termsAccepted,
+    adminToken,
+    props.paidInAdvance,
+    props.organizerEmail,
+    props.resultPath,
+  ]);
 
   // ---- checking for an existing tribute (re-view) ----
   if (phase === 'checking') {
@@ -202,17 +379,20 @@ function ResultFlowInner(props: ResultFlowProps) {
 
   // ---- prefs ----
   if (phase === 'prefs') {
+    const paid = !!props.paidInAdvance;
     return (
       <main className="mx-auto w-full max-w-2xl px-4 py-12">
         <header className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{props.occasionTitle} tribute</p>
           <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">How should the tribute read?</h1>
           <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
-            Your payment is complete. Choose how you’d like the memories woven together, then we’ll create your tribute.
+            {paid
+              ? 'Choose how you’d like the memories woven together, then we’ll create your tribute.'
+              : 'Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your tribute.'}
           </p>
         </header>
         <form
-          onSubmit={(e) => { e.preventDefault(); void generate(); }}
+          onSubmit={(e) => { e.preventDefault(); void onPrefsSubmit(); }}
           className="space-y-5"
         >
           <SectionCard heading="How the tribute should read">
@@ -223,9 +403,81 @@ function ResultFlowInner(props: ResultFlowProps) {
             <FieldRow field={AVOID_FIELD} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
             <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
           </SectionCard>
-          <Button type="submit" size="lg" className="w-full rounded-full py-6 text-sm font-semibold">
-            Create my tribute
-          </Button>
+
+          {/* Unpaid path: pay-time consent waiver (matches the dashboard). Required
+              before checkout. Paid-in-advance accepted terms at advance-pay. */}
+          {!paid ? (
+            <label
+              ref={termsRef}
+              className={`flex w-fit max-w-full items-start gap-2 rounded-lg p-2 cursor-pointer text-sm text-muted-foreground ${
+                termsError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => {
+                  setTermsAccepted(e.target.checked);
+                  if (e.target.checked) setTermsError(false);
+                }}
+                disabled={submitting}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+                aria-label="Agree to terms and start delivery"
+              />
+              <span>
+                I agree to the{' '}
+                <a href="/terms" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+                  Terms of Service
+                </a>{' '}
+                and{' '}
+                <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+                  Privacy Policy
+                </a>
+                . By paying, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
+              </span>
+            </label>
+          ) : null}
+
+          {/* Paid-in-advance: inline one-way confirmation (no charge). */}
+          {confirmingPaid ? (
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm" role="alertdialog" aria-label="Confirm creating the tribute">
+              <p className="text-foreground">
+                Create the tribute now? This weaves all included memories into the final tribute and closes the collection. This can’t be undone.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={submitting}
+                  onClick={() => void generate('paid', { tone, length, thingsToAvoid, additionalContext })}
+                >
+                  Yes, create it
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={submitting}
+                  onClick={() => setConfirmingPaid(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              type="submit"
+              size="lg"
+              disabled={submitting}
+              className="w-full rounded-full py-6 text-sm font-semibold"
+            >
+              {submitting ? 'Starting…' : 'Create my tribute'}
+            </Button>
+          )}
+
+          {submitError ? (
+            <p className="text-center text-sm text-destructive" role="alert">{submitError}</p>
+          ) : null}
         </form>
       </main>
     );
@@ -256,6 +508,10 @@ function ResultFlowInner(props: ResultFlowProps) {
   }
 
   // ---- done ----
+  const backToken =
+    adminToken ||
+    (typeof window !== 'undefined' ? sessionStorage.getItem('wtm:collection-admin') : '') ||
+    '';
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
       <header className="mb-10 text-center">
@@ -305,8 +561,22 @@ function ResultFlowInner(props: ResultFlowProps) {
         </Button>
       </div>
 
+      {backToken ? (
+        <div className="mt-6 text-center">
+          <a
+            href={`/collect/manage?t=${encodeURIComponent(backToken)}`}
+            className="text-sm text-primary underline hover:text-foreground"
+          >
+            ← Back to your collection
+          </a>
+        </div>
+      ) : null}
+
       <p className="mt-4 text-center text-xs text-muted-foreground">
         We’ve also emailed this tribute to you, ready to read aloud.
+      </p>
+      <p className="mt-2 text-center text-xs text-muted-foreground">
+        Your collection and this tribute are automatically deleted about 30 days after creation, so please download or copy the text to keep a permanent copy.
       </p>
 
       {/* Edit & Refine pack intentionally NOT rendered: the regeneration backend

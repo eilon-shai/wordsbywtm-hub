@@ -29,6 +29,8 @@ interface MemoryCardProps {
   error?: string | null;
   /** Edit handler — only used for the organizer's own memory. */
   onEdit?: (c: Contribution) => void;
+  /** When false, hides the organizer Edit button entirely (e.g. after generation). */
+  canEdit?: boolean;
 }
 
 function formatDate(iso?: string | null): string {
@@ -43,7 +45,7 @@ function formatDate(iso?: string | null): string {
  * default; the toggle removes/restores. No "approve" language, no editing of the
  * contributor's words (v1 — moderate-contribution-handler exposes remove/restore only).
  */
-export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit }: MemoryCardProps) {
+export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit, canEdit = true }: MemoryCardProps) {
   const { id, contributorName, relationship, memory, createdAt, isOrganizer } = contribution;
   const date = formatDate(createdAt);
 
@@ -81,9 +83,11 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
             // Organizer's own memory: always included, editable — no toggle.
             <>
               <span className="text-sm text-muted-foreground">Always part of the tribute</span>
-              <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={() => onEdit?.(contribution)}>
-                Edit
-              </Button>
+              {canEdit ? (
+                <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={() => onEdit?.(contribution)}>
+                  Edit
+                </Button>
+              ) : null}
             </>
           ) : (
             <label

@@ -40,6 +40,8 @@ export interface InviteBlockProps {
   surface: 'create' | 'dashboard';
   /** Organizer's display name — personalizes the invite email ("{name} is…"). */
   organizerName?: string;
+  /** Organizer's email — prefilled (read-only) into the advance-pay checkout. */
+  organizerEmail?: string;
   /** True once the one payment has been made (in advance). Hides the pay CTA. */
   paid?: boolean;
   /** Price label for the advance-pay CTA (e.g. "$49"). */
@@ -69,6 +71,7 @@ export function InviteBlock({
   emailUrl,
   surface,
   organizerName,
+  organizerEmail,
   paid = false,
   price = null,
   atCap = false,
@@ -163,6 +166,7 @@ export function InviteBlock({
         adminToken={adminToken}
         inviteText={inviteText}
         organizerName={organizerName}
+        organizerEmail={organizerEmail}
         paid={paid}
         price={price}
         atCap={atCap}
@@ -173,9 +177,11 @@ export function InviteBlock({
 
 // Advance-pay: pay the one fee now to email up to 10 people a day (vs 3) and make
 // finalizing free later. Same Paddle price as finalize — just paid up front.
-function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid: boolean; price: string | null }) {
+function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminToken: string; organizerEmail?: string; paid: boolean; price: string | null }) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [termsError, setTermsError] = React.useState(false);
 
   if (paid) {
     return (
@@ -187,6 +193,10 @@ function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid
   }
 
   async function payAdvance() {
+    if (!termsAccepted) {
+      setTermsError(true);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -227,7 +237,13 @@ function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid
       await initSharedPaddle(ADVANCE_RETURN_PATH);
       setActiveTransaction(json.transactionId, 'basic', ADVANCE_RETURN_PATH);
       const paddle = await getSharedPaddle();
-      paddle.Checkout.open({ transactionId: json.transactionId });
+      // Prefill + lock the organizer's email so the payer can't change it.
+      paddle.Checkout.open({
+        transactionId: json.transactionId,
+        ...(organizerEmail
+          ? { customer: { email: organizerEmail }, settings: { allowLogout: false } }
+          : {}),
+      });
       setBusy(false);
     } catch {
       setError("Payment couldn't start — please try again. You haven't been charged.");
@@ -237,6 +253,34 @@ function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid
 
   return (
     <div className="mt-3">
+      <label
+        className={`mb-2 flex w-fit max-w-full items-start gap-2 rounded-lg p-2 cursor-pointer text-xs text-muted-foreground ${
+          termsError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={termsAccepted}
+          onChange={(e) => {
+            setTermsAccepted(e.target.checked);
+            if (e.target.checked) setTermsError(false);
+          }}
+          disabled={busy}
+          className="mt-0.5 h-4 w-4 rounded border-border"
+          aria-label="Agree to terms and start delivery"
+        />
+        <span>
+          I agree to the{' '}
+          <a href="/terms" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>
+          . By paying, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
+        </span>
+      </label>
       <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void payAdvance()}>
         {busy ? 'Starting…' : `Pay your one-time fee now${price ? ` — ${price}` : ''}`}
       </Button>
@@ -255,6 +299,7 @@ function DirectEmailCard({
   adminToken,
   inviteText,
   organizerName,
+  organizerEmail,
   paid,
   price,
   atCap,
@@ -262,6 +307,7 @@ function DirectEmailCard({
   adminToken: string;
   inviteText: string;
   organizerName?: string;
+  organizerEmail?: string;
   paid: boolean;
   price: string | null;
   atCap: boolean;
@@ -367,7 +413,7 @@ function DirectEmailCard({
       </p>
 
       {/* Advance-pay: unlock 10/day + free finalize. */}
-      <AdvancePayBlock adminToken={adminToken} paid={paid} price={price} />
+      <AdvancePayBlock adminToken={adminToken} organizerEmail={organizerEmail} paid={paid} price={price} />
 
       <p className="mt-2 text-xs font-medium text-muted-foreground">Email a few people directly</p>
 

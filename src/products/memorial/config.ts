@@ -206,19 +206,21 @@ export const memorialConfig: ProductConfig = {
       text: `Your memorial collection for ${honoreeName} is ready. Manage it here: ${adminUrl}`,
     }),
 
-    buildDeliverableEmail: ({ to, honoreeName, content, contributorCount }) => ({
+    buildDeliverableEmail: ({ to, honoreeName, content, contributorCount, tributeUrl }) => ({
       from: FROM_EMAIL,
       to,
       subject: `The tribute for ${honoreeName}`,
       html: `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#2a2118;">
         <h1 style="font-size:22px;color:${BRAND_COLOR};">A tribute for ${honoreeName}</h1>
         <p style="color:#5c4f3d;">Woven from ${contributorCount} ${contributorCount === 1 ? 'memory' : 'memories'} shared by those who knew ${honoreeName}.</p>
+        <p style="margin:24px 0;"><a href="${tributeUrl}" style="background:${BRAND_COLOR};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">View your tribute</a></p>
         <div style="white-space:pre-wrap;line-height:1.7;font-size:16px;margin-top:24px;">${content
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')}</div>
+        <p style="color:#8c7c68;font-size:13px;margin-top:28px;">Keep a copy: download or copy your tribute from the page above. This collection and its tribute are automatically deleted about 30 days after creation.</p>
       </div>`,
-      text: content,
+      text: `View your tribute: ${tributeUrl}\n\n${content}`,
     }),
   },
 };
