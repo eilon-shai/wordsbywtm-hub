@@ -51,6 +51,10 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
   // txn-only return there's no token, so both stay undefined/false — fine.
   let organizerEmail: string | undefined;
   let paidInAdvance = false;
+  // Paddle txn that paid for this collection — used as the feedback id on the
+  // paid-in-advance path (there's no per-finalize txn there, and the feedback
+  // handler rejects non-txn ids like the admin token).
+  let paidTxnId: string | undefined;
   if (adminToken) {
     try {
       const db = getDbClient();
@@ -58,6 +62,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         const collection = await getCollectionByAdminToken(db, adminToken);
         organizerEmail = collection?.organizerEmail;
         paidInAdvance = !!collection?.paidAt;
+        paidTxnId = collection?.paidTxnId ?? undefined;
       }
     } catch {
       /* lookup failed — leave defaults; the client re-checks via the API */
@@ -77,6 +82,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         editPackPriceId={editPackPriceId}
         organizerEmail={organizerEmail}
         paidInAdvance={paidInAdvance}
+        paidTxnId={paidTxnId}
       />
     </>
   );

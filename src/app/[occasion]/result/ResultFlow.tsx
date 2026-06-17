@@ -89,6 +89,8 @@ interface ResultFlowProps {
   organizerEmail?: string;
   /** True when the organizer paid in advance — no Terms, no charge at finalize. */
   paidInAdvance?: boolean;
+  /** Paddle txn that paid for the collection — feedback id for the paid-in-advance path. */
+  paidTxnId?: string;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
@@ -583,12 +585,14 @@ function ResultFlowInner(props: ResultFlowProps) {
           isn't built yet, so charging for it would be a paid no-op (FE-002/UX-02/
           MKT-006). Re-enable EditPackCard once regen ships. */}
 
-      {/* Feedback — eases in a few seconds after the tribute is shown. Works for
-          both the pay-at-finalize (txn) and paid-in-advance (admin token) paths. */}
-      {showFeedback && (txnId || adminToken) ? (
+      {/* Feedback — eases in a few seconds after the tribute is shown. The feedback
+          handler only accepts a Paddle/mock txn id, so use the finalize txn when we
+          have it, else the collection's paid txn (paid-in-advance). The admin token
+          would be rejected (400), so never send it as the id. */}
+      {showFeedback && (txnId || props.paidTxnId) ? (
         <div className="mt-12">
           <FeedbackWidget
-            transactionId={txnId || adminToken}
+            transactionId={txnId || props.paidTxnId || ''}
             productSlug={props.occasion}
             feedbackEndpoint={`/api/${props.occasion}/feedback`}
           />
