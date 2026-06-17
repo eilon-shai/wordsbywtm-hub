@@ -139,6 +139,11 @@ Shipped same day (venture-core PR #297 → 1.15.4; app `dc4cfea`). All engineeri
 
 **Remaining = founder-owned only:** LC-03 (attorney ToS ratification), MKT-002 (analytics keys), prod-env confirmation (CRON_SECRET set, ENABLE_MOCK_PAYMENT off, edit-pack price unset). Deferred post-launch: ARCH-04, MKT-005, MKT-007, QA-7, LC-04 self-serve erasure token.
 
+### Founder-handoff prepared — 2026-06-17
+- **LC-03:** attorney brief **drafted + committed** → `venture-ops/docs/ATTORNEY_BRIEF_COLLECTION_LC03.md` (collection flows in plain English, personal-data inventory, sub-processor list incl. Anthropic, the specific ToS/Privacy/Refund clauses to ratify, and the retention/withdrawal questions). **Ready to send.** Then we update the rendered pages + bump termsVersion/date.
+- **MKT-002:** scope documented (GA4 + Google Ads conversion + optional PostHog; UTM/`?focus` capture; funnel events; Paddle `purchase` conversion incl. server-side webhook confirmation). **Awaiting GA4 Measurement ID + Ads conversion label**; the analytics layer can be scaffolded now so it activates on env-var paste.
+- **Engineering:** all SES-043/044 findings resolved through venture-core **1.15.4** (PR #297) + app `dc4cfea`/`c6e8b4d`. App re-pins to 1.15.4 once its version PR publishes.
+
 ---
 
 ## 7. How to re-run (SES-045)
