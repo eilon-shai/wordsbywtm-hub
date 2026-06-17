@@ -20,6 +20,7 @@
     "@paddle/paddle-js": "^1.6.4",
     "@vercel/analytics": "^2.0.1",
     "geist": "^1.7.0",
+    "jspdf": "^4.2.1",
     "next": "~15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
