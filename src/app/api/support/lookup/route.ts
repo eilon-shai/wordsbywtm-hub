@@ -23,6 +23,7 @@ interface Row {
   deadline: string | null;
   admin_token: string;
   share_token: string;
+  has_content: boolean;
 }
 
 function base(domain: string): string {
@@ -47,7 +48,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const rows = await db.query<Row>(
-      `select id, honoree_name, status, paid_at, created_at, deadline, admin_token, share_token
+      `select id, honoree_name, status, paid_at, created_at, deadline, admin_token, share_token,
+              (generated_content is not null) as has_content
          from collections
         where product = $1 and lower(organizer_email) = lower($2)
         order by created_at desc
@@ -63,6 +65,9 @@ export async function POST(req: NextRequest) {
       createdAt: r.created_at,
       deadline: r.deadline,
       generated: r.status === 'generated',
+      // The tribute is restorable only while its content is still stored (it's
+      // removed at the retention purge). generated-but-empty ⇒ dead link.
+      hasTribute: r.status === 'generated' && r.has_content,
       adminToken: r.admin_token,
       manageUrl: `${origin}/collect/manage?t=${r.admin_token}`,
       tributeUrl: `${origin}${config.brand.resultPath}?t=${r.admin_token}`,
