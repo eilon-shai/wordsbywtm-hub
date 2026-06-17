@@ -170,13 +170,27 @@ function ResultFlowInner(props: ResultFlowProps) {
   // Paid-in-advance one-way confirmation.
   const [confirmingPaid, setConfirmingPaid] = React.useState(false);
   // The feedback prompt eases in a few seconds after the tribute appears, so it
-  // never competes with the first read (matches TributeWords).
+  // never competes with the first read. But if it was ALREADY submitted (the
+  // widget stores the rating under `${slug}_feedback_${txn}` in localStorage),
+  // show it immediately — there's no first-read to protect, it's just the
+  // "thanks" state.
   const [showFeedback, setShowFeedback] = React.useState(false);
   React.useEffect(() => {
     if (phase !== 'done') return;
+    const feedbackId = txnId || props.paidTxnId || '';
+    let alreadyGiven = false;
+    try {
+      alreadyGiven = !!(feedbackId && localStorage.getItem(`${props.occasion}_feedback_${feedbackId}`));
+    } catch {
+      /* localStorage unavailable — treat as not given */
+    }
+    if (alreadyGiven) {
+      setShowFeedback(true);
+      return;
+    }
     const t = setTimeout(() => setShowFeedback(true), 2500);
     return () => clearTimeout(t);
-  }, [phase]);
+  }, [phase, txnId, props.paidTxnId, props.occasion]);
 
   // Remember the last generate attempt (mode + prefs) so the error phase can
   // offer a safe retry — the generate endpoint re-verifies the Paddle txn fresh
