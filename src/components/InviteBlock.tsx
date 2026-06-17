@@ -180,6 +180,8 @@ export function InviteBlock({
 function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminToken: string; organizerEmail?: string; paid: boolean; price: string | null }) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [termsError, setTermsError] = React.useState(false);
 
   if (paid) {
     return (
@@ -191,6 +193,10 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
   }
 
   async function payAdvance() {
+    if (!termsAccepted) {
+      setTermsError(true);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -247,6 +253,34 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
 
   return (
     <div className="mt-3">
+      <label
+        className={`mb-2 flex w-fit max-w-full items-start gap-2 rounded-lg p-2 cursor-pointer text-xs text-muted-foreground ${
+          termsError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={termsAccepted}
+          onChange={(e) => {
+            setTermsAccepted(e.target.checked);
+            if (e.target.checked) setTermsError(false);
+          }}
+          disabled={busy}
+          className="mt-0.5 h-4 w-4 rounded border-border"
+          aria-label="Agree to terms and start delivery"
+        />
+        <span>
+          I agree to the{' '}
+          <a href="/terms" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>
+          . By paying, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
+        </span>
+      </label>
       <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void payAdvance()}>
         {busy ? 'Starting…' : `Pay your one-time fee now${price ? ` — ${price}` : ''}`}
       </Button>
