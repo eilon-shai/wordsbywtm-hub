@@ -118,7 +118,30 @@ function ResultFlowInner(props: ResultFlowProps) {
   //   - paid-in-advance → /api/collection/finalize-paid (no charge)
   //   - unpaid          → /api/collection/checkout → Paddle → return with ?txn=
   //                       → /api/collection/generate (server verifies the txn).
-  const adminToken = params.get('t') ?? '';
+  const urlToken = params.get('t') ?? '';
+  // Admin token, made durable: known from the URL or props, and mirrored to
+  // localStorage so a payer returning in a fresh session/tab can still get back
+  // to /collect/manage to retry finalize.
+  const ADMIN_KEY = 'wtm:collection-admin';
+  const adminToken =
+    urlToken ||
+    (typeof window !== 'undefined'
+      ? sessionStorage.getItem(ADMIN_KEY) || localStorage.getItem(ADMIN_KEY) || ''
+      : '') ||
+    '';
+  React.useEffect(() => {
+    if (!urlToken || typeof window === 'undefined') return;
+    try {
+      sessionStorage.setItem(ADMIN_KEY, urlToken);
+    } catch {
+      /* sessionStorage unavailable */
+    }
+    try {
+      localStorage.setItem(ADMIN_KEY, urlToken);
+    } catch {
+      /* localStorage unavailable */
+    }
+  }, [urlToken]);
   const hasToken = !!adminToken;
   const canStart = !!txnId || hasToken;
 
@@ -155,14 +178,21 @@ function ResultFlowInner(props: ResultFlowProps) {
     return () => clearTimeout(t);
   }, [phase]);
 
+  // Remember the last generate attempt (mode + prefs) so the error phase can
+  // offer a safe retry — the generate endpoint re-verifies the Paddle txn fresh
+  // on every call (no one-time consume), so re-invoking is replayable.
+  type GeneratePrefs = { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string };
+  const lastAttempt = React.useRef<{ mode: 'txn' | 'paid'; prefs: GeneratePrefs } | null>(null);
+
   // generate(): runs the actual synthesis POST + 202-retry loop and shows the
   // result. `prefs` is supplied explicitly so the two entry points can pass
   // either the live prefs-form state or the sessionStorage-restored prefs.
   const generate = React.useCallback(
     async (
       mode: 'txn' | 'paid',
-      prefs: { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string },
+      prefs: GeneratePrefs,
     ) => {
+      lastAttempt.current = { mode, prefs };
       setPhase('generating');
       setError(null);
       const synthesisPrefs = {
@@ -209,6 +239,26 @@ function ResultFlowInner(props: ResultFlowProps) {
     },
     [txnId, adminToken],
   );
+
+  // retryGenerate(): re-run the last attempt after a failure. Falls back to the
+  // current prefs-form state, then sessionStorage-saved prefs, if no attempt was
+  // remembered. The mode is inferred (paid-in-advance vs txn) the same way the
+  // auto-generate path does.
+  const retryGenerate = React.useCallback(() => {
+    const last = lastAttempt.current;
+    if (last) {
+      void generate(last.mode, last.prefs);
+      return;
+    }
+    let prefs: GeneratePrefs = { tone, length, thingsToAvoid, additionalContext };
+    try {
+      const raw = sessionStorage.getItem(PREFS_KEY);
+      if (raw) prefs = { ...prefs, ...JSON.parse(raw) };
+    } catch {
+      /* sessionStorage unavailable / bad JSON — use current form state */
+    }
+    void generate(props.paidInAdvance ? 'paid' : 'txn', prefs);
+  }, [generate, tone, length, thingsToAvoid, additionalContext, props.paidInAdvance]);
 
   // ---- AUTO-GENERATE after returning from Paddle (?txn=) ----
   // We just paid; read the prefs stashed before checkout and generate. The server
@@ -269,9 +319,14 @@ function ResultFlowInner(props: ResultFlowProps) {
     // to the organizer's collection even after the Paddle redirect drops ?t=.
     if (adminToken) {
       try {
-        sessionStorage.setItem('wtm:collection-admin', adminToken);
+        sessionStorage.setItem(ADMIN_KEY, adminToken);
       } catch {
         /* sessionStorage unavailable — back link just won't render */
+      }
+      try {
+        localStorage.setItem(ADMIN_KEY, adminToken);
+      } catch {
+        /* localStorage unavailable */
       }
     }
 
@@ -383,6 +438,17 @@ function ResultFlowInner(props: ResultFlowProps) {
     props.organizerEmail,
     props.resultPath,
   ]);
+
+  // The admin token to link back to the organizer's collection. Computed at
+  // component scope so BOTH the error and done phases can offer "Back to your
+  // collection". After a Paddle redirect ?t= is gone, so fall back to the
+  // durable sessionStorage/localStorage copies.
+  const backToken =
+    adminToken ||
+    (typeof window !== 'undefined'
+      ? sessionStorage.getItem(ADMIN_KEY) || localStorage.getItem(ADMIN_KEY) || ''
+      : '') ||
+    '';
 
   // ---- checking for an existing tribute (re-view) ----
   if (phase === 'checking') {
@@ -517,18 +583,36 @@ function ResultFlowInner(props: ResultFlowProps) {
       <main className="mx-auto w-full max-w-xl px-4 py-20 text-center" role="alert">
         <h1 className="font-serif text-2xl text-foreground">We hit a snag</h1>
         <p className="mt-3 text-sm text-muted-foreground">{error}</p>
+        {/* Retry is safe: the generate endpoint re-verifies the Paddle txn fresh
+            on every call (no one-time consume), so the payment is replayable. */}
+        <div className="mt-6 flex justify-center">
+          <Button
+            type="button"
+            size="lg"
+            className="rounded-full px-6"
+            onClick={() => retryGenerate()}
+          >
+            Try again
+          </Button>
+        </div>
+        {backToken ? (
+          <div className="mt-5">
+            <a
+              href={`/collect/manage?t=${encodeURIComponent(backToken)}`}
+              className="text-sm text-primary underline hover:text-foreground"
+            >
+              ← Back to your collection
+            </a>
+          </div>
+        ) : null}
         <p className="mt-6 text-sm text-muted-foreground">
-          Need help? <a href={`mailto:${props.supportEmail}`} className="text-primary underline">{props.supportEmail}</a>
+          Still stuck? <a href={`mailto:${props.supportEmail}`} className="text-primary underline">{props.supportEmail}</a>
         </p>
       </main>
     );
   }
 
   // ---- done ----
-  const backToken =
-    adminToken ||
-    (typeof window !== 'undefined' ? sessionStorage.getItem('wtm:collection-admin') : '') ||
-    '';
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
       <header className="mb-10 text-center">

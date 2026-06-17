@@ -610,9 +610,16 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         </>
       ) : null}
 
-      {/* Danger zone — delete the whole collection (cascades to all memories). */}
+      {/* Danger zone — delete the whole collection (cascades to all memories).
+          Hidden once the collection is paid or generated: deleting it would
+          destroy something the customer paid for (a server guard is added
+          separately; this is the UI half). */}
       <div className="mt-10 border-t border-border pt-6">
-        {!confirmDelete ? (
+        {data.paid || generated ? (
+          <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
+            Paid collections can’t be deleted here — contact support if you need to remove it.
+          </p>
+        ) : !confirmDelete ? (
           <div>
             <button
               type="button"
