@@ -94,91 +94,91 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 ## Findings by Agent
 
 ### Frontend Engineer (conf 8.5 / qual 8 / prod 7)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| FE-001 | CRITICAL | Generated tribute cannot be re-viewed (dead "View your tribute") | ManageDashboard.tsx:479; ResultFlow.tsx:84-101 | Carry admin token on link; render stored content read-only via admin token on ALREADY_USED |
-| FE-002 | HIGH | Edit-pack checkout hijacks result page via shared Paddle singleton callback (synthetic txn) | EditPackCard.tsx:43-50; paddle.ts:46-61 | Don't reuse synthesis callback; dedicated return path or don't mount until regen wired |
-| FE-003 | MEDIUM | Invite card shares one `sending` boolean + result/error across all rows + Send-all | InviteBlock.tsx:275-355,400-451 | Per-action in-flight state; scope/ label result-error; client email validation |
-| FE-004 | MEDIUM | Edit-memory modal not an accessible dialog (no role/focus-trap/Escape) | ManageDashboard.tsx:369-398 | Real dialog: role/aria-modal, focus trap+restore, Escape, inert background |
-| FE-005 | MEDIUM | Result-page phase transitions not announced to AT | ResultFlow.tsx:160-212 | aria-live status region; role=alert on error; focus result heading on done |
-| FE-006 | LOW | Dedup-on-blur races submit; confirm-email autocomplete hack | CreateForm.tsx:307-324,607,616 | Guard checkExisting during submit; autoComplete="off" |
-| FE-007 | LOW | Word download filename not sanitized | ResultFlow.tsx:39 | Strip illegal chars from honoree name before a.download |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| FE-001 | CRITICAL | Generated tribute cannot be re-viewed (dead "View your tribute") | ManageDashboard.tsx:479; ResultFlow.tsx:84-101 | Carry admin token on link; render stored content read-only via admin token on ALREADY_USED | ✅ Resolved |
+| FE-002 | HIGH | Edit-pack checkout hijacks result page via shared Paddle singleton callback (synthetic txn) | EditPackCard.tsx:43-50; paddle.ts:46-61 | Don't reuse synthesis callback; dedicated return path or don't mount until regen wired | ✅ Resolved |
+| FE-003 | MEDIUM | Invite card shares one `sending` boolean + result/error across all rows + Send-all | InviteBlock.tsx:275-355,400-451 | Per-action in-flight state; scope/ label result-error; client email validation | ⏳ Open |
+| FE-004 | MEDIUM | Edit-memory modal not an accessible dialog (no role/focus-trap/Escape) | ManageDashboard.tsx:369-398 | Real dialog: role/aria-modal, focus trap+restore, Escape, inert background | ✅ Resolved |
+| FE-005 | MEDIUM | Result-page phase transitions not announced to AT | ResultFlow.tsx:160-212 | aria-live status region; role=alert on error; focus result heading on done | ✅ Resolved |
+| FE-006 | LOW | Dedup-on-blur races submit; confirm-email autocomplete hack | CreateForm.tsx:307-324,607,616 | Guard checkExisting during submit; autoComplete="off" | ✅ Resolved |
+| FE-007 | LOW | Word download filename not sanitized | ResultFlow.tsx:39 | Strip illegal chars from honoree name before a.download | ✅ Resolved |
 
 ### Backend Engineer (conf 8 / qual 8 / prod 8)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| BE-01 | HIGH | Lock TTL 30s < 60s synthesis budget → concurrent double-synthesis / double Claude spend | collection-finalize-core.ts:62,71-92; memorial/config.ts:149 | Set lockTtlMs ≥ maxDuration+margin (≥90s); or flip a 'generating' status sentinel inside lock |
-| BE-02 | HIGH | Deadline sweep not product-scoped → cross-product delete/email in shared DB | collection-deadline-sweep-handler.ts:89,138-179; collections.ts:402-411 | Add product param + explicit per-collection product guard before 2nd occasion |
-| BE-03 | MEDIUM | get-collection lacks product guard (returns other product's PII) | get-collection-handler.ts:30-37 | 404 if collection.product !== config product |
-| BE-04 | MEDIUM | mark-paid mock path skips product guard + status check | collection-mark-paid-handler.ts:49-53,80-85 | Verify product in mock branch; short-circuit if already generated |
-| BE-05 | LOW | Crash window between markUsed and setCollectionStatus leaves status='open' | collection-finalize-core.ts:92-95 | Make status the durable idempotency signal; alert when checkUsed true but status≠generated |
-| BE-06 | LOW | Dedup race mapping relies on regex over Neon error text | submit-contribution-handler.ts:140-173; schema.sql:66-72 | Match SQLSTATE 23505 / err.constraint instead of message regex |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| BE-01 | HIGH | Lock TTL 30s < 60s synthesis budget → concurrent double-synthesis / double Claude spend | collection-finalize-core.ts:62,71-92; memorial/config.ts:149 | Set lockTtlMs ≥ maxDuration+margin (≥90s); or flip a 'generating' status sentinel inside lock | ✅ Resolved |
+| BE-02 | HIGH | Deadline sweep not product-scoped → cross-product delete/email in shared DB | collection-deadline-sweep-handler.ts:89,138-179; collections.ts:402-411 | Add product param + explicit per-collection product guard before 2nd occasion | ✅ Resolved |
+| BE-03 | MEDIUM | get-collection lacks product guard (returns other product's PII) | get-collection-handler.ts:30-37 | 404 if collection.product !== config product | ✅ Resolved |
+| BE-04 | MEDIUM | mark-paid mock path skips product guard + status check | collection-mark-paid-handler.ts:49-53,80-85 | Verify product in mock branch; short-circuit if already generated | ⏳ Open |
+| BE-05 | LOW | Crash window between markUsed and setCollectionStatus leaves status='open' | collection-finalize-core.ts:92-95 | Make status the durable idempotency signal; alert when checkUsed true but status≠generated | ⏳ Open |
+| BE-06 | LOW | Dedup race mapping relies on regex over Neon error text | submit-contribution-handler.ts:140-173; schema.sql:66-72 | Match SQLSTATE 23505 / err.constraint instead of message regex | ✅ Resolved |
 
 ### Software Architect (conf 8 / qual 8 / prod 7)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| ARCH-01 | HIGH | No purge cron registered → abandoned encrypted memories never deleted | vercel.json:3-8; collections.ts:336; schema.sql | Add /api/cron/purge calling purgeAbandoned; register daily; reconcile privacy/terms |
-| ARCH-02 | HIGH | Deadline sweep not product/occasion-scoped — breaks on 2nd occasion | collections.ts:402; deadline-sweep-handler; cron route:18-37 | Product filter + loop cron over every live config; test with two products |
-| ARCH-03 | MEDIUM | Advance-pay has no charge-level idempotency → double-charge window | collection-checkout-handler.ts (advance); collections.ts:350 | Re-check paidAt + Redis in-flight lock before creating txn; webhook reconcile |
-| ARCH-04 | MEDIUM | txn→collection resolution via prefix-probing across configs; wrong-occasion fallback | resolver.ts:60-92 | Carry occasion in customData / durable Postgres txn→collection record |
-| ARCH-05 | MEDIUM | Reviewed source (1.13.1) ≠ shipped pinned version (1.14.0); stale 1.6.0 comments | package.json:16; core package.json | Review exact pinned version; CI check pin==published tag; update comments |
-| ARCH-06 | LOW | Contributor dedup key = unsalted SHA-256(email), queryable | collections.ts:96; schema.sql | Use keyed HMAC-SHA256 with server secret |
-| ARCH-07 | LOW | Invite daily-cap counter non-atomic (get-then-incr) | invite/route.ts | INCR first then check; or use Redis rate-limiter |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| ARCH-01 | HIGH | No purge cron registered → abandoned encrypted memories never deleted | vercel.json:3-8; collections.ts:336; schema.sql | Add /api/cron/purge calling purgeAbandoned; register daily; reconcile privacy/terms | ✅ Resolved |
+| ARCH-02 | HIGH | Deadline sweep not product/occasion-scoped — breaks on 2nd occasion | collections.ts:402; deadline-sweep-handler; cron route:18-37 | Product filter + loop cron over every live config; test with two products | ✅ Resolved (sweep product-scoped; cron loops live configs deferred) |
+| ARCH-03 | MEDIUM | Advance-pay has no charge-level idempotency → double-charge window | collection-checkout-handler.ts (advance); collections.ts:350 | Re-check paidAt + Redis in-flight lock before creating txn; webhook reconcile | ✅ Resolved |
+| ARCH-04 | MEDIUM | txn→collection resolution via prefix-probing across configs; wrong-occasion fallback | resolver.ts:60-92 | Carry occasion in customData / durable Postgres txn→collection record | ⏳ Open |
+| ARCH-05 | MEDIUM | Reviewed source (1.13.1) ≠ shipped pinned version (1.14.0); stale 1.6.0 comments | package.json:16; core package.json | Review exact pinned version; CI check pin==published tag; update comments | ✅ Resolved (now on 1.15.x) |
+| ARCH-06 | LOW | Contributor dedup key = unsalted SHA-256(email), queryable | collections.ts:96; schema.sql | Use keyed HMAC-SHA256 with server secret | ✅ Resolved |
+| ARCH-07 | LOW | Invite daily-cap counter non-atomic (get-then-incr) | invite/route.ts | INCR first then check; or use Redis rate-limiter | ⏳ Open |
 
 ### Security Engineer (conf 8.5 / qual 8 / prod 8)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| SEC-01 | HIGH | ENABLE_MOCK_PAYMENT single var disables BOTH payment verification AND real encryption (public key) | aes.ts:21-33,53; mark-paid:36,49; generate:62,76; finalize-core:61 | Fail-closed in prod; decouple encryption key from the mock flag; loud startup log |
-| SEC-02 | HIGH | create-collection does not validate/bound organizer deadline → cron cascade-delete | create-collection-handler.ts:121; collections.ts:137 | Parse, reject NaN/past, clamp window, 400 on violation |
-| SEC-03 | MEDIUM | mark-paid/generate verify txn completion+product but not amount/tier price | mark-paid:55-74; generate:87-110 | Assert priceId/total matches config.tiers[tier].priceId for env |
-| SEC-04 | MEDIUM | share_token ~48 bits + valid/invalid oracle + IP-spoofable rate limit | collections.ts:125; submit-contribution-handler.ts:128-130,175 | Bump to ≥12 bytes; key rate-limit on trusted client IP |
-| SEC-05 | LOW | Stored `occasion` is client-supplied, not validated vs live config | create-collection-handler.ts:117 | Derive occasion from validated route/registry, not body |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| SEC-01 | HIGH | ENABLE_MOCK_PAYMENT single var disables BOTH payment verification AND real encryption (public key) | aes.ts:21-33,53; mark-paid:36,49; generate:62,76; finalize-core:61 | Fail-closed in prod; decouple encryption key from the mock flag; loud startup log | ✅ Resolved |
+| SEC-02 | HIGH | create-collection does not validate/bound organizer deadline → cron cascade-delete | create-collection-handler.ts:121; collections.ts:137 | Parse, reject NaN/past, clamp window, 400 on violation | ✅ Resolved |
+| SEC-03 | MEDIUM | mark-paid/generate verify txn completion+product but not amount/tier price | mark-paid:55-74; generate:87-110 | Assert priceId/total matches config.tiers[tier].priceId for env | ✅ Resolved (price-id verified) |
+| SEC-04 | MEDIUM | share_token ~48 bits + valid/invalid oracle + IP-spoofable rate limit | collections.ts:125; submit-contribution-handler.ts:128-130,175 | Bump to ≥12 bytes; key rate-limit on trusted client IP | ✅ Resolved (token→96-bit; IP rate-limit unchanged) |
+| SEC-05 | LOW | Stored `occasion` is client-supplied, not validated vs live config | create-collection-handler.ts:117 | Derive occasion from validated route/registry, not body | ⏳ Open |
 
 ### Legal / Compliance (conf 8 / qual 6.5 / prod 6)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| LC-01 | CRITICAL | Finalized collections retain PII indefinitely — contradicts Privacy Policy | collections.ts:336-339; collections_purge_idx; finalize-core | Set post-generation purge_after; purge generated rows; state real days in policy |
-| LC-02 | CRITICAL | Consent checked but never recorded (no timestamp/version/policy ref) | submit-contribution-handler.ts:95-97; schema.sql | Persist consent record; add Privacy link + email-storage disclosure at consent |
-| LC-03 | HIGH | ToS/Privacy not updated for auto-delete/auto-generate; flagged not-attorney-reviewed | terms/page.tsx; privacy/page.tsx | Attorney ratify addendum; add ToS clauses; surface auto-generate at create |
-| LC-04 | HIGH | No right-to-erasure path for contributors (only organizer can delete) | delete-collection-handler.ts; privacy §7 | Per-contribution capability token or documented erasure SOP + rights line on form |
-| LC-05 | HIGH | "No account / won't sign you up" copy while email is required and retained | ContributorForm.tsx:467,507,558 | Make reassurance accurate; link Privacy at collection |
-| LC-06 | MEDIUM | Pay-in-advance + auto-finalize creates refund / CRD withdrawal ambiguity | refund/page.tsx; deadline-sweep; terms §3 | Clarify 14-day window from purchase; capture CRD ack at generation |
-| LC-07 | MEDIUM | Contributors not notified on auto-delete/auto-use of their data | deadline-sweep-handler.ts:148-205 | Email contributors or disclose auto-delete/auto-include in consent/privacy copy |
-| LC-08 | LOW | IP used for rate-limiting/logging not disclosed as processing purpose | submit-contribution-handler.ts:33-37; privacy §2 | Add "abuse prevention/rate limiting (legitimate interest)" to policy |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| LC-01 | CRITICAL | Finalized collections retain PII indefinitely — contradicts Privacy Policy | collections.ts:336-339; collections_purge_idx; finalize-core | Set post-generation purge_after; purge generated rows; state real days in policy | ✅ Resolved (code; policy wording → LC-03 attorney) |
+| LC-02 | CRITICAL | Consent checked but never recorded (no timestamp/version/policy ref) | submit-contribution-handler.ts:95-97; schema.sql | Persist consent record; add Privacy link + email-storage disclosure at consent | ✅ Resolved |
+| LC-03 | HIGH | ToS/Privacy not updated for auto-delete/auto-generate; flagged not-attorney-reviewed | terms/page.tsx; privacy/page.tsx | Attorney ratify addendum; add ToS clauses; surface auto-generate at create | 👤 Founder (attorney) |
+| LC-04 | HIGH | No right-to-erasure path for contributors (only organizer can delete) | delete-collection-handler.ts; privacy §7 | Per-contribution capability token or documented erasure SOP + rights line on form | ⏳ Open |
+| LC-05 | HIGH | "No account / won't sign you up" copy while email is required and retained | ContributorForm.tsx:467,507,558 | Make reassurance accurate; link Privacy at collection | ✅ Resolved |
+| LC-06 | MEDIUM | Pay-in-advance + auto-finalize creates refund / CRD withdrawal ambiguity | refund/page.tsx; deadline-sweep; terms §3 | Clarify 14-day window from purchase; capture CRD ack at generation | 👤 Founder (attorney) |
+| LC-07 | MEDIUM | Contributors not notified on auto-delete/auto-use of their data | deadline-sweep-handler.ts:148-205 | Email contributors or disclose auto-delete/auto-include in consent/privacy copy | ⏳ Open |
+| LC-08 | LOW | IP used for rate-limiting/logging not disclosed as processing purpose | submit-contribution-handler.ts:33-37; privacy §2 | Add "abuse prevention/rate limiting (legitimate interest)" to policy | 👤 Founder (attorney) |
 
 ### UX Designer (conf 8.5 / qual 8 / prod 8)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| UX-01 | HIGH | Result-page reload after success is a dead end (no already-generated recovery) | ResultFlow.tsx:83-157 | Render recovery state on spent-txn; re-fetch + show stored content read-only |
-| UX-02 | HIGH | Edit & Refine pack copy promises regeneration backend doesn't deliver | EditPackCard.tsx:11-15,61-87 | Don't set edit-pack price id in prod; or true coming-soon with no live checkout |
-| UX-03 | MEDIUM | InviteScreen renders deadline as raw ISO string | InviteScreen.tsx:95-99 | Reuse formatDeadline / toLocaleDateString |
-| UX-04 | MEDIUM | Create-form progress bar + CTA contradict "write memory later" path | CreateForm.tsx:251-262,801-818 | Exclude deferred fields from denominator; equalize the two valid paths |
-| UX-05 | MEDIUM | Contributor duplicate caught only after full memory, shown as tiny email error | ContributorForm.tsx:132-141,274-277 | On CONTRIBUTION_EXISTS show warm "already shared" terminal screen |
-| UX-06 | MEDIUM | Advance-pay framing sells fee as email-quota unlock, buries real benefit | InviteBlock.tsx:174-248,359-362 | Lead with "one-time fee now — finalizing later is free" |
-| UX-07 | LOW | Feedback widget never appears for paid-in-advance finalize | ResultFlow.tsx:273-281 | Allow widget in paidFinalize path keyed on admin token/collection id |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| UX-01 | HIGH | Result-page reload after success is a dead end (no already-generated recovery) | ResultFlow.tsx:83-157 | Render recovery state on spent-txn; re-fetch + show stored content read-only | ✅ Resolved |
+| UX-02 | HIGH | Edit & Refine pack copy promises regeneration backend doesn't deliver | EditPackCard.tsx:11-15,61-87 | Don't set edit-pack price id in prod; or true coming-soon with no live checkout | ✅ Resolved |
+| UX-03 | MEDIUM | InviteScreen renders deadline as raw ISO string | InviteScreen.tsx:95-99 | Reuse formatDeadline / toLocaleDateString | ✅ Resolved |
+| UX-04 | MEDIUM | Create-form progress bar + CTA contradict "write memory later" path | CreateForm.tsx:251-262,801-818 | Exclude deferred fields from denominator; equalize the two valid paths | ⏳ Open |
+| UX-05 | MEDIUM | Contributor duplicate caught only after full memory, shown as tiny email error | ContributorForm.tsx:132-141,274-277 | On CONTRIBUTION_EXISTS show warm "already shared" terminal screen | ✅ Resolved |
+| UX-06 | MEDIUM | Advance-pay framing sells fee as email-quota unlock, buries real benefit | InviteBlock.tsx:174-248,359-362 | Lead with "one-time fee now — finalizing later is free" | ✅ Resolved |
+| UX-07 | LOW | Feedback widget never appears for paid-in-advance finalize | ResultFlow.tsx:273-281 | Allow widget in paidFinalize path keyed on admin token/collection id | ✅ Resolved |
 
 ### Marketing / Growth (conf 8 / qual 7 / prod 6)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| MKT-001 | CRITICAL | Fabricated MOCK_TESTIMONIALS render on live paid landing | [occasion]/page.tsx; LandingPage.tsx:560-561 | Remove testimonials prop until real/consented; use honest non-endorsement proof |
-| MKT-002 | HIGH | No conversion/event analytics — only Vercel pageviews; ad spend unmeasurable | layout.tsx:4,30 | Add GA4/PostHog funnel events + Paddle purchase conversion + UTM/?focus= capture |
-| MKT-003 | HIGH | One $49 tier dressed as two cards; weak advance-pay framing | memorial/config.ts:126-139; _landing/memorial.ts:149-172 | Collapse to one honest $49 (or truly differentiate); re-frame advance-pay on outcome |
-| MKT-004 | MEDIUM | Required contributor email adds friction to highest-volume step | ContributorForm.tsx:449-476,185-188 | Make email optional / soft-required; strengthen why; use as cross-sell hook |
-| MKT-005 | MEDIUM | Coming-soon occasions capture no demand; "Notify me" is a dead link | OccasionPicker.tsx:33,113; ComingSoon.tsx | Add waitlist email capture; relabel until functional; gate ?focus= for non-live |
-| MKT-006 | MEDIUM | Edit & Refine upsell charges for unbuilt refinement | EditPackCard.tsx:1-16,42-55,83-86 | Leave price id unset in prod until regen ships |
-| MKT-007 | LOW | No abandoned-funnel recovery for partial create path | page.tsx:169-183; CreateForm.tsx | Lifecycle nudges keyed off collection state via Resend |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| MKT-001 | CRITICAL | Fabricated MOCK_TESTIMONIALS render on live paid landing | [occasion]/page.tsx; LandingPage.tsx:560-561 | Remove testimonials prop until real/consented; use honest non-endorsement proof | ✅ Resolved |
+| MKT-002 | HIGH | No conversion/event analytics — only Vercel pageviews; ad spend unmeasurable | layout.tsx:4,30 | Add GA4/PostHog funnel events + Paddle purchase conversion + UTM/?focus= capture | 👤 Founder (keys) |
+| MKT-003 | HIGH | One $49 tier dressed as two cards; weak advance-pay framing | memorial/config.ts:126-139; _landing/memorial.ts:149-172 | Collapse to one honest $49 (or truly differentiate); re-frame advance-pay on outcome | 🟡 Partial (advance-pay reframed; two-card pricing not yet collapsed) |
+| MKT-004 | MEDIUM | Required contributor email adds friction to highest-volume step | ContributorForm.tsx:449-476,185-188 | Make email optional / soft-required; strengthen why; use as cross-sell hook | ⏳ Open (kept required by decision) |
+| MKT-005 | MEDIUM | Coming-soon occasions capture no demand; "Notify me" is a dead link | OccasionPicker.tsx:33,113; ComingSoon.tsx | Add waitlist email capture; relabel until functional; gate ?focus= for non-live | ⏳ Open |
+| MKT-006 | MEDIUM | Edit & Refine upsell charges for unbuilt refinement | EditPackCard.tsx:1-16,42-55,83-86 | Leave price id unset in prod until regen ships | ✅ Resolved |
+| MKT-007 | LOW | No abandoned-funnel recovery for partial create path | page.tsx:169-183; CreateForm.tsx | Lifecycle nudges keyed off collection state via Resend | ⏳ Open |
 
 ### QA / Test Engineer (conf 8 / qual 7 / prod 6)
-| ID | Sev | Issue | Location | Fix |
-|----|-----|-------|----------|-----|
-| QA-1 | CRITICAL | No webhook backstop for collection payments | webhook-handler.ts; collect/paid/page.tsx:41-48 | Add transaction.completed → markCollectionPaid server-side + test |
-| QA-2 | CRITICAL | Entire pay-in-advance + deadline-sweep flow untested | collection-handlers.test.ts | Add mark-paid/finalize-paid/all 5 sweep-branch tests + auth + reminder-once |
-| QA-3 | HIGH | Deadline accepted with no validation → immediate data loss on next cron | create-collection-handler.ts:121 | Parse, reject NaN/past, clamp [now+min, now+max]; test |
-| QA-4 | HIGH | Advance-pay return page ignores mark-paid response (no 202 polling) | collect/paid/page.tsx:41-58 | Mirror ResultFlow 202 retry loop; surface settling message; test |
-| QA-5 | HIGH | New dedup/identity logic has no db-level tests | collections.test.ts | Add email-hash/organizer/partial-index dup tests; verify error regex |
-| QA-6 | MEDIUM | Stub occasions default paddleProductId to '' → dedup/guards collapse if enabled | wedding/config.ts:35; retirement/config.ts:35 | Fail fast when enabled but product id empty; registry test |
-| QA-7 | MEDIUM | App has zero automated tests; no E2E for multi-actor / mock-vs-sandbox | wordsbywtm-hub (no *.test.*) | Playwright happy-path E2E + resolver token-scoping unit test |
-| QA-8 | LOW | Cross-product txn guard uses `!== undefined` — productless txn bypasses | collection-generate-handler.ts; mark-paid-handler.ts | Treat missing product as mismatch when resolving collectionId; test |
+| ID | Sev | Issue | Location | Fix | Status |
+|----|-----|-------|----------|-----|--------|
+| QA-1 | CRITICAL | No webhook backstop for collection payments | webhook-handler.ts; collect/paid/page.tsx:41-48 | Add transaction.completed → markCollectionPaid server-side + test | ✅ Resolved |
+| QA-2 | CRITICAL | Entire pay-in-advance + deadline-sweep flow untested | collection-handlers.test.ts | Add mark-paid/finalize-paid/all 5 sweep-branch tests + auth + reminder-once | ✅ Resolved (handler tests added) |
+| QA-3 | HIGH | Deadline accepted with no validation → immediate data loss on next cron | create-collection-handler.ts:121 | Parse, reject NaN/past, clamp [now+min, now+max]; test | ✅ Resolved |
+| QA-4 | HIGH | Advance-pay return page ignores mark-paid response (no 202 polling) | collect/paid/page.tsx:41-58 | Mirror ResultFlow 202 retry loop; surface settling message; test | ✅ Resolved |
+| QA-5 | HIGH | New dedup/identity logic has no db-level tests | collections.test.ts | Add email-hash/organizer/partial-index dup tests; verify error regex | ⏳ Open (handler-level dup tests exist; db-level pending) |
+| QA-6 | MEDIUM | Stub occasions default paddleProductId to '' → dedup/guards collapse if enabled | wedding/config.ts:35; retirement/config.ts:35 | Fail fast when enabled but product id empty; registry test | ⏳ Open |
+| QA-7 | MEDIUM | App has zero automated tests; no E2E for multi-actor / mock-vs-sandbox | wordsbywtm-hub (no *.test.*) | Playwright happy-path E2E + resolver token-scoping unit test | ⏳ Open |
+| QA-8 | LOW | Cross-product txn guard uses `!== undefined` — productless txn bypasses | collection-generate-handler.ts; mark-paid-handler.ts | Treat missing product as mismatch when resolving collectionId; test | ⏳ Open |
 
 ---
 
