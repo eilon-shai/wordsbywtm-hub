@@ -560,6 +560,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                 contribution={c}
                 included={isIncluded(c)}
                 disabled={generated || savingIds.has(c.id)}
+                canEdit={!generated}
                 onToggle={handleToggle}
                 onEdit={openEdit}
                 error={toggleErrors[c.id] ?? null}
@@ -612,13 +613,18 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
       {/* Danger zone — delete the whole collection (cascades to all memories). */}
       <div className="mt-10 border-t border-border pt-6">
         {!confirmDelete ? (
-          <button
-            type="button"
-            className="text-sm text-muted-foreground hover:text-destructive transition-colors"
-            onClick={() => setConfirmDelete(true)}
-          >
-            Delete this collection
-          </button>
+          <div>
+            <button
+              type="button"
+              className={`${buttonVariants({ variant: 'outline', size: 'sm' })} border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive`}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete this collection
+            </button>
+            <p className="mt-3 max-w-prose text-xs leading-relaxed text-muted-foreground">
+              If you do nothing, this collection and all its memories are automatically deleted about 30 days after the tribute is created (or at the deadline if you never finalize). Download or copy your tribute to keep it.
+            </p>
+          </div>
         ) : (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
             <p className="text-sm font-medium text-foreground">

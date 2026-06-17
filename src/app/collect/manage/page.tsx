@@ -5,6 +5,7 @@ import {
 } from '@eilon-shai/venture-core/db';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ManageDashboard } from '@/components/ManageDashboard';
+import { SiteHeader } from '@/components/SiteHeader';
 
 // S6 + S7 — Organizer manage / review dashboard + finalize.
 // Server component: reads the admin token from ?t=, resolves the collection to
@@ -31,7 +32,10 @@ export default async function ManagePage({ searchParams }: PageProps) {
     // DB unavailable at request time: let the client dashboard surface a retry
     // by rendering it with a placeholder occasion (its own load() will 503).
     return (
-      <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" justCreated={justCreated} />
+      <>
+        <SiteHeader />
+        <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" justCreated={justCreated} />
+      </>
     );
   }
 
@@ -63,6 +67,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
           : undefined
       }
     >
+      <SiteHeader />
       <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} organizerEmail={collection?.organizerEmail} justCreated={justCreated} />
     </main>
   );

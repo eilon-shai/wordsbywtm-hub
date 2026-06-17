@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
 import { ResultFlow } from './ResultFlow';
+import { SiteHeader } from '@/components/SiteHeader';
 
 // ---------------------------------------------------------------------------
 // S8 — Synthesized Result (COLLECTION_SCREENS_REDESIGN.md §4)
@@ -64,16 +65,19 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
   }
 
   return (
-    <ResultFlow
-      occasion={occasion}
-      occasionTitle={meta.title}
-      accent={meta.accent}
-      supportEmail={SUPPORT_EMAIL}
-      homeHref={`/${occasion}`}
-      resultPath={config.brand.resultPath}
-      editPackPriceId={editPackPriceId}
-      organizerEmail={organizerEmail}
-      paidInAdvance={paidInAdvance}
-    />
+    <>
+      <SiteHeader />
+      <ResultFlow
+        occasion={occasion}
+        occasionTitle={meta.title}
+        accent={meta.accent}
+        supportEmail={SUPPORT_EMAIL}
+        homeHref={`/${occasion}`}
+        resultPath={config.brand.resultPath}
+        editPackPriceId={editPackPriceId}
+        organizerEmail={organizerEmail}
+        paidInAdvance={paidInAdvance}
+      />
+    </>
   );
 }

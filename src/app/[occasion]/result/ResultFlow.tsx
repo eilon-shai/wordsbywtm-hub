@@ -134,7 +134,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   const [showFeedback, setShowFeedback] = React.useState(false);
   React.useEffect(() => {
     if (phase !== 'done') return;
-    const t = setTimeout(() => setShowFeedback(true), 6000);
+    const t = setTimeout(() => setShowFeedback(true), 2500);
     return () => clearTimeout(t);
   }, [phase]);
 
@@ -247,6 +247,16 @@ function ResultFlowInner(props: ResultFlowProps) {
   const onPrefsSubmit = React.useCallback(async () => {
     if (submitting) return;
     const prefs = { tone, length, thingsToAvoid, additionalContext };
+
+    // Persist the admin token so the post-payment (txn) done view can link back
+    // to the organizer's collection even after the Paddle redirect drops ?t=.
+    if (adminToken) {
+      try {
+        sessionStorage.setItem('wtm:collection-admin', adminToken);
+      } catch {
+        /* sessionStorage unavailable — back link just won't render */
+      }
+    }
 
     // Paid-in-advance: no charge — show a one-way confirm, then finalize-paid.
     if (props.paidInAdvance) {
@@ -498,6 +508,10 @@ function ResultFlowInner(props: ResultFlowProps) {
   }
 
   // ---- done ----
+  const backToken =
+    adminToken ||
+    (typeof window !== 'undefined' ? sessionStorage.getItem('wtm:collection-admin') : '') ||
+    '';
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
       <header className="mb-10 text-center">
@@ -547,8 +561,22 @@ function ResultFlowInner(props: ResultFlowProps) {
         </Button>
       </div>
 
+      {backToken ? (
+        <div className="mt-6 text-center">
+          <a
+            href={`/collect/manage?t=${encodeURIComponent(backToken)}`}
+            className="text-sm text-primary underline hover:text-foreground"
+          >
+            ← Back to your collection
+          </a>
+        </div>
+      ) : null}
+
       <p className="mt-4 text-center text-xs text-muted-foreground">
         We’ve also emailed this tribute to you, ready to read aloud.
+      </p>
+      <p className="mt-2 text-center text-xs text-muted-foreground">
+        Your collection and this tribute are automatically deleted about 30 days after creation, so please download or copy the text to keep a permanent copy.
       </p>
 
       {/* Edit & Refine pack intentionally NOT rendered: the regeneration backend
