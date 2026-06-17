@@ -110,7 +110,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | BE-01 | HIGH | Lock TTL 30s < 60s synthesis budget → concurrent double-synthesis / double Claude spend | collection-finalize-core.ts:62,71-92; memorial/config.ts:149 | Set lockTtlMs ≥ maxDuration+margin (≥90s); or flip a 'generating' status sentinel inside lock | ✅ Resolved |
 | BE-02 | HIGH | Deadline sweep not product-scoped → cross-product delete/email in shared DB | collection-deadline-sweep-handler.ts:89,138-179; collections.ts:402-411 | Add product param + explicit per-collection product guard before 2nd occasion | ✅ Resolved |
 | BE-03 | MEDIUM | get-collection lacks product guard (returns other product's PII) | get-collection-handler.ts:30-37 | 404 if collection.product !== config product | ✅ Resolved |
-| BE-04 | MEDIUM | mark-paid mock path skips product guard + status check | collection-mark-paid-handler.ts:49-53,80-85 | Verify product in mock branch; short-circuit if already generated | ⏳ Open |
+| BE-04 | MEDIUM | mark-paid mock path skips product guard + status check | collection-mark-paid-handler.ts:49-53,80-85 | Verify product in mock branch; short-circuit if already generated | ✅ Resolved (#293) |
 | BE-05 | LOW | Crash window between markUsed and setCollectionStatus leaves status='open' | collection-finalize-core.ts:92-95 | Make status the durable idempotency signal; alert when checkUsed true but status≠generated | ⏳ Open |
 | BE-06 | LOW | Dedup race mapping relies on regex over Neon error text | submit-contribution-handler.ts:140-173; schema.sql:66-72 | Match SQLSTATE 23505 / err.constraint instead of message regex | ✅ Resolved |
 
@@ -123,7 +123,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | ARCH-04 | MEDIUM | txn→collection resolution via prefix-probing across configs; wrong-occasion fallback | resolver.ts:60-92 | Carry occasion in customData / durable Postgres txn→collection record | ⏳ Open |
 | ARCH-05 | MEDIUM | Reviewed source (1.13.1) ≠ shipped pinned version (1.14.0); stale 1.6.0 comments | package.json:16; core package.json | Review exact pinned version; CI check pin==published tag; update comments | ✅ Resolved (now on 1.15.x) |
 | ARCH-06 | LOW | Contributor dedup key = unsalted SHA-256(email), queryable | collections.ts:96; schema.sql | Use keyed HMAC-SHA256 with server secret | ✅ Resolved |
-| ARCH-07 | LOW | Invite daily-cap counter non-atomic (get-then-incr) | invite/route.ts | INCR first then check; or use Redis rate-limiter | ⏳ Open |
+| ARCH-07 | LOW | Invite daily-cap counter non-atomic (get-then-incr) | invite/route.ts | INCR first then check; or use Redis rate-limiter | ✅ Resolved |
 
 ### Security Engineer (conf 8.5 / qual 8 / prod 8)
 | ID | Sev | Issue | Location | Fix | Status |
@@ -132,7 +132,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | SEC-02 | HIGH | create-collection does not validate/bound organizer deadline → cron cascade-delete | create-collection-handler.ts:121; collections.ts:137 | Parse, reject NaN/past, clamp window, 400 on violation | ✅ Resolved |
 | SEC-03 | MEDIUM | mark-paid/generate verify txn completion+product but not amount/tier price | mark-paid:55-74; generate:87-110 | Assert priceId/total matches config.tiers[tier].priceId for env | ✅ Resolved (price-id verified) |
 | SEC-04 | MEDIUM | share_token ~48 bits + valid/invalid oracle + IP-spoofable rate limit | collections.ts:125; submit-contribution-handler.ts:128-130,175 | Bump to ≥12 bytes; key rate-limit on trusted client IP | ✅ Resolved (token→96-bit; IP rate-limit unchanged) |
-| SEC-05 | LOW | Stored `occasion` is client-supplied, not validated vs live config | create-collection-handler.ts:117 | Derive occasion from validated route/registry, not body | ⏳ Open |
+| SEC-05 | LOW | Stored `occasion` is client-supplied, not validated vs live config | create-collection-handler.ts:117 | Derive occasion from validated route/registry, not body | ✅ Resolved (route forces occasion) |
 
 ### Legal / Compliance (conf 8 / qual 6.5 / prod 6)
 | ID | Sev | Issue | Location | Fix | Status |
@@ -140,7 +140,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | LC-01 | CRITICAL | Finalized collections retain PII indefinitely — contradicts Privacy Policy | collections.ts:336-339; collections_purge_idx; finalize-core | Set post-generation purge_after; purge generated rows; state real days in policy | ✅ Resolved (code; policy wording → LC-03 attorney) |
 | LC-02 | CRITICAL | Consent checked but never recorded (no timestamp/version/policy ref) | submit-contribution-handler.ts:95-97; schema.sql | Persist consent record; add Privacy link + email-storage disclosure at consent | ✅ Resolved |
 | LC-03 | HIGH | ToS/Privacy not updated for auto-delete/auto-generate; flagged not-attorney-reviewed | terms/page.tsx; privacy/page.tsx | Attorney ratify addendum; add ToS clauses; surface auto-generate at create | 👤 Founder (attorney) |
-| LC-04 | HIGH | No right-to-erasure path for contributors (only organizer can delete) | delete-collection-handler.ts; privacy §7 | Per-contribution capability token or documented erasure SOP + rights line on form | ⏳ Open |
+| LC-04 | HIGH | No right-to-erasure path for contributors (only organizer can delete) | delete-collection-handler.ts; privacy §7 | Per-contribution capability token or documented erasure SOP + rights line on form | 🟡 Partial (erasure-rights line + SOP email added; per-contribution self-serve token deferred) |
 | LC-05 | HIGH | "No account / won't sign you up" copy while email is required and retained | ContributorForm.tsx:467,507,558 | Make reassurance accurate; link Privacy at collection | ✅ Resolved |
 | LC-06 | MEDIUM | Pay-in-advance + auto-finalize creates refund / CRD withdrawal ambiguity | refund/page.tsx; deadline-sweep; terms §3 | Clarify 14-day window from purchase; capture CRD ack at generation | 👤 Founder (attorney) |
 | LC-07 | MEDIUM | Contributors not notified on auto-delete/auto-use of their data | deadline-sweep-handler.ts:148-205 | Email contributors or disclose auto-delete/auto-include in consent/privacy copy | ⏳ Open |
@@ -176,9 +176,9 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | QA-3 | HIGH | Deadline accepted with no validation → immediate data loss on next cron | create-collection-handler.ts:121 | Parse, reject NaN/past, clamp [now+min, now+max]; test | ✅ Resolved |
 | QA-4 | HIGH | Advance-pay return page ignores mark-paid response (no 202 polling) | collect/paid/page.tsx:41-58 | Mirror ResultFlow 202 retry loop; surface settling message; test | ✅ Resolved |
 | QA-5 | HIGH | New dedup/identity logic has no db-level tests | collections.test.ts | Add email-hash/organizer/partial-index dup tests; verify error regex | ⏳ Open (handler-level dup tests exist; db-level pending) |
-| QA-6 | MEDIUM | Stub occasions default paddleProductId to '' → dedup/guards collapse if enabled | wedding/config.ts:35; retirement/config.ts:35 | Fail fast when enabled but product id empty; registry test | ⏳ Open |
+| QA-6 | MEDIUM | Stub occasions default paddleProductId to '' → dedup/guards collapse if enabled | wedding/config.ts:35; retirement/config.ts:35 | Fail fast when enabled but product id empty; registry test | ✅ Resolved (registry startup guard) |
 | QA-7 | MEDIUM | App has zero automated tests; no E2E for multi-actor / mock-vs-sandbox | wordsbywtm-hub (no *.test.*) | Playwright happy-path E2E + resolver token-scoping unit test | ⏳ Open |
-| QA-8 | LOW | Cross-product txn guard uses `!== undefined` — productless txn bypasses | collection-generate-handler.ts; mark-paid-handler.ts | Treat missing product as mismatch when resolving collectionId; test | ⏳ Open |
+| QA-8 | LOW | Cross-product txn guard uses `!== undefined` — productless txn bypasses | collection-generate-handler.ts; mark-paid-handler.ts | Treat missing product as mismatch when resolving collectionId; test | ✅ Resolved (#293 — collection-level product guard) |
 
 ---
 
