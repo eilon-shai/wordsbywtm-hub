@@ -28,28 +28,43 @@ import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitiv
 // open Paddle on the unpaid path so they survive the redirect back with ?txn=.
 const PREFS_KEY = 'wtm:collection-prefs';
 
-// Download the tribute as a Word-openable .doc (HTML payload — no dependency).
-function downloadWord(honoree: string, content: string) {
-  const safe = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const paragraphs = content
-    .split(/\n{2,}/)
-    .map((p) => `<p style="margin:0 0 14pt 0">${safe(p).replace(/\n/g, '<br/>')}</p>`)
-    .join('');
-  const html =
-    `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">` +
-    `<head><meta charset="utf-8"><title>A tribute for ${safe(honoree)}</title></head>` +
-    `<body style="font-family:Georgia,serif;font-size:13pt;line-height:1.6;color:#1a1a1a">` +
-    `<h1 style="font-size:18pt;text-align:center;margin:0 0 18pt 0">A tribute for ${safe(honoree)}</h1>${paragraphs}</body></html>`;
-  const blob = new Blob(['﻿', html], { type: 'application/msword' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
+// Download the tribute as a real PDF. jsPDF is dynamically imported so it only
+// loads when the organizer actually clicks download (keeps the page bundle lean).
+async function downloadPdf(honoree: string, content: string) {
+  const { jsPDF } = await import('jspdf');
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const margin = 72; // 1 inch
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = pageWidth - margin * 2;
+  const lineHeight = 18;
+  let y = margin;
+
+  // Title (serif — jsPDF ships Times built-in).
+  doc.setFont('times', 'bold');
+  doc.setFontSize(18);
+  const titleLines = doc.splitTextToSize(`A tribute for ${honoree}`, maxWidth) as string[];
+  doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
+  y += titleLines.length * 22 + 18;
+
+  // Body.
+  doc.setFont('times', 'normal');
+  doc.setFontSize(12);
+  for (const para of content.split(/\n{2,}/)) {
+    const lines = doc.splitTextToSize(para.replace(/\n/g, ' '), maxWidth) as string[];
+    for (const line of lines) {
+      if (y > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, margin, y);
+      y += lineHeight;
+    }
+    y += lineHeight * 0.6; // paragraph gap
+  }
+
   const safeName = (honoree || 'them').replace(/[\\/:*?"<>|]+/g, '').trim().slice(0, 80) || 'them';
-  a.download = `Tribute for ${safeName}.doc`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  doc.save(`Tribute for ${safeName}.pdf`);
 }
 
 const TONE_FIELD: FormFieldConfig = {
@@ -540,9 +555,9 @@ function ResultFlowInner(props: ResultFlowProps) {
           type="button"
           size="lg"
           className="rounded-full px-6"
-          onClick={() => downloadWord(honoree, content)}
+          onClick={() => void downloadPdf(honoree, content)}
         >
-          Download as Word
+          Download as PDF
         </Button>
         <Button
           type="button"
