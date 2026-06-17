@@ -479,16 +479,22 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
                       {deadlineDaysLeft === 0 ? 'today' : `${deadlineDaysLeft} day${deadlineDaysLeft === 1 ? '' : 's'} left`}
                     </span>
                   ) : null}
-                  <span
-                    className="cursor-help text-muted-foreground"
-                    title={
-                      data.paid
+                  <span className="group relative inline-flex">
+                    <button
+                      type="button"
+                      className="flex h-5 w-5 cursor-help items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      aria-label="What the deadline means"
+                    >
+                      ⓘ
+                    </button>
+                    <span
+                      role="tooltip"
+                      className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-lg bg-foreground px-3 py-2 text-left text-xs font-normal leading-relaxed text-background opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+                    >
+                      {data.paid
                         ? 'On this date, memories close and we automatically create your tribute from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.'
-                        : 'On this date, memories close. Finalize before then to create your tribute — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.'
-                    }
-                    aria-label="What the deadline means"
-                  >
-                    ⓘ
+                        : 'On this date, memories close. Finalize before then to create your tribute — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.'}
+                    </span>
                   </span>
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
