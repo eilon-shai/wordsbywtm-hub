@@ -7,24 +7,23 @@ export const dynamic = 'force-dynamic';
 
 // GET /api/cron/collection-deadlines — daily deadline sweep (Vercel Cron, see
 // vercel.json). 3-day warnings, delete unpaid at the deadline, auto-generate
-// paid "with what we have", extend paid-but-empty. Guarded by CRON_SECRET (the
-// venture-core handler checks Authorization: Bearer $CRON_SECRET, which Vercel
-// Cron sends automatically when CRON_SECRET is set).
+// paid "with what we have", extend paid-but-empty. CRON_SECRET-guarded inside the
+// venture-core handler (fail-closed: requires the secret in production).
 //
-// NOTE: the venture-core sweep is not yet product-scoped — it processes every
-// open collection with a deadline. That's correct while a single occasion is
-// live. Before a 2nd occasion goes live, scope listOpenCollectionsWithDeadline
-// by product (and run the sweep once per live config).
+// The venture-core sweep is product-scoped (1.15.x), so we run it once PER LIVE
+// occasion config (ARCH-02b) — safe with any number of live occasions.
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const live = OCCASIONS.filter((o) => o.live);
-  const configs = live.map((o) => CONFIGS[o.slug]).filter(Boolean);
-
-  // Today exactly one occasion is live, so this runs once. If/when more go live
-  // this loop must wait for product-scoping (see NOTE above) to avoid double work.
-  const primary = configs[0];
-  if (!primary) {
+  const configs = OCCASIONS.filter((o) => o.live).map((o) => CONFIGS[o.slug]).filter(Boolean);
+  if (configs.length === 0) {
     return NextResponse.json({ ok: true, note: 'no live occasion config' });
   }
 
-  return createCollectionDeadlineSweepHandler(primary)(request);
+  const results: Record<string, unknown> = {};
+  for (const config of configs) {
+    const res = await createCollectionDeadlineSweepHandler(config)(request);
+    // Propagate an auth/config failure (401/503) immediately.
+    if (res.status === 401 || res.status === 503) return res;
+    results[config.brand.paddleProductId] = await res.json().catch(() => ({}));
+  }
+  return NextResponse.json({ ok: true, results });
 }

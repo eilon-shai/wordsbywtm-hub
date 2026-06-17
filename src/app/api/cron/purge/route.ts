@@ -9,13 +9,16 @@ export const dynamic = 'force-dynamic';
 // past their post-generation retention window. CRON_SECRET-guarded (Vercel Cron
 // sends Authorization: Bearer $CRON_SECRET).
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  // Fail-closed (BE-N4/SEC-06): require CRON_SECRET in production; header-only match.
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get('authorization') ?? '';
-    const url = new URL(request.url);
-    if (auth !== `Bearer ${secret}` && url.searchParams.get('key') !== secret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  if (!secret) {
+    if (isProd) {
+      console.error('[cron/purge] CRON_SECRET not set — refusing to run in production');
+      return NextResponse.json({ error: 'Cron not configured' }, { status: 503 });
     }
+  } else if ((request.headers.get('authorization') ?? '') !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const db = getDbClient();
   if (!db) return NextResponse.json({ error: 'Service unavailable', retryable: true }, { status: 503 });
