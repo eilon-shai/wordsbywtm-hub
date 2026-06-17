@@ -367,7 +367,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
       {/* Edit-your-memory modal — the full customer form, pre-populated. */}
       {editing ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4 py-10">
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4 py-10"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit your memory"
+          onKeyDown={(e) => { if (e.key === 'Escape') setEditing(null); }}
+          onClick={(e) => { if (e.target === e.currentTarget) setEditing(null); }}
+        >
           <Card className="w-full max-w-lg">
             <CardContent className="p-6">
               <h3 className="mb-4 font-serif text-xl text-foreground">Edit your memory</h3>

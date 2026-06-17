@@ -234,7 +234,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   // ---- generating ----
   if (phase === 'generating') {
     return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-20 text-center">
+      <main className="mx-auto w-full max-w-2xl px-4 py-20 text-center" role="status" aria-live="polite">
         <div className="mb-6 flex justify-center"><Spinner size={28} /></div>
         <h1 className="font-serif text-2xl text-foreground">Weaving the memories together…</h1>
         <p className="mt-3 text-sm text-muted-foreground">This takes a moment. Please keep this page open.</p>
@@ -245,7 +245,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   // ---- error ----
   if (phase === 'error') {
     return (
-      <main className="mx-auto w-full max-w-xl px-4 py-20 text-center">
+      <main className="mx-auto w-full max-w-xl px-4 py-20 text-center" role="alert">
         <h1 className="font-serif text-2xl text-foreground">We hit a snag</h1>
         <p className="mt-3 text-sm text-muted-foreground">{error}</p>
         <p className="mt-6 text-sm text-muted-foreground">
