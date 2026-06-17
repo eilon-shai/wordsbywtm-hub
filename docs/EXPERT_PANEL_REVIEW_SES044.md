@@ -123,6 +123,24 @@ No CRITICAL or HIGH **regressions** were introduced by the fixes.
 
 ---
 
+## Post-SES-044 quick-win remediation — 2026-06-17
+
+Shipped same day (venture-core PR #297 → 1.15.4; app `dc4cfea`). All engineering MEDIUM/LOW residuals from this re-review are now resolved:
+
+| Finding | Fix |
+|---|---|
+| BE-N4 / SEC-06 | Both crons fail-closed: require CRON_SECRET in production, header-only match (dropped `?key=`). |
+| BE-N1 / SEC-07 | Webhook collection branch asserts known price before recording pay; generate + mark-paid treat missing items as mismatch (403). |
+| SEC-08 | `hashEmail` throws in production if no HMAC secret (no silent SHA-256 downgrade). |
+| BE-N3 | Advance-pay NX lock released on Paddle txn-create failure. |
+| ARCH-08 | `purgeExpired` batch-capped (1000/run). |
+| ARCH-02b | Deadline cron loops over every live occasion config (sweep is product-scoped). |
+| QA-1b / QA-2b / QA-3b | Tests added: webhook backstop + price guard, deadline validation/clamp, deadline-sweep extend/cap/reminder-once/valid-Bearer. 551 tests pass. |
+
+**Remaining = founder-owned only:** LC-03 (attorney ToS ratification), MKT-002 (analytics keys), prod-env confirmation (CRON_SECRET set, ENABLE_MOCK_PAYMENT off, edit-pack price unset). Deferred post-launch: ARCH-04, MKT-005, MKT-007, QA-7, LC-04 self-serve erasure token.
+
+---
+
 ## 7. How to re-run (SES-045)
 
 1. Confirm founder/attorney-owned items have landed: **ToS collection addendum ratified + termsVersion bumped (LC-03)**, **conversion analytics live (MKT-002)**, and prod env verified (CRON_SECRET set on both crons, ENABLE_MOCK_PAYMENT off/unset, edit-pack price unset, REDIS_FORM_ENCRYPTION_KEY + PADDLE_WEBHOOK_SECRET present).
