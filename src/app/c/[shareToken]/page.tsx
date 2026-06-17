@@ -6,7 +6,7 @@
 // exists; the warm thank-you uses honoreeName from the submit response (§S5).
 // ---------------------------------------------------------------------------
 
-import { getDbClient, getCollectionByShareToken } from '@eilon-shai/venture-core/db';
+import { getDbClient, getCollectionByShareToken, countContributors, contributorCap } from '@eilon-shai/venture-core/db';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ContributorForm } from '@/components/ContributorForm';
 import { OrganizerMemoryForm } from '@/components/OrganizerMemoryForm';
@@ -97,6 +97,25 @@ export default async function ContributorSharePage({
           honoreeLabel={collection.honoreeName}
           returnHref={`/collect/manage?t=${encodeURIComponent(collection.adminToken)}`}
         />
+      </main>
+    );
+  }
+
+  // Pre-check the contributor cap so a full collection shows the "full" screen
+  // BEFORE the visitor fills out the form (the submit handler also enforces it).
+  const cap = contributorCap(!!collection.paidAt);
+  const contributorCount = await countContributors(db, collection.id).catch(() => 0);
+  if (contributorCount >= cap) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
+        <div className="max-w-md w-full text-center">
+          <div className="text-5xl mb-6" aria-hidden="true">🤍</div>
+          <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">This collection is full</h1>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Thank you for wanting to share a memory of {meta.honoreeLabel}. This collection has reached the
+            number of memories it can take — please let whoever invited you know if you’d still like yours included.
+          </p>
+        </div>
       </main>
     );
   }

@@ -46,6 +46,9 @@ interface CollectionData {
   paid?: boolean;
   /** Max invite emails/day (10 if paid, else 3). */
   inviteCap?: number;
+  /** Non-organizer contributors used + the link cap (3 free / 10 paid). */
+  contributorCount?: number;
+  contributorCap?: number;
   contributions: Contribution[];
 }
 
@@ -441,6 +444,18 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
             <span className="font-medium text-foreground">{data.count}</span>{' '}
             {data.count === 1 ? 'memory' : 'memories'} collected
           </p>
+
+          {!generated ? (() => {
+            const used = data.contributorCount ?? data.contributions.filter((c) => !c.isOrganizer && c.status !== 'removed').length;
+            const capN = data.contributorCap ?? (data.paid ? 10 : 3);
+            const full = used >= capN;
+            return (
+              <p className={`text-sm ${full && !data.paid ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <span className="font-medium text-foreground">{used} of {capN}</span> people have added a memory via your link
+                {full && !data.paid ? ' — your link is full. Pay below to invite up to 10.' : '.'}
+              </p>
+            );
+          })() : null}
 
           {!generated ? (
             <div className="space-y-1.5">
