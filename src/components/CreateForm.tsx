@@ -192,8 +192,9 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   const [organizerEmail, setOrganizerEmail] = React.useState('');
   const [confirmEmail, setConfirmEmail] = React.useState('');
   // When
-  // Deadline defaults to 2 weeks out; bounded today … +1 month.
-  const [deadline, setDeadline] = React.useState(() => isoDay(addDays(14)));
+  // Deadline defaults to (and maxes out at) one month — the organizer can always
+  // finalize early or pick a sooner date; bounded today … +1 month.
+  const [deadline, setDeadline] = React.useState(() => isoDay(addDays(30)));
   const DEADLINE_MIN = isoDay(addDays(0));
   const DEADLINE_MAX = isoDay(addDays(30));
   const [dupChecking, setDupChecking] = React.useState(false);
