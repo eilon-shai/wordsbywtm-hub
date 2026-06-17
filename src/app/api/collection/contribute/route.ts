@@ -11,6 +11,19 @@ function appBase(domain: string): string {
   return domain.startsWith('http') ? domain.replace(/\/$/, '') : `https://${domain}`;
 }
 
+// Escape untrusted values before interpolating into email HTML. contributorName
+// (and honoreeName) are attacker-controllable via the public share link, so an
+// unescaped value could inject markup/phishing into a trust-sensitive email that
+// also carries the admin-token manage URL.
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Notify the organizer that a (non-organizer) contributor added a memory, so they
 // know to come back and review. Best-effort: never blocks or fails the
 // contribution. Runs after the response via after().
@@ -36,7 +49,7 @@ async function notifyOrganizer(
       to: collection.organizerEmail,
       subject: `A new memory was added for ${collection.honoreeName}`,
       html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;line-height:1.6;">
-        <p><strong>${who}</strong> just added a memory to your collection for <strong>${collection.honoreeName}</strong>.</p>
+        <p><strong>${esc(who)}</strong> just added a memory to your collection for <strong>${esc(collection.honoreeName)}</strong>.</p>
         <p style="margin:24px 0;"><a href="${manageUrl}" style="background:${accent};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Review the memories</a></p>
         <p style="font-size:13px;color:#8c7c68;">When you're ready, you can review everything and create the tribute from your collection.</p>
       </div>`,

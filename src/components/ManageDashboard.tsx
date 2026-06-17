@@ -168,6 +168,42 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const [editing, setEditing] = useState<Contribution | null>(null);
   const openEdit = useCallback((c: Contribution) => setEditing(c), []);
 
+  // a11y (FE-008): focus into the edit-memory modal on open, restore focus to the
+  // trigger on close, and trap Tab within the dialog while it's open.
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const editTriggerRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!editing) return;
+    editTriggerRef.current = (document.activeElement as HTMLElement) ?? null;
+    const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])',
+    );
+    focusables?.[0]?.focus();
+    return () => editTriggerRef.current?.focus?.();
+  }, [editing]);
+  const trapTab = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setEditing(null);
+      return;
+    }
+    if (e.key !== 'Tab' || !dialogRef.current) return;
+    const f = Array.from(
+      dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) => el.offsetParent !== null);
+    if (f.length === 0) return;
+    const first = f[0];
+    const last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }, []);
+
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -367,11 +403,12 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
       {/* Edit-your-memory modal — the full customer form, pre-populated. */}
       {editing ? (
         <div
+          ref={dialogRef}
           className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4 py-10"
           role="dialog"
           aria-modal="true"
           aria-label="Edit your memory"
-          onKeyDown={(e) => { if (e.key === 'Escape') setEditing(null); }}
+          onKeyDown={trapTab}
           onClick={(e) => { if (e.target === e.currentTarget) setEditing(null); }}
         >
           <Card className="w-full max-w-lg">
