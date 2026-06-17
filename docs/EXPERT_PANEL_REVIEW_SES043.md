@@ -98,7 +98,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 |----|-----|-------|----------|-----|--------|
 | FE-001 | CRITICAL | Generated tribute cannot be re-viewed (dead "View your tribute") | ManageDashboard.tsx:479; ResultFlow.tsx:84-101 | Carry admin token on link; render stored content read-only via admin token on ALREADY_USED | ✅ Resolved |
 | FE-002 | HIGH | Edit-pack checkout hijacks result page via shared Paddle singleton callback (synthetic txn) | EditPackCard.tsx:43-50; paddle.ts:46-61 | Don't reuse synthesis callback; dedicated return path or don't mount until regen wired | ✅ Resolved |
-| FE-003 | MEDIUM | Invite card shares one `sending` boolean + result/error across all rows + Send-all | InviteBlock.tsx:275-355,400-451 | Per-action in-flight state; scope/ label result-error; client email validation | ⏳ Open |
+| FE-003 | MEDIUM | Invite card shares one `sending` boolean + result/error across all rows + Send-all | InviteBlock.tsx:275-355,400-451 | Per-action in-flight state; scope/ label result-error; client email validation | ✅ Resolved (per-action busy + client email check) |
 | FE-004 | MEDIUM | Edit-memory modal not an accessible dialog (no role/focus-trap/Escape) | ManageDashboard.tsx:369-398 | Real dialog: role/aria-modal, focus trap+restore, Escape, inert background | ✅ Resolved |
 | FE-005 | MEDIUM | Result-page phase transitions not announced to AT | ResultFlow.tsx:160-212 | aria-live status region; role=alert on error; focus result heading on done | ✅ Resolved |
 | FE-006 | LOW | Dedup-on-blur races submit; confirm-email autocomplete hack | CreateForm.tsx:307-324,607,616 | Guard checkExisting during submit; autoComplete="off" | ✅ Resolved |
@@ -111,7 +111,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | BE-02 | HIGH | Deadline sweep not product-scoped → cross-product delete/email in shared DB | collection-deadline-sweep-handler.ts:89,138-179; collections.ts:402-411 | Add product param + explicit per-collection product guard before 2nd occasion | ✅ Resolved |
 | BE-03 | MEDIUM | get-collection lacks product guard (returns other product's PII) | get-collection-handler.ts:30-37 | 404 if collection.product !== config product | ✅ Resolved |
 | BE-04 | MEDIUM | mark-paid mock path skips product guard + status check | collection-mark-paid-handler.ts:49-53,80-85 | Verify product in mock branch; short-circuit if already generated | ✅ Resolved (#293) |
-| BE-05 | LOW | Crash window between markUsed and setCollectionStatus leaves status='open' | collection-finalize-core.ts:92-95 | Make status the durable idempotency signal; alert when checkUsed true but status≠generated | ⏳ Open |
+| BE-05 | LOW | Crash window between markUsed and setCollectionStatus leaves status='open' | collection-finalize-core.ts:92-95 | Make status the durable idempotency signal; alert when checkUsed true but status≠generated | ✅ Resolved (#295 — status-first finalize) |
 | BE-06 | LOW | Dedup race mapping relies on regex over Neon error text | submit-contribution-handler.ts:140-173; schema.sql:66-72 | Match SQLSTATE 23505 / err.constraint instead of message regex | ✅ Resolved |
 
 ### Software Architect (conf 8 / qual 8 / prod 7)
@@ -120,7 +120,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | ARCH-01 | HIGH | No purge cron registered → abandoned encrypted memories never deleted | vercel.json:3-8; collections.ts:336; schema.sql | Add /api/cron/purge calling purgeAbandoned; register daily; reconcile privacy/terms | ✅ Resolved |
 | ARCH-02 | HIGH | Deadline sweep not product/occasion-scoped — breaks on 2nd occasion | collections.ts:402; deadline-sweep-handler; cron route:18-37 | Product filter + loop cron over every live config; test with two products | ✅ Resolved (sweep product-scoped; cron loops live configs deferred) |
 | ARCH-03 | MEDIUM | Advance-pay has no charge-level idempotency → double-charge window | collection-checkout-handler.ts (advance); collections.ts:350 | Re-check paidAt + Redis in-flight lock before creating txn; webhook reconcile | ✅ Resolved |
-| ARCH-04 | MEDIUM | txn→collection resolution via prefix-probing across configs; wrong-occasion fallback | resolver.ts:60-92 | Carry occasion in customData / durable Postgres txn→collection record | ⏳ Open |
+| ARCH-04 | MEDIUM | txn→collection resolution via prefix-probing across configs; wrong-occasion fallback | resolver.ts:60-92 | Carry occasion in customData / durable Postgres txn→collection record | ⏳ Deferred (redis+customData resolution adequate while single-occasion; durable record post-launch) |
 | ARCH-05 | MEDIUM | Reviewed source (1.13.1) ≠ shipped pinned version (1.14.0); stale 1.6.0 comments | package.json:16; core package.json | Review exact pinned version; CI check pin==published tag; update comments | ✅ Resolved (now on 1.15.x) |
 | ARCH-06 | LOW | Contributor dedup key = unsalted SHA-256(email), queryable | collections.ts:96; schema.sql | Use keyed HMAC-SHA256 with server secret | ✅ Resolved |
 | ARCH-07 | LOW | Invite daily-cap counter non-atomic (get-then-incr) | invite/route.ts | INCR first then check; or use Redis rate-limiter | ✅ Resolved |
@@ -143,7 +143,7 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | LC-04 | HIGH | No right-to-erasure path for contributors (only organizer can delete) | delete-collection-handler.ts; privacy §7 | Per-contribution capability token or documented erasure SOP + rights line on form | 🟡 Partial (erasure-rights line + SOP email added; per-contribution self-serve token deferred) |
 | LC-05 | HIGH | "No account / won't sign you up" copy while email is required and retained | ContributorForm.tsx:467,507,558 | Make reassurance accurate; link Privacy at collection | ✅ Resolved |
 | LC-06 | MEDIUM | Pay-in-advance + auto-finalize creates refund / CRD withdrawal ambiguity | refund/page.tsx; deadline-sweep; terms §3 | Clarify 14-day window from purchase; capture CRD ack at generation | 👤 Founder (attorney) |
-| LC-07 | MEDIUM | Contributors not notified on auto-delete/auto-use of their data | deadline-sweep-handler.ts:148-205 | Email contributors or disclose auto-delete/auto-include in consent/privacy copy | ⏳ Open |
+| LC-07 | MEDIUM | Contributors not notified on auto-delete/auto-use of their data | deadline-sweep-handler.ts:148-205 | Email contributors or disclose auto-delete/auto-include in consent/privacy copy | ✅ Resolved (deadline auto-use/delete disclosed in consent copy) |
 | LC-08 | LOW | IP used for rate-limiting/logging not disclosed as processing purpose | submit-contribution-handler.ts:33-37; privacy §2 | Add "abuse prevention/rate limiting (legitimate interest)" to policy | 👤 Founder (attorney) |
 
 ### UX Designer (conf 8.5 / qual 8 / prod 8)
@@ -163,10 +163,10 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | MKT-001 | CRITICAL | Fabricated MOCK_TESTIMONIALS render on live paid landing | [occasion]/page.tsx; LandingPage.tsx:560-561 | Remove testimonials prop until real/consented; use honest non-endorsement proof | ✅ Resolved |
 | MKT-002 | HIGH | No conversion/event analytics — only Vercel pageviews; ad spend unmeasurable | layout.tsx:4,30 | Add GA4/PostHog funnel events + Paddle purchase conversion + UTM/?focus= capture | 👤 Founder (keys) |
 | MKT-003 | HIGH | One $49 tier dressed as two cards; weak advance-pay framing | memorial/config.ts:126-139; _landing/memorial.ts:149-172 | Collapse to one honest $49 (or truly differentiate); re-frame advance-pay on outcome | 🟡 Partial (advance-pay reframed; two-card pricing not yet collapsed) |
-| MKT-004 | MEDIUM | Required contributor email adds friction to highest-volume step | ContributorForm.tsx:449-476,185-188 | Make email optional / soft-required; strengthen why; use as cross-sell hook | ⏳ Open (kept required by decision) |
-| MKT-005 | MEDIUM | Coming-soon occasions capture no demand; "Notify me" is a dead link | OccasionPicker.tsx:33,113; ComingSoon.tsx | Add waitlist email capture; relabel until functional; gate ?focus= for non-live | ⏳ Open |
+| MKT-004 | MEDIUM | Required contributor email adds friction to highest-volume step | ContributorForm.tsx:449-476,185-188 | Make email optional / soft-required; strengthen why; use as cross-sell hook | ➖ Accepted (email kept required by product decision) |
+| MKT-005 | MEDIUM | Coming-soon occasions capture no demand; "Notify me" is a dead link | OccasionPicker.tsx:33,113; ComingSoon.tsx | Add waitlist email capture; relabel until functional; gate ?focus= for non-live | ⏳ Deferred (waitlist — post-launch) |
 | MKT-006 | MEDIUM | Edit & Refine upsell charges for unbuilt refinement | EditPackCard.tsx:1-16,42-55,83-86 | Leave price id unset in prod until regen ships | ✅ Resolved |
-| MKT-007 | LOW | No abandoned-funnel recovery for partial create path | page.tsx:169-183; CreateForm.tsx | Lifecycle nudges keyed off collection state via Resend | ⏳ Open |
+| MKT-007 | LOW | No abandoned-funnel recovery for partial create path | page.tsx:169-183; CreateForm.tsx | Lifecycle nudges keyed off collection state via Resend | ⏳ Deferred (lifecycle recovery — post-launch) |
 
 ### QA / Test Engineer (conf 8 / qual 7 / prod 6)
 | ID | Sev | Issue | Location | Fix | Status |
@@ -175,9 +175,9 @@ ARCH-03: advance-pay creates a NEW Paddle txn on every click with idempotency on
 | QA-2 | CRITICAL | Entire pay-in-advance + deadline-sweep flow untested | collection-handlers.test.ts | Add mark-paid/finalize-paid/all 5 sweep-branch tests + auth + reminder-once | ✅ Resolved (handler tests added) |
 | QA-3 | HIGH | Deadline accepted with no validation → immediate data loss on next cron | create-collection-handler.ts:121 | Parse, reject NaN/past, clamp [now+min, now+max]; test | ✅ Resolved |
 | QA-4 | HIGH | Advance-pay return page ignores mark-paid response (no 202 polling) | collect/paid/page.tsx:41-58 | Mirror ResultFlow 202 retry loop; surface settling message; test | ✅ Resolved |
-| QA-5 | HIGH | New dedup/identity logic has no db-level tests | collections.test.ts | Add email-hash/organizer/partial-index dup tests; verify error regex | ⏳ Open (handler-level dup tests exist; db-level pending) |
+| QA-5 | HIGH | New dedup/identity logic has no db-level tests | collections.test.ts | Add email-hash/organizer/partial-index dup tests; verify error regex | ✅ Resolved (#295 — db-level dedup tests) |
 | QA-6 | MEDIUM | Stub occasions default paddleProductId to '' → dedup/guards collapse if enabled | wedding/config.ts:35; retirement/config.ts:35 | Fail fast when enabled but product id empty; registry test | ✅ Resolved (registry startup guard) |
-| QA-7 | MEDIUM | App has zero automated tests; no E2E for multi-actor / mock-vs-sandbox | wordsbywtm-hub (no *.test.*) | Playwright happy-path E2E + resolver token-scoping unit test | ⏳ Open |
+| QA-7 | MEDIUM | App has zero automated tests; no E2E for multi-actor / mock-vs-sandbox | wordsbywtm-hub (no *.test.*) | Playwright happy-path E2E + resolver token-scoping unit test | ⏳ Deferred (app E2E — post-launch) |
 | QA-8 | LOW | Cross-product txn guard uses `!== undefined` — productless txn bypasses | collection-generate-handler.ts; mark-paid-handler.ts | Treat missing product as mismatch when resolving collectionId; test | ✅ Resolved (#293 — collection-level product guard) |
 
 ---
