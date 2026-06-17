@@ -273,10 +273,12 @@ function DirectEmailCard({
   const [showPhone, setShowPhone] = React.useState<boolean[]>(
     Array.from({ length: MAX_EMAIL_ROWS }, () => false),
   );
-  const [sending, setSending] = React.useState(false);
-  const [attempted, setAttempted] = React.useState(0);
+  // Per-action in-flight state (FE-003): only the clicked button shows "Sending…".
+  // `busy` is the row index being sent, 'all' for Send-all, or null when idle.
+  const [busy, setBusy] = React.useState<number | 'all' | null>(null);
   const [result, setResult] = React.useState<{ sent: number; of: number; skipped: number; simulated: boolean } | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const sending = busy !== null;
 
   function set(i: number, key: keyof PersonRow, v: string) {
     setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [key]: v } : r)));
@@ -293,10 +295,13 @@ function DirectEmailCard({
       setError('Add an email address for that person first.');
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      setError('That email doesn’t look right — please check it.');
+      return;
+    }
     setError(null);
     setResult(null);
-    setSending(true);
-    setAttempted(1);
+    setBusy(i);
     try {
       const res = await fetch('/api/collection/invite', {
         method: 'POST',
@@ -312,7 +317,7 @@ function DirectEmailCard({
     } catch {
       setError('Network error — please try again.');
     } finally {
-      setSending(false);
+      setBusy(null);
     }
   }
 
@@ -334,8 +339,7 @@ function DirectEmailCard({
     }
     setError(dupes > 0 ? `Removed ${dupes} duplicate ${dupes === 1 ? 'address' : 'addresses'}.` : null);
     setResult(null);
-    setSending(true);
-    setAttempted(recipients.length);
+    setBusy('all');
     try {
       const res = await fetch('/api/collection/invite', {
         method: 'POST',
@@ -351,7 +355,7 @@ function DirectEmailCard({
     } catch {
       setError('Network error — please try again.');
     } finally {
-      setSending(false);
+      setBusy(null);
     }
   }
 
@@ -405,7 +409,7 @@ function DirectEmailCard({
                   onClick={() => void sendEmail(i)}
                   disabled={sending}
                 >
-                  {sending ? 'Sending…' : 'Send email'}
+                  {busy === i ? 'Sending…' : 'Send email'}
                 </Button>
                 {waUrl ? (
                   <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
@@ -444,11 +448,11 @@ function DirectEmailCard({
         </p>
       )}
       {sending && !result && (
-        <p className="mt-2 text-sm text-muted-foreground">Sending {attempted > 1 ? `${attempted} invites` : 'invite'}…</p>
+        <p className="mt-2 text-sm text-muted-foreground">Sending {busy === 'all' ? 'invites' : 'invite'}…</p>
       )}
 
       <Button type="button" size="sm" className="mt-3" onClick={() => void sendAll()} disabled={sending}>
-        {sending ? 'Sending…' : 'Send all emails'}
+        {busy === 'all' ? 'Sending…' : 'Send all emails'}
       </Button>
       <p className="mt-2 text-xs text-muted-foreground">
         WhatsApp opens a message you send yourself.

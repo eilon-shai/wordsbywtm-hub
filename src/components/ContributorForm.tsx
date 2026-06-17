@@ -569,6 +569,7 @@ export function ContributorForm({
               memories to one per person — see our <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Privacy Policy</a>.
               You can ask us to remove your memory any time at{' '}
               <a href="mailto:hello@wordsbywtm.com" className="underline hover:text-foreground">hello@wordsbywtm.com</a>.
+              At the organizer’s deadline, your memory may be woven into the tribute; if the collection isn’t finalized, it’s deleted.
             </p>
             <label
               ref={consentRef}
