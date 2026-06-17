@@ -272,7 +272,14 @@ export function ContributorForm({
         return;
       }
       if (code === 'CONTRIBUTION_EXISTS') {
-        setEmailError(data.error ?? 'A memory from this email is already in this collection.');
+        // A memory from this person already exists — show the warm terminal
+        // screen rather than a tiny inline error (UX-05).
+        try {
+          localStorage.setItem(contributedKey, '1');
+        } catch {
+          /* ignore */
+        }
+        setAlreadyShared(true);
         return;
       }
       if (code === 'CONSENT_REQUIRED') {
@@ -424,7 +431,7 @@ export function ContributorForm({
               ? `Your memory of ${honoreeLabel} is pinned to the top of your collection and is always part of the final tribute.`
               : isOrganizer
                 ? `Add your own memory of ${honoreeLabel} first — it becomes the heart of the tribute. You’ll invite others to add theirs next.`
-                : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account, and you don’t pay anything.`}
+                : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account to create, and you don’t pay anything.`}
           </p>
         </div>
 
@@ -558,7 +565,8 @@ export function ContributorForm({
           <SectionCard>
             <p className="text-xs text-muted-foreground leading-relaxed">
               The person collecting this will read it and may include it in one combined tribute.
-              Your memory isn’t published publicly. You don’t pay and don’t make an account.
+              Your memory isn’t published publicly. You don’t pay, and we use your email only to keep
+              memories to one per person — see our <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Privacy Policy</a>.
             </p>
             <label
               ref={consentRef}

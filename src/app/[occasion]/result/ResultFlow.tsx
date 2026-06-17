@@ -18,7 +18,6 @@ import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { Button } from '@eilon-shai/venture-core/ui';
 import { FeedbackWidget } from '@eilon-shai/venture-core/components';
 import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitives';
-import { EditPackCard } from './EditPackCard';
 
 // Download the tribute as a Word-openable .doc (HTML payload — no dependency).
 function downloadWord(honoree: string, content: string) {
@@ -36,7 +35,8 @@ function downloadWord(honoree: string, content: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Tribute for ${honoree || 'them'}.doc`;
+  const safeName = (honoree || 'them').replace(/[\\/:*?"<>|]+/g, '').trim().slice(0, 80) || 'them';
+  a.download = `Tribute for ${safeName}.doc`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -265,15 +265,16 @@ function ResultFlowInner(props: ResultFlowProps) {
         We’ve also emailed this tribute to you, ready to read aloud.
       </p>
 
-      {props.editPackPriceId ? (
-        <EditPackCard priceId={props.editPackPriceId} resultPath={props.resultPath} />
-      ) : null}
+      {/* Edit & Refine pack intentionally NOT rendered: the regeneration backend
+          isn't built yet, so charging for it would be a paid no-op (FE-002/UX-02/
+          MKT-006). Re-enable EditPackCard once regen ships. */}
 
-      {/* Feedback — eases in a few seconds after the tribute is shown. */}
-      {showFeedback && txnId ? (
+      {/* Feedback — eases in a few seconds after the tribute is shown. Works for
+          both the pay-at-finalize (txn) and paid-in-advance (admin token) paths. */}
+      {showFeedback && (txnId || adminToken) ? (
         <div className="mt-12">
           <FeedbackWidget
-            transactionId={txnId}
+            transactionId={txnId || adminToken}
             productSlug={props.occasion}
             feedbackEndpoint={`/api/${props.occasion}/feedback`}
           />

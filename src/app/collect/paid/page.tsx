@@ -32,14 +32,23 @@ function PaidReturnInner() {
     }
 
     (async () => {
-      try {
-        await fetch('/api/collection/mark-paid', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transactionId: txnId }),
-        });
-      } catch {
-        /* non-fatal — webhook/retry can still record it; show a soft message */
+      // Paddle may still be settling the txn (202). Retry a few times before
+      // handing off — the webhook backstop records it server-side regardless.
+      for (let attempt = 0; attempt < 6; attempt++) {
+        try {
+          const res = await fetch('/api/collection/mark-paid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionId: txnId }),
+          });
+          if (res.status === 202) {
+            await new Promise((r) => setTimeout(r, 2500));
+            continue;
+          }
+          break; // 200 (recorded) or a terminal error — stop retrying
+        } catch {
+          await new Promise((r) => setTimeout(r, 2500));
+        }
       }
       if (cancelled) return;
       try {

@@ -40,6 +40,13 @@ function withParam(url: string, key: string, value: string): string {
   return `${url}${sep}${key}=${encodeURIComponent(value)}`;
 }
 
+// Render a stored ISO date as a friendly date (falls back to the raw value).
+function fmtDeadline(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
 export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadline, organizerName }: InviteScreenProps) {
   // Derive the share token from the public contributor URL, then rebuild the
   // canonical share link (occasion + viral-attribution UTM) via the shared
@@ -94,7 +101,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
 
         {deadline && (
           <p className="text-sm text-muted-foreground">
-            Memories close <span className="font-medium text-foreground">{deadline}</span>.
+            Memories close <span className="font-medium text-foreground">{fmtDeadline(deadline)}</span>.
           </p>
         )}
 

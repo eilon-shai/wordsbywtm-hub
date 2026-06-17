@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { LandingPage, MOCK_TESTIMONIALS } from '@/components/vc/ClientLandingPage';
+import { LandingPage } from '@/components/vc/ClientLandingPage';
 import type { LandingPageConfig } from '@eilon-shai/venture-core';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { memorialLandingConfig } from '@/products/_landing/memorial';
@@ -76,7 +76,6 @@ export default async function OccasionLandingPage({
       formPath={`/${occasion}/start`}
       basicPriceId={resolvePrice('basic')}
       fullPriceId={resolvePrice('full')}
-      testimonials={MOCK_TESTIMONIALS}
       formFirst
     />
   );
