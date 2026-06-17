@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/collection-deadlines",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/purge",
+      "schedule": "0 4 * * *"
     }
   ]
 }

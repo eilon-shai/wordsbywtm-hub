@@ -476,7 +476,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion }: ManageDash
             <p className="text-muted-foreground">
               It was woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'} and emailed to you.
             </p>
-            <a href={`${resultPath}`} className={buttonVariants({ size: 'lg' })}>
+            <a href={`${resultPath}?t=${encodeURIComponent(adminToken)}`} className={buttonVariants({ size: 'lg' })}>
               View your tribute
             </a>
           </CardContent>

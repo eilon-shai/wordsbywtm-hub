@@ -78,7 +78,7 @@ interface ResultFlowProps {
   editPackPriceId?: string;
 }
 
-type Phase = 'prefs' | 'generating' | 'done' | 'error';
+type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
 
 function ResultFlowInner(props: ResultFlowProps) {
   const params = useSearchParams();
@@ -89,7 +89,10 @@ function ResultFlowInner(props: ResultFlowProps) {
   const paidFinalize = !txnId && !!adminToken;
   const canStart = !!txnId || paidFinalize;
 
-  const [phase, setPhase] = React.useState<Phase>(canStart ? 'prefs' : 'error');
+  // Re-view path: when opened with ?t= (from the dashboard), first check for an
+  // already-generated tribute and show it read-only (FE-001). Otherwise it's the
+  // paid-finalize prefs flow.
+  const [phase, setPhase] = React.useState<Phase>(paidFinalize ? 'checking' : canStart ? 'prefs' : 'error');
   const [tone, setTone] = React.useState('balanced');
   const [length, setLength] = React.useState('medium');
   const [thingsToAvoid, setThingsToAvoid] = React.useState('');
@@ -109,6 +112,37 @@ function ResultFlowInner(props: ResultFlowProps) {
     const t = setTimeout(() => setShowFeedback(true), 6000);
     return () => clearTimeout(t);
   }, [phase]);
+
+  // Re-view: if a tribute already exists for this admin token, show it read-only;
+  // otherwise fall through to the paid-finalize prefs flow (FE-001).
+  React.useEffect(() => {
+    if (!paidFinalize) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/collection/tribute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminToken }),
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          const d = await res.json().catch(() => ({}));
+          setContent(d.content ?? '');
+          setHonoree(d.honoreeName ?? '');
+          setPhase('done');
+          return;
+        }
+        setPhase('prefs'); // 404 = not generated yet → let them choose prefs + finalize
+      } catch {
+        if (!cancelled) setPhase('prefs');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const generate = React.useCallback(async () => {
     setPhase('generating');
@@ -155,6 +189,16 @@ function ResultFlowInner(props: ResultFlowProps) {
     setError('Creating your tribute is taking longer than expected. Please check your email shortly.');
     setPhase('error');
   }, [txnId, adminToken, paidFinalize, tone, length, thingsToAvoid, additionalContext]);
+
+  // ---- checking for an existing tribute (re-view) ----
+  if (phase === 'checking') {
+    return (
+      <main className="mx-auto w-full max-w-2xl px-4 py-20 text-center">
+        <div className="mb-6 flex justify-center"><Spinner size={28} /></div>
+        <p className="text-sm text-muted-foreground">Opening your tribute…</p>
+      </main>
+    );
+  }
 
   // ---- prefs ----
   if (phase === 'prefs') {
