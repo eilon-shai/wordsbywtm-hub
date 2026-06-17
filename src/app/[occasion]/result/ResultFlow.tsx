@@ -28,28 +28,43 @@ import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitiv
 // open Paddle on the unpaid path so they survive the redirect back with ?txn=.
 const PREFS_KEY = 'wtm:collection-prefs';
 
-// Download the tribute as a Word-openable .doc (HTML payload — no dependency).
-function downloadWord(honoree: string, content: string) {
-  const safe = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const paragraphs = content
-    .split(/\n{2,}/)
-    .map((p) => `<p style="margin:0 0 14pt 0">${safe(p).replace(/\n/g, '<br/>')}</p>`)
-    .join('');
-  const html =
-    `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">` +
-    `<head><meta charset="utf-8"><title>A tribute for ${safe(honoree)}</title></head>` +
-    `<body style="font-family:Georgia,serif;font-size:13pt;line-height:1.6;color:#1a1a1a">` +
-    `<h1 style="font-size:18pt;text-align:center;margin:0 0 18pt 0">A tribute for ${safe(honoree)}</h1>${paragraphs}</body></html>`;
-  const blob = new Blob(['﻿', html], { type: 'application/msword' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
+// Download the tribute as a real PDF. jsPDF is dynamically imported so it only
+// loads when the organizer actually clicks download (keeps the page bundle lean).
+async function downloadPdf(honoree: string, content: string) {
+  const { jsPDF } = await import('jspdf');
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const margin = 72; // 1 inch
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = pageWidth - margin * 2;
+  const lineHeight = 18;
+  let y = margin;
+
+  // Title (serif — jsPDF ships Times built-in).
+  doc.setFont('times', 'bold');
+  doc.setFontSize(18);
+  const titleLines = doc.splitTextToSize(`A tribute for ${honoree}`, maxWidth) as string[];
+  doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
+  y += titleLines.length * 22 + 18;
+
+  // Body.
+  doc.setFont('times', 'normal');
+  doc.setFontSize(12);
+  for (const para of content.split(/\n{2,}/)) {
+    const lines = doc.splitTextToSize(para.replace(/\n/g, ' '), maxWidth) as string[];
+    for (const line of lines) {
+      if (y > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, margin, y);
+      y += lineHeight;
+    }
+    y += lineHeight * 0.6; // paragraph gap
+  }
+
   const safeName = (honoree || 'them').replace(/[\\/:*?"<>|]+/g, '').trim().slice(0, 80) || 'them';
-  a.download = `Tribute for ${safeName}.doc`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  doc.save(`Tribute for ${safeName}.pdf`);
 }
 
 const TONE_FIELD: FormFieldConfig = {
@@ -89,6 +104,8 @@ interface ResultFlowProps {
   organizerEmail?: string;
   /** True when the organizer paid in advance — no Terms, no charge at finalize. */
   paidInAdvance?: boolean;
+  /** Paddle txn that paid for the collection — feedback id for the paid-in-advance path. */
+  paidTxnId?: string;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
@@ -101,7 +118,30 @@ function ResultFlowInner(props: ResultFlowProps) {
   //   - paid-in-advance → /api/collection/finalize-paid (no charge)
   //   - unpaid          → /api/collection/checkout → Paddle → return with ?txn=
   //                       → /api/collection/generate (server verifies the txn).
-  const adminToken = params.get('t') ?? '';
+  const urlToken = params.get('t') ?? '';
+  // Admin token, made durable: known from the URL or props, and mirrored to
+  // localStorage so a payer returning in a fresh session/tab can still get back
+  // to /collect/manage to retry finalize.
+  const ADMIN_KEY = 'wtm:collection-admin';
+  const adminToken =
+    urlToken ||
+    (typeof window !== 'undefined'
+      ? sessionStorage.getItem(ADMIN_KEY) || localStorage.getItem(ADMIN_KEY) || ''
+      : '') ||
+    '';
+  React.useEffect(() => {
+    if (!urlToken || typeof window === 'undefined') return;
+    try {
+      sessionStorage.setItem(ADMIN_KEY, urlToken);
+    } catch {
+      /* sessionStorage unavailable */
+    }
+    try {
+      localStorage.setItem(ADMIN_KEY, urlToken);
+    } catch {
+      /* localStorage unavailable */
+    }
+  }, [urlToken]);
   const hasToken = !!adminToken;
   const canStart = !!txnId || hasToken;
 
@@ -138,14 +178,21 @@ function ResultFlowInner(props: ResultFlowProps) {
     return () => clearTimeout(t);
   }, [phase]);
 
+  // Remember the last generate attempt (mode + prefs) so the error phase can
+  // offer a safe retry — the generate endpoint re-verifies the Paddle txn fresh
+  // on every call (no one-time consume), so re-invoking is replayable.
+  type GeneratePrefs = { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string };
+  const lastAttempt = React.useRef<{ mode: 'txn' | 'paid'; prefs: GeneratePrefs } | null>(null);
+
   // generate(): runs the actual synthesis POST + 202-retry loop and shows the
   // result. `prefs` is supplied explicitly so the two entry points can pass
   // either the live prefs-form state or the sessionStorage-restored prefs.
   const generate = React.useCallback(
     async (
       mode: 'txn' | 'paid',
-      prefs: { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string },
+      prefs: GeneratePrefs,
     ) => {
+      lastAttempt.current = { mode, prefs };
       setPhase('generating');
       setError(null);
       const synthesisPrefs = {
@@ -192,6 +239,26 @@ function ResultFlowInner(props: ResultFlowProps) {
     },
     [txnId, adminToken],
   );
+
+  // retryGenerate(): re-run the last attempt after a failure. Falls back to the
+  // current prefs-form state, then sessionStorage-saved prefs, if no attempt was
+  // remembered. The mode is inferred (paid-in-advance vs txn) the same way the
+  // auto-generate path does.
+  const retryGenerate = React.useCallback(() => {
+    const last = lastAttempt.current;
+    if (last) {
+      void generate(last.mode, last.prefs);
+      return;
+    }
+    let prefs: GeneratePrefs = { tone, length, thingsToAvoid, additionalContext };
+    try {
+      const raw = sessionStorage.getItem(PREFS_KEY);
+      if (raw) prefs = { ...prefs, ...JSON.parse(raw) };
+    } catch {
+      /* sessionStorage unavailable / bad JSON — use current form state */
+    }
+    void generate(props.paidInAdvance ? 'paid' : 'txn', prefs);
+  }, [generate, tone, length, thingsToAvoid, additionalContext, props.paidInAdvance]);
 
   // ---- AUTO-GENERATE after returning from Paddle (?txn=) ----
   // We just paid; read the prefs stashed before checkout and generate. The server
@@ -252,9 +319,14 @@ function ResultFlowInner(props: ResultFlowProps) {
     // to the organizer's collection even after the Paddle redirect drops ?t=.
     if (adminToken) {
       try {
-        sessionStorage.setItem('wtm:collection-admin', adminToken);
+        sessionStorage.setItem(ADMIN_KEY, adminToken);
       } catch {
         /* sessionStorage unavailable — back link just won't render */
+      }
+      try {
+        localStorage.setItem(ADMIN_KEY, adminToken);
+      } catch {
+        /* localStorage unavailable */
       }
     }
 
@@ -366,6 +438,17 @@ function ResultFlowInner(props: ResultFlowProps) {
     props.organizerEmail,
     props.resultPath,
   ]);
+
+  // The admin token to link back to the organizer's collection. Computed at
+  // component scope so BOTH the error and done phases can offer "Back to your
+  // collection". After a Paddle redirect ?t= is gone, so fall back to the
+  // durable sessionStorage/localStorage copies.
+  const backToken =
+    adminToken ||
+    (typeof window !== 'undefined'
+      ? sessionStorage.getItem(ADMIN_KEY) || localStorage.getItem(ADMIN_KEY) || ''
+      : '') ||
+    '';
 
   // ---- checking for an existing tribute (re-view) ----
   if (phase === 'checking') {
@@ -500,18 +583,36 @@ function ResultFlowInner(props: ResultFlowProps) {
       <main className="mx-auto w-full max-w-xl px-4 py-20 text-center" role="alert">
         <h1 className="font-serif text-2xl text-foreground">We hit a snag</h1>
         <p className="mt-3 text-sm text-muted-foreground">{error}</p>
+        {/* Retry is safe: the generate endpoint re-verifies the Paddle txn fresh
+            on every call (no one-time consume), so the payment is replayable. */}
+        <div className="mt-6 flex justify-center">
+          <Button
+            type="button"
+            size="lg"
+            className="rounded-full px-6"
+            onClick={() => retryGenerate()}
+          >
+            Try again
+          </Button>
+        </div>
+        {backToken ? (
+          <div className="mt-5">
+            <a
+              href={`/collect/manage?t=${encodeURIComponent(backToken)}`}
+              className="text-sm text-primary underline hover:text-foreground"
+            >
+              ← Back to your collection
+            </a>
+          </div>
+        ) : null}
         <p className="mt-6 text-sm text-muted-foreground">
-          Need help? <a href={`mailto:${props.supportEmail}`} className="text-primary underline">{props.supportEmail}</a>
+          Still stuck? <a href={`mailto:${props.supportEmail}`} className="text-primary underline">{props.supportEmail}</a>
         </p>
       </main>
     );
   }
 
   // ---- done ----
-  const backToken =
-    adminToken ||
-    (typeof window !== 'undefined' ? sessionStorage.getItem('wtm:collection-admin') : '') ||
-    '';
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
       <header className="mb-10 text-center">
@@ -538,9 +639,9 @@ function ResultFlowInner(props: ResultFlowProps) {
           type="button"
           size="lg"
           className="rounded-full px-6"
-          onClick={() => downloadWord(honoree, content)}
+          onClick={() => void downloadPdf(honoree, content)}
         >
-          Download as Word
+          Download as PDF
         </Button>
         <Button
           type="button"
@@ -583,12 +684,14 @@ function ResultFlowInner(props: ResultFlowProps) {
           isn't built yet, so charging for it would be a paid no-op (FE-002/UX-02/
           MKT-006). Re-enable EditPackCard once regen ships. */}
 
-      {/* Feedback — eases in a few seconds after the tribute is shown. Works for
-          both the pay-at-finalize (txn) and paid-in-advance (admin token) paths. */}
-      {showFeedback && (txnId || adminToken) ? (
+      {/* Feedback — eases in a few seconds after the tribute is shown. The feedback
+          handler only accepts a Paddle/mock txn id, so use the finalize txn when we
+          have it, else the collection's paid txn (paid-in-advance). The admin token
+          would be rejected (400), so never send it as the id. */}
+      {showFeedback && (txnId || props.paidTxnId) ? (
         <div className="mt-12">
           <FeedbackWidget
-            transactionId={txnId || adminToken}
+            transactionId={txnId || props.paidTxnId || ''}
             productSlug={props.occasion}
             feedbackEndpoint={`/api/${props.occasion}/feedback`}
           />
