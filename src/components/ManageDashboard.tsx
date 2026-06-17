@@ -13,11 +13,6 @@ import {
   Separator,
   buttonVariants,
 } from '@eilon-shai/venture-core/ui';
-import {
-  initSharedPaddle,
-  getSharedPaddle,
-  setActiveTransaction,
-} from '@eilon-shai/venture-core/components';
 import { MemoryCard, type Contribution } from './MemoryCard';
 import { OrganizerMemoryForm } from './OrganizerMemoryForm';
 import { InviteBlock } from './InviteBlock';
@@ -65,6 +60,8 @@ interface ManageDashboardProps {
   resultPath: string;
   /** Occasion slug — stashed in sessionStorage so the result page can theme/resolve. */
   occasion: string;
+  /** Organizer's email — prefilled (read-only) into the Paddle checkout. */
+  organizerEmail?: string;
   /** True right after creation (?new=1) — show a "ready, invite people" banner. */
   justCreated?: boolean;
 }
@@ -154,7 +151,7 @@ function InfoTooltip({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function ManageDashboard({ adminToken, resultPath, occasion, justCreated = false }: ManageDashboardProps) {
+export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false }: ManageDashboardProps) {
   const [data, setData] = useState<CollectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
@@ -164,10 +161,6 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
   const [toggleErrors, setToggleErrors] = useState<Record<string, string>>({});
 
   const [finalizing, setFinalizing] = useState(false);
-  const [finalizeError, setFinalizeError] = useState<string | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState(false);
-  const termsRef = useRef<HTMLLabelElement | null>(null);
 
   // Inline edit of the organizer's own memory.
   // The contribution being edited (organizer's own memory) — opens the rich
@@ -284,16 +277,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
     [adminToken, data],
   );
 
-  // --- Finalize / checkout -------------------------------------------------
-  const handleFinalize = useCallback(async () => {
+  // --- Finalize -----------------------------------------------------------
+  // No payment happens here anymore. Both paid-in-advance and unpaid just
+  // navigate to the result page's prefs step (?t={adminToken}); the charge (if
+  // any) and the one-way "create the tribute" decision live there, so returning
+  // to this dashboard can never re-open Paddle / double-charge.
+  const handleFinalize = useCallback(() => {
     if (!data || finalizing) return;
-    if (!termsAccepted) {
-      setTermsError(true);
-      termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
     setFinalizing(true);
-    setFinalizeError(null);
 
     // Stash the occasion so the result page can resolve/theme without a token.
     try {
@@ -302,71 +293,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
       /* sessionStorage may be unavailable; result page falls back to txn resolution */
     }
 
-    // Already paid in advance → no checkout. Go straight to the result page in
-    // paid-finalize mode (prefs step → /api/collection/finalize-paid, no charge).
-    if (data.paid) {
-      window.location.href = `${resultPath}?t=${encodeURIComponent(adminToken)}`;
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/collection/checkout', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ adminToken }),
-      });
-      const json = await res.json();
-
-      if (!res.ok) {
-        const err = json as ApiError;
-        if (err.code === 'ALREADY_USED') {
-          // Already finalized — refresh into the read-only "view your tribute" state.
-          await load();
-          setFinalizing(false);
-          return;
-        }
-        if (err.code === 'NOT_ENOUGH_CONTRIBUTIONS') {
-          setFinalizeError('You need a few more memories before you can finalize.');
-        } else {
-          setFinalizeError(
-            "Payment couldn't start — please try again. You haven't been charged.",
-          );
-        }
-        setFinalizing(false);
-        return;
-      }
-
-      const { transactionId, redirectUrl } = json as {
-        transactionId?: string;
-        redirectUrl?: string;
-      };
-
-      // Mock mode: synthetic txn + redirectUrl.
-      if (transactionId && transactionId.startsWith('mock_')) {
-        window.location.href =
-          redirectUrl ?? `${resultPath}?txn=${encodeURIComponent(transactionId)}`;
-        return;
-      }
-
-      // Real mode: open the Paddle overlay. The shared event callback redirects to
-      // `${formPath}?txnId=...` on checkout.completed — point formPath at resultPath.
-      if (transactionId) {
-        await initSharedPaddle(resultPath);
-        setActiveTransaction(transactionId, 'basic', resultPath);
-        const paddle = await getSharedPaddle();
-        paddle.Checkout.open({ transactionId });
-        // Overlay is open; clear the spinner so the page stays interactive behind it.
-        setFinalizing(false);
-        return;
-      }
-
-      setFinalizeError("Payment couldn't start — please try again. You haven't been charged.");
-      setFinalizing(false);
-    } catch {
-      setFinalizeError("Payment couldn't start — please try again. You haven't been charged.");
-      setFinalizing(false);
-    }
-  }, [adminToken, data, finalizing, load, occasion, resultPath, termsAccepted]);
+    window.location.href = `${resultPath}?t=${encodeURIComponent(adminToken)}`;
+  }, [adminToken, data, finalizing, occasion, resultPath]);
 
   // --- Render --------------------------------------------------------------
   if (deleted) {
@@ -589,6 +517,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
               inviteText={inviteText}
               whatsappUrl={whatsappUrl}
               emailUrl={emailUrl}
+              organizerEmail={organizerEmail}
               paid={!!data.paid}
               price={price}
             />
@@ -631,6 +560,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
                 contribution={c}
                 included={isIncluded(c)}
                 disabled={generated || savingIds.has(c.id)}
+                canEdit={!generated}
                 onToggle={handleToggle}
                 onEdit={openEdit}
                 error={toggleErrors[c.id] ?? null}
@@ -651,70 +581,28 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
             </p>
 
             <p className="mt-2 text-center text-sm text-muted-foreground">
-              Finalizing closes the collection{price ? ` — ${price}, one time` : ''}.
+              {data.paid
+                ? 'On the next step you’ll choose how it reads, then create the tribute.'
+                : `Finalizing closes the collection${price ? ` — ${price}, one time` : ''}. You’ll choose how it reads and pay on the next step.`}
             </p>
-
-            {/* Pay-time consent waiver (matches TributeWords). Required before checkout. */}
-            <label
-              ref={termsRef}
-              className={`mt-5 flex w-fit max-w-full items-start gap-2 rounded-lg p-2 cursor-pointer text-sm text-muted-foreground ${
-                termsError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={termsAccepted}
-                onChange={(e) => {
-                  setTermsAccepted(e.target.checked);
-                  if (e.target.checked) setTermsError(false);
-                }}
-                disabled={finalizing}
-                className="mt-0.5 h-4 w-4 rounded border-border"
-                aria-label="Agree to terms and start delivery"
-              />
-              <span>
-                By paying, you agree to our{' '}
-                <a href="/terms" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
-                  terms
-                </a>{' '}
-                and{' '}
-                <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
-                  privacy policy
-                </a>
-                . By clicking pay, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
-              </span>
-            </label>
 
             <div className="mt-5 flex flex-col items-center gap-2">
               <Button
                 size="lg"
                 className="w-full sm:w-auto"
                 disabled={belowMin || finalizing}
-                onClick={() => void handleFinalize()}
+                onClick={() => handleFinalize()}
                 title={
                   belowMin
                     ? `Add ${remaining} more ${remaining === 1 ? 'memory' : 'memories'} to finalize`
                     : undefined
                 }
               >
-                {finalizing
-                  ? data.paid
-                    ? 'Creating the tribute…'
-                    : 'Starting checkout…'
-                  : data.paid
-                    ? 'Finalize & create the tribute' // already paid in advance — no charge
-                    : price
-                      ? `Pay & finalize — ${price}`
-                      : 'Pay & finalize'}
+                {finalizing ? 'Opening…' : 'Review & create the tribute'}
               </Button>
               {belowMin ? (
                 <p className="text-sm text-muted-foreground">
                   Add {remaining} more {remaining === 1 ? 'memory' : 'memories'} to finalize.
-                </p>
-              ) : null}
-              {finalizeError ? (
-                <p className="text-sm text-destructive" role="alert">
-                  {finalizeError}
                 </p>
               ) : null}
             </div>
@@ -725,13 +613,18 @@ export function ManageDashboard({ adminToken, resultPath, occasion, justCreated 
       {/* Danger zone — delete the whole collection (cascades to all memories). */}
       <div className="mt-10 border-t border-border pt-6">
         {!confirmDelete ? (
-          <button
-            type="button"
-            className="text-sm text-muted-foreground hover:text-destructive transition-colors"
-            onClick={() => setConfirmDelete(true)}
-          >
-            Delete this collection
-          </button>
+          <div>
+            <button
+              type="button"
+              className={`${buttonVariants({ variant: 'outline', size: 'sm' })} border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive`}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete this collection
+            </button>
+            <p className="mt-3 max-w-prose text-xs leading-relaxed text-muted-foreground">
+              If you do nothing, this collection and all its memories are automatically deleted about 30 days after the tribute is created (or at the deadline if you never finalize). Download or copy your tribute to keep it.
+            </p>
+          </div>
         ) : (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
             <p className="text-sm font-medium text-foreground">
