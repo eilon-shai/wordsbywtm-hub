@@ -124,7 +124,7 @@ export function ContributorForm({
   const [submitError, setSubmitError] = React.useState<SubmitErrorState | null>(null);
   const [resultHonoree, setResultHonoree] = React.useState<string>('');
   // Terminal collection-state screens that replace the whole form.
-  const [terminal, setTerminal] = React.useState<null | 'closed' | 'notfound'>(null);
+  const [terminal, setTerminal] = React.useState<null | 'closed' | 'notfound' | 'full'>(null);
 
   // One-memory-per-person guard (public contributors only). Once this browser
   // has added a memory to this collection we remember it, so the same person
@@ -261,6 +261,10 @@ export function ContributorForm({
         setTerminal('notfound');
         return;
       }
+      if (code === 'CONTRIBUTION_LIMIT') {
+        setTerminal('full');
+        return;
+      }
       setPhase('form');
       if (code === 'INVALID_MEMORY') {
         // Surface the server's reason inline in the amber panel.
@@ -329,21 +333,26 @@ export function ContributorForm({
     );
   }
 
-  // ---- terminal: closed / not-found ----------------------------------------
+  // ---- terminal: closed / not-found / full ---------------------------------
   if (terminal) {
+    const icon = terminal === 'closed' ? '🕯️' : terminal === 'full' ? '🤍' : '🔗';
+    const heading =
+      terminal === 'closed'
+        ? 'This collection has closed'
+        : terminal === 'full'
+          ? 'This collection is full'
+          : 'This link isn’t active';
+    const body =
+      terminal === 'closed'
+        ? 'It’s no longer accepting new memories. If you’d still like to share something, reach out to whoever invited you.'
+        : terminal === 'full'
+          ? `Thank you for wanting to share a memory of ${honoreeLabel}. This collection has reached the number of memories it can take — please let the organizer know if you’d still like yours included.`
+          : 'We couldn’t find a collection for this link. Ask whoever invited you for a fresh one.';
     return (
       <CenteredCard>
-        <div className="text-5xl mb-6" aria-hidden="true">
-          {terminal === 'closed' ? '🕯️' : '🔗'}
-        </div>
-        <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
-          {terminal === 'closed' ? 'This collection has closed' : 'This link isn’t active'}
-        </h1>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {terminal === 'closed'
-            ? 'It’s no longer accepting new memories. If you’d still like to share something, reach out to whoever invited you.'
-            : 'We couldn’t find a collection for this link. Ask whoever invited you for a fresh one.'}
-        </p>
+        <div className="text-5xl mb-6" aria-hidden="true">{icon}</div>
+        <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">{heading}</h1>
+        <p className="text-muted-foreground text-sm leading-relaxed">{body}</p>
       </CenteredCard>
     );
   }

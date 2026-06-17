@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
   const remainingToday = Math.max(0, dailyCap - sentToday);
   if (remainingToday === 0) {
     return NextResponse.json(
-      { error: `You can send up to ${dailyCap} email invites a day. Share your link directly — it's free and unlimited.`, code: 'RATE_LIMIT', retryable: false },
+      { error: `You can email up to ${dailyCap} people a day. You can also just share your link directly.`, code: 'RATE_LIMIT', retryable: false },
       { status: 429 },
     );
   }

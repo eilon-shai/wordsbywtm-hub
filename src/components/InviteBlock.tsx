@@ -109,10 +109,10 @@ export function InviteBlock({
     }
   }
 
-  const heroHeadline =
-    surface === 'create'
-      ? 'Send this to anyone — it’s free, with no limit on who can add a memory.'
-      : 'Still gathering? Share this with anyone — it’s free, with no limit on who can add a memory.';
+  const cap = paid ? 10 : 3;
+  const heroHeadline = paid
+    ? `Share this link — up to ${cap} people can add a memory.`
+    : `Share this link — up to ${cap} people can add a memory. Need more? Unlock up to 10 below.`;
 
   return (
     <div className="flex flex-col gap-8">
@@ -181,7 +181,7 @@ function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid
     return (
       <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground">
         <Badge variant="secondary">Paid</Badge>
-        You can email up to <span className="font-medium">10 people a day</span>, and finalizing is free.
+        Up to <span className="font-medium">10 people</span> can add a memory with your link, and finalizing is free.
       </div>
     );
   }
@@ -241,8 +241,8 @@ function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid
         {busy ? 'Starting…' : `Pay your one-time fee now${price ? ` — ${price}` : ''}`}
       </Button>
       <p className="mt-1.5 text-xs text-muted-foreground">
-        Settle the single fee now and <span className="font-medium text-foreground">finalizing later is free</span> — plus
-        we’ll email up to 10 people a day for you (instead of 3). Sharing your link is always free and unlimited.
+        Settle the single fee now and <span className="font-medium text-foreground">finalizing later is free</span> — and your
+        link opens up from <span className="font-medium text-foreground">3 to 10 people</span> who can add a memory.
       </p>
       {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}
     </div>
@@ -363,7 +363,7 @@ function DirectEmailCard({
     <Card className="border bg-muted/30 p-4">
       <p className="text-sm font-medium text-foreground">Prefer we email it for you? (optional)</p>
       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-        We’ll email up to {paid ? 10 : 3} people a day on your behalf (once each). Everyone else: just share your link above — no limit.
+        Your link can be used by up to <span className="font-medium text-foreground">{paid ? 10 : 3} people</span>. We can email the invite for you — once a day per person.
       </p>
 
       {/* Advance-pay: unlock 10/day + free finalize. */}
@@ -457,21 +457,6 @@ function DirectEmailCard({
       <p className="mt-2 text-xs text-muted-foreground">
         WhatsApp opens a message you send yourself.
       </p>
-
-      {atCap && (
-        <>
-          <Separator className="my-3" />
-          <p className="flex items-center gap-2 text-sm text-muted-foreground/70">
-            <Badge variant="outline" className="opacity-70">
-              Coming soon
-            </Badge>
-            Need to email more?
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground/70">
-            Sharing your link is always free and unlimited.
-          </p>
-        </>
-      )}
     </Card>
   );
 }

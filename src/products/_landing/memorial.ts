@@ -157,7 +157,7 @@ export const memorialLandingConfig: LandingPageConfig = {
       badge: 'Pay only at the end',
       description: 'One tribute, woven from every memory you choose to include, in a collective voice meant to be read aloud.',
       features: [
-        'Unlimited contributors — invite as many people as you like',
+        'Invite up to 10 people to add a memory (3 on the free plan)',
         'Free to create and collect — pay only when you finalize',
         'One synthesized tribute woven from the memories you include',
         'A warm, collective voice, true to every contribution',
@@ -172,7 +172,7 @@ export const memorialLandingConfig: LandingPageConfig = {
       description: 'Start a collection, invite people, and read every memory — all free, with nothing due until you finalize.',
       features: [
         'Create a collection in under a minute',
-        'Invite unlimited contributors with one link',
+        'Invite up to 3 people with one link (10 once you finalize/pay)',
         'Read and review every memory as it arrives',
         'No account, no card, nothing due upfront',
       ],
