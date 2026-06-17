@@ -61,13 +61,11 @@ export const memorialLandingConfig: LandingPageConfig = {
     ogImageUrl: 'https://wordsbywtm.com/og-memorial.png',
   },
 
-  nav: {
-    links: [
-      { href: '/memorial', label: 'Memorial' },
-      { href: '/wedding', label: 'Wedding' },
-      { href: '/retirement', label: 'Retirement' },
-    ],
-  },
+  // No cross-occasion nav: Memorial is a standalone product and must not
+  // cross-link to Wedding/Retirement (especially inappropriate in a grief
+  // context). A multi-type product (e.g. a wedding hub with vows/anniversary/
+  // speech) would populate nav.links with ITS sub-types. Omitting nav leaves a
+  // clean header: wordmark + Pricing + the Start CTA.
 
   hero: {
     badge: 'Gathered · Woven · Read Aloud',
