@@ -11,6 +11,14 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./test/setup.ts'],
     include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
+    // venture-core ships ESM that imports the bare specifier "next/server".
+    // Inline it so Vite (not Node's resolver) handles that import — Vite knows
+    // next/server's export map. Without this, test-utils fails to load.
+    server: {
+      deps: {
+        inline: ['@eilon-shai/venture-core'],
+      },
+    },
   },
   resolve: {
     alias: {
