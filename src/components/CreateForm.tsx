@@ -307,6 +307,9 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   async function checkExisting() {
     const email = organizerEmail.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
+    // Don't race an in-flight submit — only the 'form' phase should auto-flip to
+    // 'existing' (FE-006). Once submitting/submitted, the server dedup governs.
+    if (phase !== 'form') return;
     setDupChecking(true);
     try {
       const res = await fetch('/api/collection/check-existing', {
@@ -315,7 +318,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         body: JSON.stringify({ email, occasion }),
       });
       const d = await res.json().catch(() => ({}));
-      if (d.exists) setPhase('existing');
+      if (d.exists && phase === 'form') setPhase('existing');
     } catch {
       /* non-fatal — the create POST still dedups server-side */
     } finally {

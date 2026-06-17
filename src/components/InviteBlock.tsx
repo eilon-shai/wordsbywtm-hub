@@ -238,10 +238,11 @@ function AdvancePayBlock({ adminToken, paid, price }: { adminToken: string; paid
   return (
     <div className="mt-3">
       <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void payAdvance()}>
-        {busy ? 'Starting…' : `Pay now to email up to 10 people${price ? ` — ${price}` : ''}`}
+        {busy ? 'Starting…' : `Pay your one-time fee now${price ? ` — ${price}` : ''}`}
       </Button>
       <p className="mt-1.5 text-xs text-muted-foreground">
-        It’s the same one-time fee as finalizing — paid now, so finalizing later is free. Sharing your link stays free and unlimited.
+        Settle the single fee now and <span className="font-medium text-foreground">finalizing later is free</span> — plus
+        we’ll email up to 10 people a day for you (instead of 3). Sharing your link is always free and unlimited.
       </p>
       {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}
     </div>
