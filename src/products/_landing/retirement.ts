@@ -46,7 +46,6 @@ export const retirementLandingConfig: LandingPageConfig = {
     metaDescription:
       'Start a retirement collection, invite colleagues, friends, and family to add a story, then weave it all into one send-off speech to read aloud at the party. Free to create and collect. Pay once when you finalize. No account needed.',
     canonicalUrl: 'https://wordsbywtm.com/retirement',
-    ogImageUrl: 'https://wordsbywtm.com/og-retirement.png',
   },
 
   hero: {

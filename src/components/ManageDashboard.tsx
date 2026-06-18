@@ -17,6 +17,7 @@ import { MemoryCard, type Contribution } from './MemoryCard';
 import { OrganizerMemoryForm } from './OrganizerMemoryForm';
 import { InviteBlock } from './InviteBlock';
 import { buildShareLink, buildInviteText } from '@/lib/invite';
+import { getOccasionMeta } from '@/lib/registry';
 
 // ---------------------------------------------------------------------------
 // S6 + S7 — Organizer review dashboard + finalize.
@@ -152,6 +153,9 @@ function InfoTooltip({ text, label }: { text: string; label: string }) {
 }
 
 export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false }: ManageDashboardProps) {
+  // Occasion-specific copy (defaults to memorial wording if the slug is unknown).
+  const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
+  const readAloud = getOccasionMeta(occasion)?.readAloudContext ?? 'at the service';
   const [data, setData] = useState<CollectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
@@ -624,7 +628,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                 : `Finalizing closes the collection${price ? ` — ${price}, one time` : ''}. You’ll choose how it reads — and whether to add a spoken version — and pay on the next step.`}
             </p>
             <p className="mx-auto mt-2 max-w-prose text-center text-xs leading-relaxed text-muted-foreground">
-              When you finalize, these memories become one tribute — in a collective voice, a keepsake PDF to print, and a spoken version to play at the service.
+              When you finalize, these memories become one {noun} — in a collective voice, a keepsake PDF to print, and a spoken version to play {readAloud}.
             </p>
 
             <div className="mt-5 flex flex-col items-center gap-2">

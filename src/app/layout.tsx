@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { Instrument_Serif } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { SiteAnalytics } from '@/components/SiteAnalytics';
 import './globals.css';
 
 const instrumentSerif = Instrument_Serif({
@@ -12,6 +13,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.wordsbywtm.com'),
   title: 'Words That Matter — Gather memories into one tribute',
   description:
     'Start a collection, invite the people who matter to share their memories, and weave them into one heartfelt tribute. For memorials, weddings, retirements, and the moments that matter.',
@@ -29,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${GeistSans.className} antialiased`}>
         {children}
         <Analytics />
+        <SiteAnalytics />
       </body>
     </html>
   );

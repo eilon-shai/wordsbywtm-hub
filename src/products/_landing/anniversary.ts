@@ -42,7 +42,6 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     metaDescription:
       'Start an anniversary collection, invite family and friends to add a memory of the couple, then weave it all into one tribute read aloud at the celebration. Free to create and collect. Pay once when you finalize. No account needed.',
     canonicalUrl: 'https://wordsbywtm.com/anniversary',
-    ogImageUrl: 'https://wordsbywtm.com/og-anniversary.png',
   },
 
   hero: {

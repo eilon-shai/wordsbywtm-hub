@@ -1,7 +1,11 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { getIntake } from '@/lib/intake';
 import { CreateForm } from '@/components/CreateForm';
+
+// The create funnel is not a search-landing surface; keep it out of the index.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 interface StartPageProps {
   params: Promise<{ occasion: string }>;
@@ -28,15 +32,9 @@ export default async function StartPage({ params, searchParams }: StartPageProps
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-8 px-4 py-12 sm:py-16">
-      <header className="text-center">
-        <p className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-          {meta.title} Collection
-        </p>
-        <h1 className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">
-          When the words matter most, gather them together.
-        </h1>
-      </header>
-
+      {/* No page-level header here — CreateForm renders its own occasion eyebrow +
+          single H1. A second H1 (and the memorial-coded "when the words matter
+          most" copy) was a duplicate-heading a11y + tone issue. */}
       <CreateForm
         occasion={occasion}
         honoreeLabel={meta.honoreeLabel}

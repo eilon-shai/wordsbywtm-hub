@@ -1,14 +1,41 @@
-# Manual E2E Test Plan — wordsbywtm.com (Memorial)
+# Manual E2E Test Plan — wordsbywtm.com (multi-occasion hub)
 
 Run this **before every production launch / major release**. It exercises the full
 collaborative-collection flow end to end: gather → invite → contribute → pay →
 generate → deliver (PDF + audio) → support/cron lifecycle, plus the abuse,
-double-pay, and data-loss edge cases the SES-044/045 panels flagged.
+double-pay, and data-loss edge cases the SES-044/045/046 panels flagged.
 
 - **Owner:** founder (eilon.shai)
-- **Scope:** memorial occasion (the only live product). Wedding/Retirement are stubs.
+- **Scope:** **four live occasions** — memorial, retirement, wedding, anniversary.
+  §§2–13 below describe the flow generically; run them **per occasion** using the
+  matrix in §1A, and run the cross-product isolation checks in §1B.
 - **Architecture:** stateless, pay-before-generate, one-time $49, no login (capability tokens).
-- **Pass bar for launch:** every row in §§2–10 checked, **zero** open ❌ in §11 (abuse) and §12 (data-loss).
+- **Pass bar for launch:** the §1A matrix complete for every live occasion, §1B all ✅, and **zero** open ❌ in §11 (abuse) and §12 (data-loss).
+
+---
+
+## 1A. Per-occasion smoke matrix (run for EACH occasion)
+
+For each occasion, swap `<occ>` (memorial / retirement / wedding / anniversary):
+
+| Check | memorial | retirement | wedding | anniversary |
+|---|---|---|---|---|
+| `/<occ>` landing renders, occasion-correct copy (no "tribute/service" on toast/send-off) | ☐ | ☐ | ☐ | ☐ |
+| Card on `/` (and `/?focus=<occ>` featured) routes to `/<occ>` | ☐ | ☐ | ☐ | ☐ |
+| `/<occ>/start` create form uses the right relationship taxonomy + labels | ☐ | ☐ | ☐ | ☐ |
+| Contributor add → organizer review → finalize → generate | ☐ | ☐ | ☐ | ☐ |
+| Result + email use the right deliverable noun (tribute/send-off/toast) + read-aloud context | ☐ | ☐ | ☐ | ☐ |
+| Checkout opens the **live** Paddle product for THIS occasion (right price) | ☐ | ☐ | ☐ | ☐ |
+| Deliverable/admin emails come from `<occ>@wordsbywtm.com` | ☐ | ☐ | ☐ | ☐ |
+| OG card (`/<occ>/opengraph-image`) + favicon render (not 404) | ☐ | ☐ | ☐ | ☐ |
+
+## 1B. Cross-product isolation (shared DB / Redis / Paddle / webhook)
+
+- [ ] A payment/webhook for occasion A **never** marks an occasion-B collection paid (`customData.product` routes strictly; unmatched → 200 no-op).
+- [ ] A support-console lookup for occasion A returns **only** A's collections.
+- [ ] The deadline-sweep cron runs once per live occasion (4 sweeps), each scoped to its own product.
+- [ ] Org dedup ("one open collection per email") is **per occasion** — the same email can hold one memorial AND one wedding collection.
+- [ ] Generating occasion A's tribute never resolves to occasion B (an unmapped txn 404s, not a wrong-product generation).
 
 ---
 
@@ -148,7 +175,7 @@ double-pay, and data-loss edge cases the SES-044/045 panels flagged.
 ## 10. Webhook (Paddle backstop)
 - [ ] `transaction.completed` webhook marks the collection paid via `customData.collectionId` even if the browser closed before redirect.
 - [ ] Webhook path in Paddle dashboard matches the deployed route; signature verified.
-- [ ] **Multi-occasion safe:** webhook dispatches by `customData.product` to the matching live config (won't mis-route across products); falls back to first live config.
+- [ ] **Multi-occasion safe:** webhook dispatches **strictly** by `customData.product` to the matching live config; an unmatched/missing product returns a 200 no-op (NO fallback to a first/arbitrary config — verified it can't cross-route).
 - [ ] Customer email is redacted in webhook logs.
 
 ---

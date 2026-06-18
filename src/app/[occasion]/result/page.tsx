@@ -5,6 +5,7 @@ import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core
 import { audioEnabled } from '@/lib/audio';
 import { ResultFlow } from './ResultFlow';
 import { SiteHeader } from '@/components/SiteHeader';
+import { PurchaseTracker } from '@/components/PurchaseTracker';
 
 // ---------------------------------------------------------------------------
 // S8 — Synthesized Result (COLLECTION_SCREENS_REDESIGN.md §4)
@@ -73,6 +74,9 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
   return (
     <>
       <SiteHeader />
+      {/* Fires GA4 purchase + Google Ads conversion once on the post-Paddle
+          return (?txn=), deduped per transaction. No-op until analytics ids set. */}
+      <PurchaseTracker occasion={occasion} value={config.tiers.full.displayPrice} />
       <ResultFlow
         occasion={occasion}
         occasionTitle={meta.title}
@@ -85,6 +89,8 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         paidInAdvance={paidInAdvance}
         paidTxnId={paidTxnId}
         audioEnabled={audioEnabled()}
+        deliverableNoun={meta.deliverableNoun}
+        readAloudContext={meta.readAloudContext}
       />
     </>
   );

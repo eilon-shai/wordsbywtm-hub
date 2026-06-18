@@ -28,6 +28,10 @@ export interface OccasionMeta {
   /** Accent hue for per-occasion theming (overrides --primary in [occasion]/layout). */
   accent: string;
   live: boolean;
+  /** What the finished piece is called (e.g. "tribute", "toast", "send-off"). Genericizes shared UI copy across occasions. */
+  deliverableNoun: string;
+  /** Where it's read aloud (e.g. "at the service", "at the reception"). Replaces the memorial-only "at the service". */
+  readAloudContext: string;
 }
 
 export const OCCASIONS: OccasionMeta[] = [
@@ -38,6 +42,8 @@ export const OCCASIONS: OccasionMeta[] = [
     honoreeLabel: 'the person we are honoring',
     accent: '#5a8fab',
     live: true,
+    deliverableNoun: 'tribute',
+    readAloudContext: 'at the service',
   },
   {
     slug: 'wedding',
@@ -46,6 +52,8 @@ export const OCCASIONS: OccasionMeta[] = [
     honoreeLabel: 'the couple',
     accent: '#b08a8f',
     live: true,
+    deliverableNoun: 'toast',
+    readAloudContext: 'at the reception',
   },
   {
     slug: 'retirement',
@@ -54,6 +62,8 @@ export const OCCASIONS: OccasionMeta[] = [
     honoreeLabel: 'the person retiring',
     accent: '#b3935a',
     live: true,
+    deliverableNoun: 'send-off',
+    readAloudContext: 'at the party',
   },
   {
     slug: 'anniversary',
@@ -62,6 +72,8 @@ export const OCCASIONS: OccasionMeta[] = [
     honoreeLabel: 'the couple',
     accent: '#a8768f',
     live: true,
+    deliverableNoun: 'tribute',
+    readAloudContext: 'at the celebration',
   },
 ];
 
@@ -71,6 +83,23 @@ export const OCCASIONS: OccasionMeta[] = [
 for (const o of OCCASIONS) {
   if (o.live && !CONFIGS[o.slug]?.brand?.paddleProductId) {
     throw new Error(`[registry] live occasion "${o.slug}" must have a non-empty brand.paddleProductId`);
+  }
+}
+
+// Cross-product isolation invariant: every live occasion's Paddle product id must
+// be UNIQUE. Webhook routing + mark-paid resolve the occasion by customData.product
+// === brand.paddleProductId, so a duplicate id would let one product's payment
+// touch another's collections. Fail fast at startup if two live occasions collide.
+{
+  const seen = new Map<string, string>();
+  for (const o of OCCASIONS) {
+    const id = CONFIGS[o.slug]?.brand?.paddleProductId;
+    if (!o.live || !id) continue;
+    const prior = seen.get(id);
+    if (prior) {
+      throw new Error(`[registry] live occasions "${prior}" and "${o.slug}" share paddleProductId "${id}" — product ids must be unique for cross-product isolation`);
+    }
+    seen.set(id, o.slug);
   }
 }
 

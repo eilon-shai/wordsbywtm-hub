@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
 import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
 import { getRedisClient } from '@eilon-shai/venture-core/redis';
-import { getConfig } from '@/lib/registry';
+import { getConfig, getOccasionMeta } from '@/lib/registry';
 
 // Auxiliary route (not part of the core pay/generate set): the organizer can have
 // us email an invite to up to N people on their behalf. Gated by the secret
@@ -22,24 +22,38 @@ function appBase(domain: string): string {
   return domain.replace(/\/$/, '');
 }
 
+// Escape organizer/recipient/honoree text before interpolating into the email
+// HTML — these are user-controlled, so without escaping a name like
+// "<script>…" would be injected into the message (self-XSS / email-injection).
+function esc(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function inviteEmailHtml(opts: {
   honoreeName: string;
   shareUrl: string;
   organizerName?: string;
   accent: string;
   recipientName?: string;
+  deliverableNoun?: string;
 }): string {
-  const greeting = opts.recipientName ? `Hi ${opts.recipientName},` : 'Hi,';
+  const honoree = esc(opts.honoreeName);
+  const noun = opts.deliverableNoun ?? 'tribute';
+  const greeting = opts.recipientName ? `Hi ${esc(opts.recipientName)},` : 'Hi,';
   // Personalized when we know the organizer; otherwise honoree-centric — never "Someone".
   const intro = opts.organizerName
-    ? `${opts.organizerName} is putting together a tribute for <strong>${opts.honoreeName}</strong>, woven from memories shared by the people who knew them — and you’re invited to add yours.`
-    : `You’re invited to share a memory of <strong>${opts.honoreeName}</strong> for a tribute that family and friends are putting together — woven from the memories of everyone who knew them.`;
+    ? `${esc(opts.organizerName)} is putting together a ${noun} for <strong>${honoree}</strong>, woven from memories shared by the people who knew them — and you’re invited to add yours.`
+    : `You’re invited to share a memory of <strong>${honoree}</strong> for a ${noun} that family and friends are putting together — woven from the memories of everyone who knew them.`;
   return `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;line-height:1.6;">
     <p>${greeting}</p>
     <p>${intro}</p>
     <p>It takes about two minutes. No account, nothing to pay.</p>
     <p style="margin:28px 0;">
-      <a href="${opts.shareUrl}" style="background:${opts.accent};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Add a memory of ${opts.honoreeName}</a>
+      <a href="${opts.shareUrl}" style="background:${opts.accent};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Add a memory of ${honoree}</a>
     </p>
     <p style="font-size:13px;color:#8c7c68;">Or paste this link into your browser:<br>${opts.shareUrl}</p>
   </div>`;
@@ -98,6 +112,7 @@ export async function POST(req: NextRequest) {
 
   const shareUrl = `${appBase(config.brand.domain)}/c/${collection.shareToken}?occasion=${collection.occasion}&src=invite`;
   const accent = config.email.brandColor || '#5a8fab';
+  const deliverableNoun = getOccasionMeta(collection.occasion)?.deliverableNoun ?? 'tribute';
   const from = config.email.fromEmail;
   const orgName = (organizerName ?? '').toString().trim().slice(0, 100) || undefined;
   const prefix = config.brand.redisKeyPrefix;
@@ -178,7 +193,7 @@ export async function POST(req: NextRequest) {
         from,
         to: r.email,
         subject: `Add a memory for ${collection.honoreeName}`,
-        html: inviteEmailHtml({ honoreeName: collection.honoreeName, shareUrl, organizerName: orgName, accent, recipientName: r.name || undefined }),
+        html: inviteEmailHtml({ honoreeName: collection.honoreeName, shareUrl, organizerName: orgName, accent, recipientName: r.name || undefined, deliverableNoun }),
       });
       sent += 1;
       if (redis) {

@@ -16,7 +16,7 @@ import FocusScroll from '@/components/FocusScroll';
 export const metadata: Metadata = {
   title: 'Words That Matter — Gather memories into one tribute',
   description:
-    'No one person holds the whole of a life. Start a collection, invite everyone who knew them to add a memory, and weave them into one tribute. Free to create and collect. Pay once when you’re ready.',
+    'No one person holds the whole story. Start a collection for a memorial, wedding, retirement, or anniversary, invite the people who were there to each add a memory, and we weave them into one piece to read aloud. Free to create and collect; pay once when you’re ready.',
   alternates: { canonical: 'https://wordsbywtm.com' },
 };
 
@@ -102,7 +102,11 @@ export default async function HubPage({
               Invite the people who were there to each add one memory. We weave them into a single
               piece — written in a voice that belongs to all of you — ready to read aloud.
             </p>
-            <p className="mt-8 text-sm font-medium text-muted-foreground">
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              You’ll get one woven piece, a <span className="text-foreground">keepsake PDF</span> to print,
+              and a <span className="text-foreground">spoken version</span> to play out loud.
+            </p>
+            <p className="mt-6 text-sm font-medium text-muted-foreground">
               Free to create · Free to collect · Pay once when you’re ready
             </p>
             <a

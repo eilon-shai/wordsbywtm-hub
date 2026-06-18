@@ -166,9 +166,10 @@ export default function TermsPage() {
         intelligence without sufficient human creative input may not be eligible for copyright protection.
       </Section>
       <Section n="8. Third-Party Services">
-        The Service relies on third-party providers, including Paddle for payment processing, Anthropic for AI
-        generation, Neon for managed database storage, Resend for email, and Vercel for hosting. We are not
-        responsible for the acts, omissions, errors, or service interruptions of any third-party providers.
+        The Service relies on third-party providers, including Paddle for payment processing, Anthropic for AI text
+        generation, ElevenLabs for optional text-to-speech (audio) generation, Neon for managed database storage,
+        Resend for email, and Vercel for hosting. We are not responsible for the acts, omissions, errors, or service
+        interruptions of any third-party providers.
       </Section>
       <Section n="9. Indemnification">
         You agree to indemnify, defend, and hold harmless Words That Matter LLC, its affiliates, officers,

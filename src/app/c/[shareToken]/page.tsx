@@ -6,12 +6,15 @@
 // exists; the warm thank-you uses honoreeName from the submit response (§S5).
 // ---------------------------------------------------------------------------
 
+import type { Metadata } from 'next';
 import { getDbClient, getCollectionByShareToken, countContributors, contributorCap } from '@eilon-shai/venture-core/db';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ContributorForm } from '@/components/ContributorForm';
 import { OrganizerMemoryForm } from '@/components/OrganizerMemoryForm';
 
 export const dynamic = 'force-dynamic';
+// Token-bearing private link — keep it out of search indexes (token hygiene).
+export const metadata: Metadata = { title: 'Add a memory — Words That Matter', robots: { index: false, follow: false } };
 
 function ClosedScreen({ kind }: { kind: 'closed' | 'notfound' }) {
   return (

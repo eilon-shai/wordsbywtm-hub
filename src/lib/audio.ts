@@ -50,8 +50,10 @@ export async function ensureAudioTable(db: SqlClient): Promise<void> {
 // Which voices already have audio for this collection (for re-view: show the
 // player without regenerating).
 export async function listAudioVoices(db: SqlClient, collectionId: string): Promise<Voice[]> {
+  // Newest first, so re-view defaults to the voice the organizer most recently
+  // generated (voices[0]) rather than an arbitrary row order.
   const rows = await db.query<{ voice: string }>(
-    'select voice from collection_audio where collection_id = $1',
+    'select voice from collection_audio where collection_id = $1 order by created_at desc',
     [collectionId],
   );
   return rows.map((r) => normalizeVoice(r.voice));

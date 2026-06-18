@@ -1,46 +1,64 @@
-# Collection App — What's Left Before Paid Launch
+# What's Left Before Paid Launch — wordsbywtm.com
 
-**As of:** 2026-06-17 · **Branch:** `feat/collection-app` · **venture-core pinned:** `1.15.4`
-**Status:** Engineering 100% complete (all SES-043 + SES-044 review findings resolved & shipped). Launch is gated **only** on founder-owned items below.
+**As of:** 2026-06-18 · **State:** four occasions live on `main` (memorial, retirement,
+wedding, anniversary); multi-occasion homepage shipped.
+**Latest review:** `docs/EXPERT_PANEL_REVIEW_SES046.md` (Overall 8.15, GO-conditional;
+flows/abuse/data-loss all PASS). Engineering launch-gate fixes in PR #25.
 
-Reviews: `docs/EXPERT_PANEL_REVIEW_SES043.md` (baseline 7.58) → `docs/EXPERT_PANEL_REVIEW_SES044.md` (8.47, mandatory-8 met). Attorney brief: `docs/ATTORNEY_BRIEF_COLLECTION_LC03.md`.
+> Supersedes the old SES-043/044 single-occasion version of this file.
+
+---
+
+## Launch sequence (founder's plan)
+1. **Merge open PRs** — #23 (env doc), #24 (SES-046 review), **#25** (launch-gate fixes + analytics + these docs).
+2. **Stage E2E** — `docs/MANUAL_E2E_TEST_PLAN.md` §1A per-occasion matrix + §1B isolation on Preview (Paddle sandbox).
+3. **Prod E2E** — one **real $49 purchase per occasion** on prod, then refund. Confirms live Paddle + emails + conversion fires.
+4. **Launch campaign** — `docs/GOOGLE_ADS_CAMPAIGN.md`.
+5. **Attorney (LC-03)** — trigger on first paid volume.
 
 ---
 
 ## 🔴 Launch blockers (founder-owned)
 
 ### 1. LC-03 — Legal pages (attorney)
-- **Action:** send `docs/ATTORNEY_BRIEF_COLLECTION_LC03.md` to the attorney.
-- **Get back:** ratified ToS "Collections" clauses (auto-generate / auto-delete / auto-extend authorization + disclaimer), Privacy additions (contributor email + PII inventory, encryption, **retention period — we proposed 30 days**, erasure, IP/abuse purpose, Anthropic sub-processor), Refund/EU-CRD wording for pay-in-advance + deferred generation.
-- **Then (engineering, ~30 min):** update rendered pages (`src/app/terms`, `privacy`, `refund` — or wherever they render; legal pages are attorney-content only, we paste their text) and **bump `termsVersion` + effective date** (consent records store the version, so the bump matters). Hard rule: do not author legal copy ourselves.
+- Send `docs/ATTORNEY_BRIEF_COLLECTION_LC03.md` to the attorney. **Include the interim edits made in PR #25**: the **ElevenLabs sub-processor** disclosure (Privacy §4 / Terms §8) and the **EU-CRD waiver** wording for pay-in-advance + deferred generation.
+- Get back ratified ToS Collections clauses + Privacy additions (PII inventory, 30-day retention, erasure, Anthropic + ElevenLabs sub-processors) + Refund/EU-CRD wording.
+- Then (eng, ~30 min): paste ratified text, bump `termsVersion` + effective date. Legal copy is attorney-content only.
 
-### 2. MKT-002 — Conversion analytics
-- **Need from founder:** a **GA4 property → Measurement ID** (`G-XXXXXXX`) and a **Google Ads conversion action → conversion label**; optionally a **PostHog** project key.
-- **Then (engineering):** scaffold the analytics layer — provider script in `src/app/layout.tsx`, a `track(event, props)` helper, UTM + `?focus` capture stashed on first landing, funnel events (landing → start → created → invite → finalize → **purchase** → generated), and a GA4 `purchase` conversion on payment success (+ optional server-side confirm from the Paddle webhook). Reads IDs from `NEXT_PUBLIC_GA4_MEASUREMENT_ID` etc. Can be scaffolded BEFORE keys exist (activates on env paste).
+### 2. MKT-002 — Analytics IDs (code is DONE in PR #25; just needs the ids)
+Set in Vercel (Production, **plain text not Sensitive**), then redeploy:
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID` (`G-XXXX`)
+- `NEXT_PUBLIC_GOOGLE_ADS_TAG_ID` (`AW-XXXX`) + `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL`
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID` (Microsoft Clarity)
 
-### 3. Prod-env confirmation (Vercel, wordsbywtm-hub project)
-- `CRON_SECRET` set (Production) — required or the deadline + purge crons refuse to run (fail-closed).
-- `ENABLE_MOCK_PAYMENT` **off/unset** in Production.
-- Edit-pack price id (`NEXT_PUBLIC_PADDLE_PRICE_ID_MEMORIAL_EDITPACK`) **unset** (regen not built).
-- `REDIS_FORM_ENCRYPTION_KEY` + `PADDLE_WEBHOOK_SECRET` present; Neon `DATABASE_URL`, Upstash, `ANTHROPIC_API_KEY`, Paddle vars present.
-- `CONTRIBUTION_HASH_SECRET` (optional — falls back to `REDIS_FORM_ENCRYPTION_KEY`; `hashEmail` throws in prod if neither set).
+GA4 + Clarity load and the `purchase`/Ads `conversion` fire automatically once set (no-op until then). See `docs/GOOGLE_ADS_CAMPAIGN.md`.
 
----
-
-## 🟡 Deferred to post-launch (not blockers; in review docs)
-- **ARCH-04** — durable txn→collection resolution (currently Redis map + customData). **Hard gate before a 2nd occasion (wedding/retirement) goes live**, alongside confirming the deadline cron loops all live configs (done) and the sweep is product-scoped (done).
-- **MKT-005** — waitlist capture on coming-soon occasions ("Notify me" is currently a dead link); gate `?focus=` for non-live.
-- **MKT-007** — abandoned-funnel recovery emails (partial-create nudges via Resend).
-- **QA-7** — app-level Playwright E2E (multi-actor create→contribute→finalize against the mock-payment build).
-- **LC-04** — self-serve per-contributor erasure token (today: rights line + email-us SOP; organizer can delete the whole collection).
-- **MKT-003** — collapse the "two pricing cards = one $49 product" presentation (advance-pay framing already fixed).
+### 3. Production Paddle — live money path
+- ☑ Founder reports all prod env vars in place. **Verify in prod E2E:** live prices for all four occasions, `PADDLE_ENVIRONMENT=production`, live `PADDLE_API_KEY` / `PADDLE_WEBHOOK_SECRET` / `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`, `CRON_SECRET` set, `ENABLE_MOCK_PAYMENT` off, edit-pack price unset. (Matrix: `docs/PRODUCTION_ENV.md`.)
 
 ---
+
+## 🟠 Engineering follow-up (post-merge)
+- **EU withdrawal-waiver server-side persistence** — PR #25 fixes the copy and **transmits** the waiver flag at checkout, but actually recording it needs a **venture-core** `checkAndMarkTerms(waiverTimestamp/waiverVersion)` wire-up + re-pin. (Next venture-core bump.)
+
+## 🟡 Deferred to post-launch (not blockers)
+- **ARCH-04** — durable txn→collection resolution (Redis map today; resolver now throws instead of mis-resolving — PR #25).
+- **MKT-005** — waitlist on coming-soon occasions (n/a today; all four live).
+- **MKT-007** — abandoned-funnel recovery emails.
+- **QA-7 / E4** — scheduled Tier-B Playwright E2E (multi-actor, DB writes) in CI.
+- **Domains** — vocalvow/tributewords/milestonescribe → hub routing (redirect vs SEO landers).
+
+## 🛠️ Maintenance gate (implemented PR #25)
+- `UNDER_CONSTRUCTION=true` now serves a "coming soon" 503 on all **page** routes
+  (APIs/webhooks/cron + static assets stay live). **Bypass** to run prod E2E while
+  the public is gated: visit `https://www.wordsbywtm.com/?preview=<SUPPORT_PASSWORD>`
+  once — it sets a 24h cookie and you browse normally. Unset the var to go live.
 
 ## ✅ Done (reference) — do NOT redo
-- All 5 CRITICAL + all HIGH + most MED/LOW from SES-043/044. Highlights: tribute re-view (FE-001), post-generation purge + cron (LC-01), consent recording (LC-02), webhook payment backstop (QA-1), deadline validation (SEC-02), fail-closed mock + crons (SEC-01/BE-N4), price verification (SEC-03/BE-N1), keyed HMAC dedup (ARCH-06), product-scoping (BE-02/03/04), advance double-charge guard (ARCH-03), required contributor email + one-per-person dedup, organizer rich-form everywhere + edit, deadline auto-finalize/delete/extend. venture-core test suite 551 passing at 1.15.4.
+- Multi-occasion migration: 4 occasions live via the registry; per-occasion configs/synthesis/intake; strict per-product webhook routing + unique-product-id guard; create-route `meta.live` gate.
+- SES-046 launch-gate (PR #25): per-occasion copy, ElevenLabs disclosure (interim), advance-pay copy + waiver flag, resolver no-fallback, invite HTML escaping, audio newest-voice, favicon + generated OG images, noindex on token pages, isolation/config/audio tests (→90), manual E2E rebuilt as per-occasion matrix.
+- Analytics (PR #25): GA4 + Clarity + purchase/Ads conversion, env-gated.
+- Prior: tribute re-view, post-gen purge + crons, consent recording, webhook backstop, fail-closed mock/crons, price verification, keyed dedup, deadline auto-finalize, audio narration (Postgres), support console.
 
-## How to resume
-1. If venture-core changed, re-pin app (`npm pkg set ...@1.15.x` + install) and re-pin note. Branch is `feat/collection-app` (not yet merged to main / promoted to prod domain — confirm deploy/promotion plan).
-2. Knock out the 3 founder items above (legal paste + version bump; analytics scaffold + keys; env confirm).
-3. Re-run the expert panel as **SES-045** (prompt template in `EXPERT_PANEL_REVIEW_SES044.md` §7) to confirm Legal + Marketing prod-readiness clear 8 and target 9s.
+## Reference docs
+`PRODUCTION_ENV.md` · `MANUAL_E2E_TEST_PLAN.md` · `GOOGLE_ADS_CAMPAIGN.md` · `EXPERT_PANEL_REVIEW_SES046.md` · `ATTORNEY_BRIEF_COLLECTION_LC03.md`
