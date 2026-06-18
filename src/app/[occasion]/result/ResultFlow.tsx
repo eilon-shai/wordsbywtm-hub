@@ -119,6 +119,8 @@ interface ResultFlowProps {
   paidInAdvance?: boolean;
   /** Paddle txn that paid for the collection — feedback id for the paid-in-advance path. */
   paidTxnId?: string;
+  /** Whether the ElevenLabs audio-narration feature is enabled (server-resolved). */
+  audioEnabled?: boolean;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
@@ -204,6 +206,9 @@ function ResultFlowInner(props: ResultFlowProps) {
     const t = setTimeout(() => setShowFeedback(true), 2500);
     return () => clearTimeout(t);
   }, [phase, txnId, props.paidTxnId, props.occasion]);
+
+  // Audio narration (ElevenLabs, on-demand). 'idle' → 'creating' → 'ready'|'error'.
+  const [audioState, setAudioState] = React.useState<'idle' | 'creating' | 'ready' | 'error'>('idle');
 
   // a11y (FE-009): move focus to the result heading when the tribute appears so
   // screen-reader / keyboard users aren't left on a silently-replaced page after
@@ -719,6 +724,55 @@ function ResultFlowInner(props: ResultFlowProps) {
           {copied ? 'Copied ✓' : 'Copy text'}
         </Button>
       </div>
+
+      {/* Audio narration (on-demand) — only when enabled + we have a token. */}
+      {props.audioEnabled && backToken ? (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          {audioState === 'ready' ? (
+            <>
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <audio controls preload="none" className="w-full max-w-md" src={`/api/collection/audio?t=${encodeURIComponent(backToken)}`} />
+              <a
+                href={`/api/collection/audio?t=${encodeURIComponent(backToken)}&download=1`}
+                className="text-xs text-primary underline hover:text-foreground"
+              >
+                Download the audio (MP3)
+              </a>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="rounded-full px-6"
+                disabled={audioState === 'creating'}
+                onClick={async () => {
+                  setAudioState('creating');
+                  try {
+                    const res = await fetch('/api/collection/audio', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ adminToken: backToken }),
+                    });
+                    setAudioState(res.ok ? 'ready' : 'error');
+                  } catch {
+                    setAudioState('error');
+                  }
+                }}
+              >
+                {audioState === 'creating' ? 'Creating audio…' : '▶ Hear it read aloud'}
+              </Button>
+              {audioState === 'creating' ? (
+                <p className="text-xs text-muted-foreground">This takes a few seconds.</p>
+              ) : null}
+              {audioState === 'error' ? (
+                <p className="text-xs text-destructive">Couldn’t create the audio — please try again.</p>
+              ) : null}
+            </>
+          )}
+        </div>
+      ) : null}
 
       {backToken ? (
         <div className="mt-6 text-center">

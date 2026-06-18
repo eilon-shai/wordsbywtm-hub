@@ -57,6 +57,19 @@ Set these in **Vercel → Project → Settings → Environment Variables**, then
 
 Not needed to run; needed for ad attribution on the money path.
 
+## 🔊 Optional — audio narration (ElevenLabs)
+
+The tribute can be read aloud (TTS) on the result page, stored in Postgres
+(`collection_audio`, auto-purged with the collection). Off unless a key is set.
+
+| Var | Why |
+|---|---|
+| `ELEVENLABS_API_KEY` | enables the feature (generate + serve audio) |
+| `DISABLE_TRIBUTE_AUDIO` | set `true` to force it OFF even with a key (e.g. on **Preview**, to avoid TTS spend) |
+| `ELEVENLABS_VOICE_ID` | optional — voice (default: a warm preset) |
+| `ELEVENLABS_MODEL_ID` | optional — default `eleven_multilingual_v2` |
+| `ELEVENLABS_OUTPUT_FORMAT` | optional — default `mp3_44100_96` (good for spoken word, small) |
+
 ## Sandbox / Preview only
 
 For Preview deployments testing against Paddle sandbox:
