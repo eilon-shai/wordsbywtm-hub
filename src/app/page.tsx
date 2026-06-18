@@ -118,6 +118,31 @@ export default async function HubPage({
           </div>
         </section>
 
+        {/* Explainer video — ~1 min "how it works", placed between the hook and
+            the picker (hook → show → convert). Has narration, so it's click-to-
+            play with a poster (no autoplay/muted). 720p, ~2.6MB, served locally. */}
+        <section className="px-4 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-primary">See how it works</p>
+            <h2 className="font-serif text-3xl text-foreground md:text-4xl">Watch a collection come together</h2>
+            <p className="mx-auto mb-8 mt-3 max-w-xl text-sm text-muted-foreground">
+              A one-minute look — from the first invite to the finished piece you’ll read aloud.
+            </p>
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <video
+                className="aspect-video w-full"
+                controls
+                preload="metadata"
+                playsInline
+                poster="/words-that-matter-poster.jpg"
+              >
+                <source src="/words-that-matter.mp4" type="video/mp4" />
+                Your browser doesn’t support embedded video.
+              </video>
+            </div>
+          </div>
+        </section>
+
         {/* Occasion picker — scroll target for the "Choose an occasion" CTA.
             scroll-mt offsets the sticky 4rem header so the section heading lands
             in view instead of the cards jamming under the nav. */}
