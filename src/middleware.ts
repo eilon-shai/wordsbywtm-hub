@@ -61,20 +61,24 @@ export function middleware(req: NextRequest): NextResponse {
   // 1) UNDER_CONSTRUCTION gate — page routes only (APIs keep serving so Paddle
   //    webhooks, crons, and the bypassing operator's fetches still work).
   if (process.env.UNDER_CONSTRUCTION === 'true' && !pathname.startsWith('/api/')) {
-    // Set the bypass cookie when ?preview=<SUPPORT_PASSWORD> is provided, then
-    // redirect to the clean URL.
+    // Bypass secret: a dedicated URL-safe CONSTRUCTION_BYPASS_TOKEN (recommended —
+    // SUPPORT_PASSWORD may contain +/&/#/% etc. that get mangled in a query
+    // string), falling back to SUPPORT_PASSWORD. The query value is URL-decoded by
+    // searchParams.get, so a properly percent-encoded password also works.
+    const bypassSecret = process.env.CONSTRUCTION_BYPASS_TOKEN || password;
+    // Set the bypass cookie when ?preview=<token> is provided, then redirect clean.
     const preview = req.nextUrl.searchParams.get('preview');
-    if (preview && password && safeEqual(preview, password)) {
+    if (preview && bypassSecret && safeEqual(preview, bypassSecret)) {
       const clean = req.nextUrl.clone();
       clean.searchParams.delete('preview');
       const res = NextResponse.redirect(clean);
-      res.cookies.set(PREVIEW_COOKIE, password, {
+      res.cookies.set(PREVIEW_COOKIE, bypassSecret, {
         httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24,
       });
       return res;
     }
     const cookie = req.cookies.get(PREVIEW_COOKIE)?.value ?? '';
-    const bypassed = !!password && safeEqual(cookie, password);
+    const bypassed = !!bypassSecret && safeEqual(cookie, bypassSecret);
     if (!bypassed) return constructionResponse();
   }
 
