@@ -17,10 +17,13 @@ export function audioEnabled(): boolean {
   return !!process.env.ELEVENLABS_API_KEY && process.env.DISABLE_TRIBUTE_AUDIO !== 'true';
 }
 
-// Warm prebuilt ElevenLabs voices; override per gender via env.
+// Warm ElevenLabs voices; override per gender via env.
+// NOTE: these are PREMADE voices, which the free/lower API tiers can synthesize.
+// Library voices (e.g. Rachel/Josh) return HTTP 402 paid_plan_required via the
+// API unless the account is on a paid plan — do not default to those.
 const VOICE_IDS: Record<Voice, string> = {
-  female: process.env.ELEVENLABS_VOICE_ID_FEMALE || process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM', // Rachel
-  male: process.env.ELEVENLABS_VOICE_ID_MALE || 'TxGEqnHWrfWFTfGW9XjX', // Josh
+  female: process.env.ELEVENLABS_VOICE_ID_FEMALE || process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL', // Sarah — mature, reassuring
+  male: process.env.ELEVENLABS_VOICE_ID_MALE || 'nPczCjzI2devNBz1zQrb', // Brian — deep, resonant, comforting
 };
 const MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
 const OUTPUT_FORMAT = process.env.ELEVENLABS_OUTPUT_FORMAT || 'mp3_44100_96';
