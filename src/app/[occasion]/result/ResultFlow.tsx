@@ -119,6 +119,8 @@ interface ResultFlowProps {
   paidInAdvance?: boolean;
   /** Paddle txn that paid for the collection — feedback id for the paid-in-advance path. */
   paidTxnId?: string;
+  /** Whether the ElevenLabs audio-narration feature is enabled (server-resolved). */
+  audioEnabled?: boolean;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
@@ -205,6 +207,15 @@ function ResultFlowInner(props: ResultFlowProps) {
     return () => clearTimeout(t);
   }, [phase, txnId, props.paidTxnId, props.occasion]);
 
+  // Audio narration (ElevenLabs). Voice is chosen on the prefs screen; generated
+  // once when the tribute is created. 'idle' → 'creating' → 'ready'|'error'.
+  const [audioState, setAudioState] = React.useState<'idle' | 'creating' | 'ready' | 'error'>('idle');
+  // The voice chosen on the prefs screen ('none' = no audio). Defaults to a softer
+  // voice so the spoken version reads as part of what you receive (skippable).
+  const [audioChoice, setAudioChoice] = React.useState<'none' | 'female' | 'male'>('female');
+  // The voice that actually has audio ready/playing (set after generation/probe).
+  const [audioVoice, setAudioVoice] = React.useState<'female' | 'male'>('female');
+
   // a11y (FE-009): move focus to the result heading when the tribute appears so
   // screen-reader / keyboard users aren't left on a silently-replaced page after
   // a money-path action (generate OR re-view both land on 'done').
@@ -213,11 +224,60 @@ function ResultFlowInner(props: ResultFlowProps) {
     if (phase === 'done') doneHeadingRef.current?.focus();
   }, [phase]);
 
+  // Re-view: if the tribute already has audio (generated in a prior session),
+  // surface the player without regenerating. Skips once audio is creating/ready.
+  React.useEffect(() => {
+    if (phase !== 'done' || !props.audioEnabled || audioState !== 'idle') return;
+    const token =
+      adminToken ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem(ADMIN_KEY) || localStorage.getItem(ADMIN_KEY) || '' : '');
+    if (!token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/collection/audio?t=${encodeURIComponent(token)}&info=1`);
+        if (!res.ok || cancelled) return;
+        const d = (await res.json().catch(() => ({ voices: [] }))) as { voices?: string[] };
+        const v = d.voices?.[0];
+        if (v === 'female' || v === 'male') {
+          setAudioVoice(v);
+          setAudioState('ready');
+        }
+      } catch {
+        /* ignore — no audio shown */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, props.audioEnabled, audioState, adminToken]);
+
   // Remember the last generate attempt (mode + prefs) so the error phase can
   // offer a safe retry — the generate endpoint re-verifies the Paddle txn fresh
   // on every call (no one-time consume), so re-invoking is replayable.
-  type GeneratePrefs = { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string };
+  type GeneratePrefs = { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string; audioVoice?: 'none' | 'female' | 'male' };
   const lastAttempt = React.useRef<{ mode: 'txn' | 'paid'; prefs: GeneratePrefs } | null>(null);
+
+  // Generate the spoken narration once (the chosen voice), after the tribute is
+  // created. adminToken is required (present on both pay paths via URL/storage).
+  const triggerAudio = React.useCallback(
+    async (voice: 'female' | 'male') => {
+      if (!adminToken) return;
+      setAudioVoice(voice);
+      setAudioState('creating');
+      try {
+        const res = await fetch('/api/collection/audio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminToken, voice }),
+        });
+        setAudioState(res.ok ? 'ready' : 'error');
+      } catch {
+        setAudioState('error');
+      }
+    },
+    [adminToken],
+  );
 
   // generate(): runs the actual synthesis POST + 202-retry loop and shows the
   // result. `prefs` is supplied explicitly so the two entry points can pass
@@ -287,6 +347,10 @@ function ResultFlowInner(props: ResultFlowProps) {
           setHonoree(d.honoreeName ?? '');
           setCount(d.contributorCount ?? 0);
           setPhase('done');
+          // Kick off the spoken narration once, for the voice chosen on prefs.
+          if (props.audioEnabled && prefs.audioVoice && prefs.audioVoice !== 'none') {
+            void triggerAudio(prefs.audioVoice);
+          }
           return;
         } catch {
           await new Promise((r) => setTimeout(r, 2500));
@@ -295,7 +359,7 @@ function ResultFlowInner(props: ResultFlowProps) {
       setError('Creating your tribute is taking longer than expected. Please check your email shortly.');
       setPhase('error');
     },
-    [txnId, adminToken],
+    [txnId, adminToken, props.audioEnabled, triggerAudio],
   );
 
   // retryGenerate(): re-run the last attempt after a failure. Falls back to the
@@ -323,10 +387,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   // verifies the txn — pay-before-generate stays enforced.
   React.useEffect(() => {
     if (!txnId) return;
-    let saved: { tone: string; length: string; thingsToAvoid?: string; additionalContext?: string } = {
-      tone: 'balanced',
-      length: 'medium',
-    };
+    let saved: GeneratePrefs = { tone: 'balanced', length: 'medium' };
     try {
       const raw = sessionStorage.getItem(PREFS_KEY);
       if (raw) saved = { ...saved, ...JSON.parse(raw) };
@@ -371,7 +432,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   // ---- Prefs-screen submit ----
   const onPrefsSubmit = React.useCallback(async () => {
     if (submitting) return;
-    const prefs = { tone, length, thingsToAvoid, additionalContext };
+    const prefs = { tone, length, thingsToAvoid, additionalContext, audioVoice: audioChoice };
 
     // Persist the admin token so the post-payment (txn) done view can link back
     // to the organizer's collection even after the Paddle redirect drops ?t=.
@@ -490,6 +551,7 @@ function ResultFlowInner(props: ResultFlowProps) {
     length,
     thingsToAvoid,
     additionalContext,
+    audioChoice,
     termsAccepted,
     adminToken,
     props.paidInAdvance,
@@ -531,6 +593,15 @@ function ResultFlowInner(props: ResultFlowProps) {
               ? 'Choose how you’d like the memories woven together, then we’ll create your tribute.'
               : 'Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your tribute.'}
           </p>
+          {props.audioEnabled ? (
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
+              When it’s ready, you’ll have: one tribute woven from every memory you chose, a keepsake PDF to print, and — if you’d like — a spoken version to play at the service.
+            </p>
+          ) : (
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
+              When it’s ready, you’ll have: one tribute woven from every memory you chose, and a keepsake PDF to print.
+            </p>
+          )}
         </header>
         <form
           onSubmit={(e) => { e.preventDefault(); void onPrefsSubmit(); }}
@@ -543,6 +614,27 @@ function ResultFlowInner(props: ResultFlowProps) {
             </div>
             <FieldRow field={AVOID_FIELD} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
             <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
+            {props.audioEnabled ? (
+              <div className="flex flex-col gap-1.5 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <label htmlFor="audio-voice" className="text-sm font-medium text-foreground">
+                  A spoken version, included
+                </label>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  We can also read the tribute aloud in a calm, steady voice — to play at the service, or for anyone
+                  whose voice may catch on the day. You can play it or download it.
+                </p>
+                <select
+                  id="audio-voice"
+                  value={audioChoice}
+                  onChange={(e) => setAudioChoice(e.target.value as 'none' | 'female' | 'male')}
+                  className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="female">A softer voice</option>
+                  <option value="male">A deeper voice</option>
+                  <option value="none">No spoken version — text only</option>
+                </select>
+              </div>
+            ) : null}
           </SectionCard>
 
           {/* Unpaid path: pay-time consent waiver (matches the dashboard). Required
@@ -590,7 +682,7 @@ function ResultFlowInner(props: ResultFlowProps) {
                   type="button"
                   size="sm"
                   disabled={submitting}
-                  onClick={() => void generate('paid', { tone, length, thingsToAvoid, additionalContext })}
+                  onClick={() => void generate('paid', { tone, length, thingsToAvoid, additionalContext, audioVoice: audioChoice })}
                 >
                   Yes, create it
                 </Button>
@@ -606,14 +698,21 @@ function ResultFlowInner(props: ResultFlowProps) {
               </div>
             </div>
           ) : (
-            <Button
-              type="submit"
-              size="lg"
-              disabled={submitting}
-              className="w-full rounded-full py-6 text-sm font-semibold"
-            >
-              {submitting ? 'Starting…' : 'Create my tribute'}
-            </Button>
+            <>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={submitting}
+                className="w-full rounded-full py-6 text-sm font-semibold"
+              >
+                {submitting ? 'Starting…' : 'Create my tribute'}
+              </Button>
+              {!paid ? (
+                <p className="text-center text-xs leading-relaxed text-muted-foreground">
+                  One time, $49. No subscription, no account. The memories you gathered are always yours to keep.
+                </p>
+              ) : null}
+            </>
           )}
 
           {submitError ? (
@@ -692,14 +791,15 @@ function ResultFlowInner(props: ResultFlowProps) {
       </article>
 
       {/* Actions */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <p className="mt-10 text-center text-xs font-semibold uppercase tracking-[0.2em] text-primary">Yours to keep</p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
         <Button
           type="button"
           size="lg"
           className="rounded-full px-6"
           onClick={() => void downloadPdf(honoree, content)}
         >
-          Download as PDF
+          Download keepsake PDF
         </Button>
         <Button
           type="button"
@@ -719,6 +819,35 @@ function ResultFlowInner(props: ResultFlowProps) {
           {copied ? 'Copied ✓' : 'Copy text'}
         </Button>
       </div>
+
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        Yours to keep, to print{audioState === 'ready' ? ', and to play at the service' : ''}.
+      </p>
+
+      {/* Audio narration — voice was chosen on the prefs screen; generated once.
+          Shows the player when ready, a status while creating, else nothing. */}
+      {props.audioEnabled && backToken && audioState !== 'idle' ? (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          {audioState === 'creating' ? (
+            <p className="text-sm text-muted-foreground">Creating the {audioVoice} audio narration… (a few seconds)</p>
+          ) : null}
+          {audioState === 'ready' ? (
+            <>
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <audio controls preload="none" className="w-full max-w-md" src={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}`} />
+              <a
+                href={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}&download=1`}
+                className="text-xs text-primary underline hover:text-foreground"
+              >
+                Download the audio (MP3)
+              </a>
+            </>
+          ) : null}
+          {audioState === 'error' ? (
+            <p className="text-xs text-destructive">The audio narration couldn’t be created. Your tribute is unaffected.</p>
+          ) : null}
+        </div>
+      ) : null}
 
       {backToken ? (
         <div className="mt-6 text-center">

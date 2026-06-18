@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
+import { audioEnabled } from '@/lib/audio';
 import { ResultFlow } from './ResultFlow';
 import { SiteHeader } from '@/components/SiteHeader';
 
@@ -83,6 +84,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         organizerEmail={organizerEmail}
         paidInAdvance={paidInAdvance}
         paidTxnId={paidTxnId}
+        audioEnabled={audioEnabled()}
       />
     </>
   );
