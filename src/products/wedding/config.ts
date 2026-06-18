@@ -1,5 +1,6 @@
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { TERMS_VERSION } from '@/lib/terms';
+import { SYNTHESIS_MODEL } from '@/lib/models';
 import type { CollectionMeta, Contribution } from '@eilon-shai/venture-core/db';
 
 // ---------------------------------------------------------------------------
@@ -214,7 +215,7 @@ export const weddingConfig: ProductConfig = {
     collectionTtlDays: 30,
     contributorConsentVersion: '2026-06-13',
 
-    synthesisModel: 'claude-sonnet-4-6',
+    synthesisModel: SYNTHESIS_MODEL,
     synthesisSystemPrompt: SYNTHESIS_SYSTEM_PROMPT,
     synthesisMaxTokens: 4096,
     buildSynthesisPrompt,
