@@ -23,7 +23,7 @@ export function audioEnabled(): boolean {
 // API unless the account is on a paid plan — do not default to those.
 const VOICE_IDS: Record<Voice, string> = {
   female: process.env.ELEVENLABS_VOICE_ID_FEMALE || process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL', // Sarah — mature, reassuring
-  male: process.env.ELEVENLABS_VOICE_ID_MALE || 'nPczCjzI2devNBz1zQrb', // Brian — deep, resonant, comforting
+  male: process.env.ELEVENLABS_VOICE_ID_MALE || 'JBFqnCBsd6RMkjVDRZzb', // George — warm, captivating storyteller
 };
 const MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
 const OUTPUT_FORMAT = process.env.ELEVENLABS_OUTPUT_FORMAT || 'mp3_44100_96';
@@ -88,7 +88,10 @@ export async function generateAndStoreAudio(
       body: JSON.stringify({
         text,
         model_id: MODEL_ID,
-        voice_settings: { stability: 0.6, similarity_boost: 0.75, style: 0.0, use_speaker_boost: true },
+        // Lower stability + some style = warmer, more emotional delivery (0.6/0.0
+        // sounded flat/robotic). We generate once and cache, so the slight
+        // run-to-run variation from lower stability is fine.
+        voice_settings: { stability: 0.4, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true },
       }),
     },
   );
