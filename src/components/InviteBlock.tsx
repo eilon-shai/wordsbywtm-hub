@@ -19,6 +19,7 @@
 import * as React from 'react';
 import { Button, Card, Input, Separator, Badge } from '@eilon-shai/venture-core/ui';
 import { initSharedPaddle, getSharedPaddle, setActiveTransaction } from '@eilon-shai/venture-core/components';
+import { TERMS_VERSION } from '@/lib/terms';
 
 // Where Paddle returns after an ADVANCE payment. A clean path (no query) so the
 // shared callback's `${path}?txnId=...` redirect stays well-formed; that page
@@ -205,7 +206,7 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
         // checkAndMarkTerms(waiverTimestamp/waiverVersion) to fully persist it —
         // tracked as a venture-core follow-up; the flag is sent here so the wiring
         // is ready the moment that lands.
-        body: JSON.stringify({ adminToken, intent: 'advance', termsWaiver: true, termsVersion: '2026-06-17' }),
+        body: JSON.stringify({ adminToken, intent: 'advance', termsWaiver: true, termsVersion: TERMS_VERSION }),
       });
       const json = (await res.json().catch(() => ({}))) as {
         transactionId?: string;

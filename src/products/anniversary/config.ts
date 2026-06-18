@@ -1,4 +1,5 @@
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
+import { TERMS_VERSION } from '@/lib/terms';
 import type { CollectionMeta, Contribution } from '@eilon-shai/venture-core/db';
 
 // ---------------------------------------------------------------------------
@@ -184,7 +185,7 @@ export const anniversaryConfig: ProductConfig = {
   },
 
   legal: { termsUrl: '/terms', privacyUrl: '/privacy', refundUrl: '/refund' },
-  termsVersion: '2026-06-17',
+  termsVersion: TERMS_VERSION,
 
   collectionConfig: {
     contributorFormFields: [
