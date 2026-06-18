@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCreateCollectionHandler } from '@eilon-shai/venture-core/api';
-import { getConfig } from '@/lib/registry';
+import { getConfig, getOccasionMeta } from '@/lib/registry';
 
 export const maxDuration = 60;
 
@@ -12,7 +12,12 @@ export async function POST(
 ): Promise<NextResponse> {
   const { occasion } = await params;
   const config = getConfig(occasion);
-  if (!config || !config.collectionConfig) {
+  const meta = getOccasionMeta(occasion);
+  // Reject unknown occasions, occasions without a collection flow, AND occasions
+  // that are built but not yet launched (live:false). An occasion can have a
+  // full collectionConfig before its Paddle IDs exist; until it's live we must
+  // not accept collections for it, even via a direct API call.
+  if (!config || !config.collectionConfig || !meta?.live) {
     return NextResponse.json(
       { error: 'Unknown occasion', code: 'NOT_FOUND', retryable: false },
       { status: 404 },

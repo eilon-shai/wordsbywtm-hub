@@ -40,7 +40,7 @@ describe('SEC-05 — create occasion forcing', () => {
     expect(createCreateCollectionHandler).not.toHaveBeenCalled();
   });
 
-  it('rejects a non-live occasion (no collectionConfig) with 404', async () => {
+  it('rejects a built-but-not-live occasion (wedding: has collectionConfig, live:false) with 404', async () => {
     const res = await create(makeRequest({ honoreeName: 'X' }), params('wedding'));
     expect(res.status).toBe(404);
   });

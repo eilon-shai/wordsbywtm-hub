@@ -12,13 +12,14 @@ describe('registry', () => {
     expect(getConfig('')).toBeUndefined();
   });
 
-  it('memorial and retirement are live with a collectionConfig; wedding is still a stub', () => {
+  it('memorial and retirement are live; wedding is built but not yet launched', () => {
     const live = OCCASIONS.filter((o) => o.live).map((o) => o.slug).sort();
     expect(live).toEqual(['memorial', 'retirement']);
     expect(CONFIGS.memorial.collectionConfig).toBeTruthy();
     expect(CONFIGS.retirement.collectionConfig).toBeTruthy();
-    // Wedding is still a stub (no collectionConfig, not live).
-    expect(CONFIGS.wedding.collectionConfig).toBeUndefined();
+    // Wedding is fully built (has a collectionConfig) but stays live:false until
+    // its Paddle IDs exist.
+    expect(CONFIGS.wedding.collectionConfig).toBeTruthy();
     expect(OCCASIONS.find((o) => o.slug === 'wedding')?.live).toBe(false);
   });
 
