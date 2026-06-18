@@ -209,6 +209,7 @@ function ResultFlowInner(props: ResultFlowProps) {
 
   // Audio narration (ElevenLabs, on-demand). 'idle' → 'creating' → 'ready'|'error'.
   const [audioState, setAudioState] = React.useState<'idle' | 'creating' | 'ready' | 'error'>('idle');
+  const [audioVoice, setAudioVoice] = React.useState<'female' | 'male'>('female');
 
   // a11y (FE-009): move focus to the result heading when the tribute appears so
   // screen-reader / keyboard users aren't left on a silently-replaced page after
@@ -728,12 +729,33 @@ function ResultFlowInner(props: ResultFlowProps) {
       {/* Audio narration (on-demand) — only when enabled + we have a token. */}
       {props.audioEnabled && backToken ? (
         <div className="mt-6 flex flex-col items-center gap-2">
+          {/* Voice choice — switching resets to the generate step for that voice
+              (the server caches one MP3 per voice, so it's instant the 2nd time). */}
+          <div className="inline-flex overflow-hidden rounded-full border border-border text-xs" role="group" aria-label="Narration voice">
+            {(['female', 'male'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                disabled={audioState === 'creating'}
+                onClick={() => {
+                  if (v !== audioVoice) {
+                    setAudioVoice(v);
+                    setAudioState('idle');
+                  }
+                }}
+                className={`px-4 py-1.5 transition-colors ${audioVoice === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                {v === 'female' ? 'Female voice' : 'Male voice'}
+              </button>
+            ))}
+          </div>
+
           {audioState === 'ready' ? (
             <>
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <audio controls preload="none" className="w-full max-w-md" src={`/api/collection/audio?t=${encodeURIComponent(backToken)}`} />
+              <audio controls preload="none" className="w-full max-w-md" src={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}`} />
               <a
-                href={`/api/collection/audio?t=${encodeURIComponent(backToken)}&download=1`}
+                href={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}&download=1`}
                 className="text-xs text-primary underline hover:text-foreground"
               >
                 Download the audio (MP3)
@@ -753,7 +775,7 @@ function ResultFlowInner(props: ResultFlowProps) {
                     const res = await fetch('/api/collection/audio', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ adminToken: backToken }),
+                      body: JSON.stringify({ adminToken: backToken, voice: audioVoice }),
                     });
                     setAudioState(res.ok ? 'ready' : 'error');
                   } catch {

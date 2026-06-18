@@ -66,7 +66,9 @@ The tribute can be read aloud (TTS) on the result page, stored in Postgres
 |---|---|
 | `ELEVENLABS_API_KEY` | enables the feature (generate + serve audio) |
 | `DISABLE_TRIBUTE_AUDIO` | set `true` to force it OFF even with a key (e.g. on **Preview**, to avoid TTS spend) |
-| `ELEVENLABS_VOICE_ID` | optional — voice (default: a warm preset) |
+| `ELEVENLABS_VOICE_ID_FEMALE` | optional — female voice id (default: a warm preset) |
+| `ELEVENLABS_VOICE_ID_MALE` | optional — male voice id (default: a warm preset) |
+| `ELEVENLABS_VOICE_ID` | optional — legacy fallback for the female voice |
 | `ELEVENLABS_MODEL_ID` | optional — default `eleven_multilingual_v2` |
 | `ELEVENLABS_OUTPUT_FORMAT` | optional — default `mp3_44100_96` (good for spoken word, small) |
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbClient, getCollectionByAdminToken, getGeneratedContentByAdminToken } from '@eilon-shai/venture-core/db';
-import { audioEnabled, ensureAudioTable, getStoredAudio, generateAndStoreAudio, AUDIO_CONTENT_TYPE } from '@/lib/audio';
+import { audioEnabled, ensureAudioTable, getStoredAudio, generateAndStoreAudio, normalizeVoice, AUDIO_CONTENT_TYPE } from '@/lib/audio';
 
 // Tribute audio narration (ElevenLabs → Postgres). Admin-token scoped.
 //   POST { adminToken }      → generate (if missing) + store; returns { ok }.
@@ -13,13 +13,14 @@ export async function POST(req: NextRequest) {
   if (!audioEnabled()) {
     return NextResponse.json({ error: 'Audio narration is not available.', code: 'AUDIO_DISABLED', retryable: false }, { status: 404 });
   }
-  let body: { adminToken?: string };
+  let body: { adminToken?: string; voice?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
   const adminToken = (body.adminToken ?? '').trim();
+  const voice = normalizeVoice(body.voice);
   if (!adminToken) return NextResponse.json({ error: 'Missing token' }, { status: 400 });
 
   const db = getDbClient();
@@ -36,10 +37,10 @@ export async function POST(req: NextRequest) {
 
   try {
     await ensureAudioTable(db);
-    const existing = await getStoredAudio(db, collection.id);
-    if (existing) return NextResponse.json({ ok: true, cached: true });
-    await generateAndStoreAudio(db, collection.id, gen.content);
-    return NextResponse.json({ ok: true, cached: false });
+    const existing = await getStoredAudio(db, collection.id, voice);
+    if (existing) return NextResponse.json({ ok: true, cached: true, voice });
+    await generateAndStoreAudio(db, collection.id, gen.content, voice);
+    return NextResponse.json({ ok: true, cached: false, voice });
   } catch (err) {
     console.error('[collection/audio] generate error:', err instanceof Error ? err.message : err);
     return NextResponse.json({ error: 'Could not create the audio. Please try again.', code: 'AUDIO_FAILED', retryable: true }, { status: 502 });
@@ -50,6 +51,7 @@ export async function GET(req: NextRequest) {
   if (!audioEnabled()) return new NextResponse('Not found', { status: 404 });
   const url = new URL(req.url);
   const adminToken = (url.searchParams.get('t') ?? '').trim();
+  const voice = normalizeVoice(url.searchParams.get('voice'));
   const download = url.searchParams.get('download') != null;
   if (!adminToken) return new NextResponse('Missing token', { status: 400 });
 
@@ -62,7 +64,7 @@ export async function GET(req: NextRequest) {
   let stored: Awaited<ReturnType<typeof getStoredAudio>> = null;
   try {
     await ensureAudioTable(db);
-    stored = await getStoredAudio(db, collection.id);
+    stored = await getStoredAudio(db, collection.id, voice);
   } catch (err) {
     console.error('[collection/audio] read error:', err instanceof Error ? err.message : err);
     return new NextResponse('Service unavailable', { status: 503 });
