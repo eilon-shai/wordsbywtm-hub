@@ -45,7 +45,7 @@ export const OCCASIONS: OccasionMeta[] = [
     blurb: 'Collect stories and well-wishes from both sides into one toast for the couple.',
     honoreeLabel: 'the couple',
     accent: '#b08a8f',
-    live: false,
+    live: true,
   },
   {
     slug: 'retirement',
@@ -61,7 +61,7 @@ export const OCCASIONS: OccasionMeta[] = [
     blurb: 'Gather memories from family and friends into one tribute for the couple’s milestone.',
     honoreeLabel: 'the couple',
     accent: '#a8768f',
-    live: false,
+    live: true,
   },
 ];
 

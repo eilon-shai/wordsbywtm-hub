@@ -12,17 +12,13 @@ describe('registry', () => {
     expect(getConfig('')).toBeUndefined();
   });
 
-  it('memorial and retirement are live; wedding and anniversary are built but not yet launched', () => {
+  it('all four occasions are live, each with a collectionConfig', () => {
     const live = OCCASIONS.filter((o) => o.live).map((o) => o.slug).sort();
-    expect(live).toEqual(['memorial', 'retirement']);
+    expect(live).toEqual(['anniversary', 'memorial', 'retirement', 'wedding']);
     expect(CONFIGS.memorial.collectionConfig).toBeTruthy();
     expect(CONFIGS.retirement.collectionConfig).toBeTruthy();
-    // Wedding + anniversary are fully built (have a collectionConfig) but stay
-    // live:false until their Paddle IDs exist.
     expect(CONFIGS.wedding.collectionConfig).toBeTruthy();
     expect(CONFIGS.anniversary.collectionConfig).toBeTruthy();
-    expect(OCCASIONS.find((o) => o.slug === 'wedding')?.live).toBe(false);
-    expect(OCCASIONS.find((o) => o.slug === 'anniversary')?.live).toBe(false);
   });
 
   it('every live occasion has a non-empty paddleProductId (QA-6 startup guard)', () => {

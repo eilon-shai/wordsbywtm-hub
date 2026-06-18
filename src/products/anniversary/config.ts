@@ -127,20 +127,22 @@ export const anniversaryConfig: ProductConfig = {
     formPath: '/anniversary/start',
     resultPath: '/anniversary/result',
     redisKeyPrefix: 'wtm-anniversary',
-    paddleProductId: process.env.PADDLE_PRODUCT_ID_ANNIVERSARY ?? '',
+    // Default to the sandbox product id (mirrors memorial/retirement) so the
+    // registry live-occasion guard passes in tests/local; production overrides via env.
+    paddleProductId: process.env.PADDLE_PRODUCT_ID_ANNIVERSARY ?? 'pro_01kpnffw8f2ej2n0pwv2r5btap',
   },
 
   tiers: {
     basic: {
       priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNIVERSARY ?? '',
-      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNIVERSARY_SANDBOX ?? '',
+      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNIVERSARY_SANDBOX ?? 'pri_01kvdax77cg5gahm57c9pxb5d6',
       label: 'Anniversary Tribute',
       modelLabel: 'Claude Sonnet',
       displayPrice: 49,
     },
     full: {
       priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNIVERSARY ?? '',
-      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNIVERSARY_SANDBOX ?? '',
+      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNIVERSARY_SANDBOX ?? 'pri_01kvdax77cg5gahm57c9pxb5d6',
       label: 'Anniversary Tribute',
       modelLabel: 'Claude Sonnet',
       displayPrice: 49,
