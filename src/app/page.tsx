@@ -70,7 +70,25 @@ export default async function HubPage({
             grief and celebration alike; the four accent cards below carry tone.
             (No occasion-coded copy/imagery here — that's the per-occasion
             landings' job. The picker is the primary CTA, just below.) */}
-        <section className="relative px-4 pb-10 pt-24 text-center">
+        <section className="relative overflow-hidden px-4 pb-10 pt-24 text-center">
+          {/* Soft floral background — warm and occasion-neutral, with a scrim that
+              fades into the page so the text stays legible. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-40"
+            style={{
+              backgroundImage:
+                "url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1600&q=80&auto=format&fit=crop')",
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10"
+            style={{
+              background:
+                'linear-gradient(to bottom, color-mix(in oklch, var(--background) 20%, transparent) 0%, color-mix(in oklch, var(--background) 35%, transparent) 55%, var(--background) 100%)',
+            }}
+          />
           <div className="mx-auto flex max-w-3xl flex-col items-center">
             <span className="mb-8 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Gathered · Woven · Read Aloud
@@ -96,8 +114,10 @@ export default async function HubPage({
           </div>
         </section>
 
-        {/* Occasion picker */}
-        <section className="border-y border-border bg-card px-4 py-20">
+        {/* Occasion picker — scroll target for the "Choose an occasion" CTA.
+            scroll-mt offsets the sticky 4rem header so the section heading lands
+            in view instead of the cards jamming under the nav. */}
+        <section id="occasions" className="scroll-mt-20 border-y border-border bg-card px-4 py-20">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-primary">Choose the occasion</p>
             <h2 className="font-serif text-3xl text-foreground md:text-4xl">One way to honor every kind of moment</h2>

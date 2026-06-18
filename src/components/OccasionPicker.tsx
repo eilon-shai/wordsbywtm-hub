@@ -40,7 +40,7 @@ export default function OccasionPicker({ focus }: { focus?: string | null }) {
   // No focus → the standard equal 3-up grid.
   if (!featured) {
     return (
-      <div id="occasions" className="mx-auto grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {OCCASIONS.map((o) => (
           <OccasionCard key={o.slug} o={o} />
         ))}
