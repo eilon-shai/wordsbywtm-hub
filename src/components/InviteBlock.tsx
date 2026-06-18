@@ -40,6 +40,8 @@ export interface InviteBlockProps {
   surface: 'create' | 'dashboard';
   /** Organizer's display name — personalizes the invite email ("{name} is…"). */
   organizerName?: string;
+  /** Honoree name — used in the invite-email preview + WhatsApp text. */
+  honoreeName?: string;
   /** Organizer's email — prefilled (read-only) into the advance-pay checkout. */
   organizerEmail?: string;
   /** True once the one payment has been made (in advance). Hides the pay CTA. */
@@ -55,14 +57,6 @@ export interface InviteBlockProps {
   atCap?: boolean;
 }
 
-const MAX_EMAIL_ROWS = 3;
-
-interface PersonRow {
-  name: string;
-  email: string;
-  phone: string;
-}
-
 export function InviteBlock({
   adminToken,
   shareLink,
@@ -71,6 +65,7 @@ export function InviteBlock({
   emailUrl,
   surface,
   organizerName,
+  honoreeName,
   organizerEmail,
   paid = false,
   price = null,
@@ -166,6 +161,7 @@ export function InviteBlock({
         adminToken={adminToken}
         inviteText={inviteText}
         organizerName={organizerName}
+        honoreeName={honoreeName}
         organizerEmail={organizerEmail}
         paid={paid}
         price={price}
@@ -293,216 +289,171 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
   );
 }
 
-// "Prefer we email it for you? (optional)" — subordinate card. Honest copy
-// (no "3 free" framing); the 3 rows are a starter convenience, not a cap.
+// "Prefer we send the invite for you? (optional)" — subordinate card. One send
+// row (email or WhatsApp), a preview of the email, and the daily limits. The
+// backend enforces 1/day per recipient + 12/day per collection.
 function DirectEmailCard({
   adminToken,
   inviteText,
   organizerName,
+  honoreeName,
   organizerEmail,
   paid,
   price,
-  atCap,
 }: {
   adminToken: string;
   inviteText: string;
   organizerName?: string;
+  honoreeName?: string;
   organizerEmail?: string;
   paid: boolean;
   price: string | null;
-  atCap: boolean;
+  atCap?: boolean;
 }) {
-  const [rows, setRows] = React.useState<PersonRow[]>(
-    Array.from({ length: MAX_EMAIL_ROWS }, () => ({ name: '', email: '', phone: '' })),
-  );
-  // Reveal a phone field per-row only when the organizer wants WhatsApp.
-  const [showPhone, setShowPhone] = React.useState<boolean[]>(
-    Array.from({ length: MAX_EMAIL_ROWS }, () => false),
-  );
-  // Per-action in-flight state (FE-003): only the clicked button shows "Sending…".
-  // `busy` is the row index being sent, 'all' for Send-all, or null when idle.
-  const [busy, setBusy] = React.useState<number | 'all' | null>(null);
-  const [result, setResult] = React.useState<{ sent: number; of: number; skipped: number; simulated: boolean } | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
-  const sending = busy !== null;
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [showPhone, setShowPhone] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [notice, setNotice] = React.useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
-  function set(i: number, key: keyof PersonRow, v: string) {
-    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [key]: v } : r)));
-  }
+  const who = (honoreeName ?? 'them').trim() || 'them';
+  const from = (organizerName ?? '').trim();
+  const waDigits = phone.replace(/\D/g, '');
+  const waUrl = waDigits ? `https://wa.me/${waDigits}?text=${encodeURIComponent(inviteText)}` : '';
 
-  function revealPhone(i: number) {
-    setShowPhone((prev) => prev.map((s, idx) => (idx === i ? true : s)));
-  }
-
-  async function sendEmail(i: number) {
-    const r = rows[i];
-    const email = r.email.trim();
-    if (!email) {
-      setError('Add an email address for that person first.');
+  async function sendOne() {
+    const addr = email.trim();
+    if (!addr) {
+      setNotice({ kind: 'err', text: 'Add an email address first.' });
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-      setError('That email doesn’t look right — please check it.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(addr)) {
+      setNotice({ kind: 'err', text: 'That email doesn’t look right — please check it.' });
       return;
     }
-    setError(null);
-    setResult(null);
-    setBusy(i);
+    setNotice(null);
+    setBusy(true);
     try {
       const res = await fetch('/api/collection/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminToken, organizerName, recipients: [{ name: r.name.trim(), email }] }),
+        body: JSON.stringify({ adminToken, organizerName, recipients: [{ name: name.trim(), email: addr }] }),
       });
       const d = (await res.json().catch(() => ({}))) as { sent?: number; skipped?: number; simulated?: boolean; error?: string };
       if (!res.ok) {
-        setError(d.error ?? 'Could not send that invite. Please try again.');
+        setNotice({ kind: 'err', text: d.error ?? 'Could not send that invite. Please try again.' });
         return;
       }
-      setResult({ sent: d.sent ?? 0, of: 1, skipped: d.skipped ?? 0, simulated: !!d.simulated });
-    } catch {
-      setError('Network error — please try again.');
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function sendAll() {
-    const filled = rows.filter((r) => r.email.trim()).map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
-    // #2 — de-duplicate the same address entered twice, and warn.
-    const seen = new Set<string>();
-    const recipients: { name: string; email: string }[] = [];
-    let dupes = 0;
-    for (const r of filled) {
-      const key = r.email.toLowerCase();
-      if (seen.has(key)) { dupes += 1; continue; }
-      seen.add(key);
-      recipients.push(r);
-    }
-    if (recipients.length === 0) {
-      setError('Add at least one email address.');
-      return;
-    }
-    setError(dupes > 0 ? `Removed ${dupes} duplicate ${dupes === 1 ? 'address' : 'addresses'}.` : null);
-    setResult(null);
-    setBusy('all');
-    try {
-      const res = await fetch('/api/collection/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminToken, organizerName, recipients }),
-      });
-      const d = (await res.json().catch(() => ({}))) as { sent?: number; skipped?: number; simulated?: boolean; error?: string };
-      if (!res.ok) {
-        setError(d.error ?? 'Could not send the invites. Please try again.');
-        return;
+      if ((d.sent ?? 0) > 0) {
+        setNotice({ kind: 'ok', text: d.simulated ? `Preview — not actually emailed (${addr}).` : `Invite sent to ${addr}.` });
+        setName('');
+        setEmail('');
+        setPhone('');
+        setShowPhone(false);
+      } else {
+        setNotice({ kind: 'err', text: 'Already invited that address today — try again tomorrow.' });
       }
-      setResult({ sent: d.sent ?? 0, of: recipients.length, skipped: d.skipped ?? 0, simulated: !!d.simulated });
     } catch {
-      setError('Network error — please try again.');
+      setNotice({ kind: 'err', text: 'Network error — please try again.' });
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   }
 
   return (
     <Card className="border bg-muted/30 p-4">
-      <p className="text-sm font-medium text-foreground">Prefer we email it for you? (optional)</p>
+      <p className="text-sm font-medium text-foreground">Prefer we send the invite for you? (optional)</p>
       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-        Your link can be used by up to <span className="font-medium text-foreground">{paid ? 10 : 3} people</span>. We can email the invite for you — once a day per person.
+        Your link can be used by up to <span className="font-medium text-foreground">{paid ? 10 : 3} people</span>. Email or
+        WhatsApp the invite one person at a time — up to <span className="font-medium text-foreground">12 a day</span>, once per
+        email address.
       </p>
 
       {/* Advance-pay: unlock 10/day + free finalize. */}
       <AdvancePayBlock adminToken={adminToken} organizerEmail={organizerEmail} paid={paid} price={price} />
 
-      <p className="mt-2 text-xs font-medium text-muted-foreground">Email a few people directly</p>
+      <p className="mt-3 text-xs font-medium text-muted-foreground">Invite someone</p>
 
-      <div className="mt-3 flex flex-col gap-3">
-        {rows.map((r, i) => {
-          const waDigits = r.phone.replace(/\D/g, '');
-          const waUrl = waDigits ? `https://wa.me/${waDigits}?text=${encodeURIComponent(inviteText)}` : '';
-          return (
-            <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-start">
-              <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
-                <Input
-                  className="sm:flex-1"
-                  placeholder="Name (optional)"
-                  value={r.name}
-                  onChange={(e) => set(i, 'name', e.target.value)}
-                />
-                <Input
-                  type="email"
-                  className="sm:flex-[1.3]"
-                  placeholder="email@example.com"
-                  value={r.email}
-                  onChange={(e) => set(i, 'email', e.target.value)}
-                />
-                {showPhone[i] && (
-                  <Input
-                    type="tel"
-                    className="sm:flex-1"
-                    placeholder="WhatsApp #"
-                    value={r.phone}
-                    onChange={(e) => set(i, 'phone', e.target.value)}
-                  />
-                )}
-              </div>
-              <div className="flex shrink-0 gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  className="flex-1 sm:flex-none"
-                  onClick={() => void sendEmail(i)}
-                  disabled={sending}
-                >
-                  {busy === i ? 'Sending…' : 'Send email'}
-                </Button>
-                {waUrl ? (
-                  <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
-                    <Button type="button" variant="outline" size="sm" className="w-full">
-                      WhatsApp
-                    </Button>
-                  </a>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 sm:flex-none"
-                    onClick={() => revealPhone(i)}
-                    title="opens a message you send yourself"
-                  >
-                    WhatsApp
-                  </Button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
+          <Input
+            className="sm:flex-1"
+            placeholder="Name (optional)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            type="email"
+            className="sm:flex-[1.3]"
+            placeholder="email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {showPhone && (
+            <Input
+              type="tel"
+              className="sm:flex-1"
+              placeholder="WhatsApp #"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          )}
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button type="button" size="sm" className="flex-1 sm:flex-none" onClick={() => void sendOne()} disabled={busy}>
+            {busy ? 'Sending…' : 'Send email'}
+          </Button>
+          {waUrl ? (
+            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
+              <Button type="button" variant="outline" size="sm" className="w-full">
+                Open WhatsApp
+              </Button>
+            </a>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none"
+              onClick={() => setShowPhone(true)}
+              title="opens a message you send yourself"
+            >
+              WhatsApp
+            </Button>
+          )}
+        </div>
       </div>
 
-      {error && (
-        <p className="mt-2 text-sm text-destructive" role="alert">
-          {error}
+      {notice && (
+        <p className={`mt-2 text-sm ${notice.kind === 'ok' ? 'text-emerald-700' : 'text-destructive'}`} role={notice.kind === 'err' ? 'alert' : undefined}>
+          {notice.text}
         </p>
-      )}
-      {result && (
-        <p className="mt-2 text-sm text-emerald-700">
-          Sent {result.sent} of {result.of}
-          {result.skipped > 0 ? ` — skipped ${result.skipped} already invited today` : ''}
-          {result.simulated ? ' (preview — not actually emailed)' : ''}.
-        </p>
-      )}
-      {sending && !result && (
-        <p className="mt-2 text-sm text-muted-foreground">Sending {busy === 'all' ? 'invites' : 'invite'}…</p>
       )}
 
-      <Button type="button" size="sm" className="mt-3" onClick={() => void sendAll()} disabled={sending}>
-        {busy === 'all' ? 'Sending…' : 'Send all emails'}
-      </Button>
-      <p className="mt-2 text-xs text-muted-foreground">
-        WhatsApp opens a message you send yourself.
-      </p>
+      <p className="mt-2 text-xs text-muted-foreground">WhatsApp opens a message you send yourself.</p>
+
+      {/* Preview of the email we send on the organizer's behalf. */}
+      <details className="mt-3 rounded-lg border border-border bg-background">
+        <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground">
+          Preview the email
+        </summary>
+        <div className="border-t border-border px-4 py-4 text-sm leading-relaxed text-foreground/90">
+          <p className="text-xs text-muted-foreground">Subject: Add a memory for {who}</p>
+          <hr className="my-3 border-border" />
+          <p>Hi,</p>
+          <p className="mt-2">
+            {from ? <><strong>{from}</strong> is</> : <>Family and friends are</>} putting together a tribute for{' '}
+            <strong>{who}</strong>, woven from memories shared by the people who knew them — and you’re invited to add yours.
+          </p>
+          <p className="mt-2">It takes about two minutes. No account, nothing to pay.</p>
+          <p className="mt-3">
+            <span className="inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              Add a memory of {who}
+            </span>
+          </p>
+        </div>
+      </details>
     </Card>
   );
 }

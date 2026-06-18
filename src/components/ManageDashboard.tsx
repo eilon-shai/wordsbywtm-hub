@@ -554,6 +554,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               inviteText={inviteText}
               whatsappUrl={whatsappUrl}
               emailUrl={emailUrl}
+              honoreeName={data.honoreeName}
               organizerEmail={organizerEmail}
               paid={!!data.paid}
               price={price}

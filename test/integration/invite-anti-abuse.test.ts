@@ -111,19 +111,27 @@ describe('invite anti-abuse — real send path (DISABLE_EMAIL off)', () => {
     expect(body.skipped).toBe(1); // a was locked
   });
 
-  it('429 when the daily cap is already exhausted (free cap = 3)', async () => {
+  it('429 when the daily cap (12) is already exhausted', async () => {
     const meta = seedCollection({ occasion: 'memorial', adminToken: 'ad' });
     const today = new Date().toISOString().slice(0, 10);
-    await fakeRedis.set(`wtm-memorial:invite-day:${meta.id}:${today}`, 3);
+    await fakeRedis.set(`wtm-memorial:invite-day:${meta.id}:${today}`, 12);
     const res = await invite(inviteReq({ adminToken: 'ad', recipients: [r('A', 'a@example.com')] }));
     expect(res.status).toBe(429);
     expect((await res.json()).code).toBe('RATE_LIMIT');
   });
 
-  it('paid collection raises the daily cap to 10', async () => {
+  it('the daily cap is a flat 12 — paid does NOT raise it', async () => {
     const meta = seedCollection({ occasion: 'memorial', adminToken: 'ad', paidAt: new Date().toISOString() });
     const today = new Date().toISOString().slice(0, 10);
-    await fakeRedis.set(`wtm-memorial:invite-day:${meta.id}:${today}`, 3); // would block free, not paid
+    await fakeRedis.set(`wtm-memorial:invite-day:${meta.id}:${today}`, 12);
+    const res = await invite(inviteReq({ adminToken: 'ad', recipients: [r('A', 'a@example.com')] }));
+    expect(res.status).toBe(429);
+  });
+
+  it('still under the cap at 11 sent today (sends)', async () => {
+    const meta = seedCollection({ occasion: 'memorial', adminToken: 'ad' });
+    const today = new Date().toISOString().slice(0, 10);
+    await fakeRedis.set(`wtm-memorial:invite-day:${meta.id}:${today}`, 11);
     const res = await invite(inviteReq({ adminToken: 'ad', recipients: [r('A', 'a@example.com')] }));
     expect(res.status).toBe(200);
     expect((await res.json()).sent).toBe(1);
