@@ -127,7 +127,8 @@ export function SupportConsole() {
     <main className="mx-auto w-full max-w-3xl px-4 py-10">
       <h1 className="font-serif text-2xl text-foreground">Support console</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Look up a customer&apos;s collections across all occasions, restore their links, or delete a collection.
+        Look up a customer&apos;s collections across all occasions, restore their links, or delete a collection.{' '}
+        <a href="/support/metrics" className="underline hover:text-foreground">View metrics →</a>
       </p>
 
       <form

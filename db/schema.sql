@@ -42,3 +42,18 @@ create table if not exists contributions (
 );
 
 create index if not exists contributions_collection_idx on contributions (collection_id);
+
+-- Feedback for the metrics dashboard. collection_id is a nullable FK so a row
+-- cascade-purges with its collection when the txn maps; product + transaction_id
+-- keep it queryable otherwise. (Also auto-created on demand by src/lib/metrics.ts.)
+create table if not exists collection_feedback (
+  id             bigint      generated always as identity primary key,
+  collection_id  uuid        references collections (id) on delete cascade,
+  product        text        not null,
+  transaction_id text,
+  rating         int,
+  feedback       text,
+  can_share      boolean,
+  created_at     timestamptz not null default now()
+);
+create index if not exists collection_feedback_product_idx on collection_feedback (product);

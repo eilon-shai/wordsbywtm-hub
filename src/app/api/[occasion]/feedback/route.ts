@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFeedbackHandler } from '@eilon-shai/venture-core/api';
 import { getRedisClient } from '@eilon-shai/venture-core/redis';
+import { getDbClient } from '@eilon-shai/venture-core/db';
 import { getConfig } from '@/lib/registry';
+import { recordFeedback } from '@/lib/metrics';
 
 export const maxDuration = 30;
 
@@ -22,14 +24,21 @@ export async function POST(
     return NextResponse.json({ error: 'Unknown occasion', code: 'NOT_FOUND', retryable: false }, { status: 404 });
   }
 
-  // Idempotency reservation (read the body via a clone so the handler can still
-  // read the original request).
+  // Read the body once via a clone (the handler still reads the original). Used
+  // for both the idempotency reservation and persisting the feedback for metrics.
+  const body = (await request.clone().json().catch(() => ({}))) as {
+    transactionId?: unknown;
+    rating?: unknown;
+    feedback?: unknown;
+    canShare?: unknown;
+  };
+  const txn = typeof body?.transactionId === 'string' ? body.transactionId.trim() : '';
+
+  // Idempotency reservation.
   let onceKey: string | null = null;
   const redis = getRedisClient();
   if (redis) {
     try {
-      const body = (await request.clone().json().catch(() => ({}))) as { transactionId?: unknown };
-      const txn = typeof body?.transactionId === 'string' ? body.transactionId.trim() : '';
       if (txn) {
         const key = `${config.brand.redisKeyPrefix}:feedback-once:${txn}`;
         const reserved = await redis.set(key, '1', { nx: true, ex: FEEDBACK_ONCE_TTL_SECONDS });
@@ -53,6 +62,27 @@ export async function POST(
       await redis.del(onceKey);
     } catch {
       /* non-fatal */
+    }
+  }
+
+  // Persist the feedback for the metrics dashboard (best-effort — never let a DB
+  // hiccup turn a successful submission into an error for the customer). The
+  // route-level dedup above means a given txn reaches here at most once.
+  if (res.ok && txn) {
+    const db = getDbClient();
+    if (db) {
+      try {
+        const rating = typeof body.rating === 'number' ? body.rating : undefined;
+        await recordFeedback(db, {
+          product: config.brand.paddleProductId,
+          transactionId: txn,
+          rating,
+          feedback: typeof body.feedback === 'string' ? body.feedback : undefined,
+          canShare: typeof body.canShare === 'boolean' ? body.canShare : undefined,
+        });
+      } catch (err) {
+        console.error('[feedback] persist failed (non-fatal):', err instanceof Error ? err.message : err);
+      }
     }
   }
 
