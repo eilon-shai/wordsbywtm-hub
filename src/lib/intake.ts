@@ -94,9 +94,41 @@ const retirementIntake: OccasionIntake = {
   consentLabel: 'I’m okay with my memory being woven into the send-off you’ll receive.',
 };
 
+// Wedding — VocalVow's speech vocabulary (wedding-party roles), adapted to a
+// collaborative toast gathered from both sides. The honoree is the couple, so
+// the create form asks for both names.
+const weddingIntake: OccasionIntake = {
+  aboutThemHeading: 'About the couple',
+  honoreeLabel: 'The couple’s names',
+  honoreePlaceholder: 'e.g. Sam & Alex',
+  memoryLabel: 'A story or moment about the couple',
+  memoryPlaceholder:
+    'How they met, the proposal, the way they are together. A specific moment beats a list of compliments.',
+  qualitiesLabel: 'What do you love about them as a couple?',
+  qualitiesPlaceholder: 'e.g. they make each other braver, how at home everyone feels around them',
+  relationshipOptions: [
+    { value: 'best_man', label: 'Best man' },
+    { value: 'maid_of_honor', label: 'Maid of honor' },
+    { value: 'wedding_party', label: 'Bridesmaid / groomsman' },
+    { value: 'parent', label: 'Parent of the couple' },
+    { value: 'sibling', label: 'Sibling' },
+    { value: 'family', label: 'Family' },
+    { value: 'friend', label: 'Friend' },
+    { value: 'colleague', label: 'Colleague' },
+    { value: 'other', label: 'Other' },
+  ],
+  relationshipDescriptionLabel: 'Describe your connection briefly',
+  relationshipDescriptionPlaceholder: 'e.g. the groom’s best friend since college, the bride’s older sister',
+  additionalContextLabel: 'Anything else we should know',
+  additionalContextPlaceholder:
+    'e.g. the wedding date, whether it’s a formal or casual celebration, anything to keep light or avoid.',
+  consentLabel: 'I’m okay with my story being woven into the toast you’ll receive.',
+};
+
 const INTAKE_SPECS: Record<string, OccasionIntake> = {
   memorial: memorialIntake,
   retirement: retirementIntake,
+  wedding: weddingIntake,
 };
 
 /** Intake spec for an occasion; falls back to the memorial spec if none exists. */
