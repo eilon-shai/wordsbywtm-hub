@@ -1,4 +1,5 @@
 import type { SqlClient } from '@eilon-shai/venture-core/db';
+import { ensureFeedbackTable } from '@eilon-shai/venture-core/db';
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { getConfig, OCCASIONS } from '@/lib/registry';
 
@@ -6,61 +7,10 @@ import { getConfig, OCCASIONS } from '@/lib/registry';
 // Business metrics — sourced entirely from our own Postgres (no third-party
 // analytics for purchase/feedback data; grief/PII context stays in-house and is
 // covered by the 30-day purge). Funnel counts come from collections +
-// contributions; feedback is persisted here so scores are queryable.
+// contributions; feedback is persisted by venture-core's feedback handler into
+// the collection_feedback table (we only READ it here for the dashboard).
 // Read by the Basic-Auth'd /support/metrics page.
 // ---------------------------------------------------------------------------
-
-// One feedback row per finalized tribute. collection_id is a nullable FK so the
-// row cascade-purges with its collection (GDPR) when we can map the txn; we also
-// store product + transaction_id so a row is queryable even if unmapped.
-let feedbackTableEnsured = false;
-export async function ensureFeedbackTable(db: SqlClient): Promise<void> {
-  if (feedbackTableEnsured) return;
-  await db.query(
-    `create table if not exists collection_feedback (
-       id            bigint generated always as identity primary key,
-       collection_id uuid references collections(id) on delete cascade,
-       product       text not null,
-       transaction_id text,
-       rating        int,
-       feedback      text,
-       can_share     boolean,
-       created_at    timestamptz not null default now()
-     )`,
-  );
-  feedbackTableEnsured = true;
-}
-
-// Persist a feedback submission. Resolves the collection by paid_txn_id so the
-// row purges with the collection; falls back to a null link (still counted).
-export async function recordFeedback(
-  db: SqlClient,
-  input: { product: string; transactionId: string; rating?: number; feedback?: string; canShare?: boolean },
-): Promise<void> {
-  await ensureFeedbackTable(db);
-  let collectionId: string | null = null;
-  try {
-    const rows = await db.query<{ id: string }>(
-      'select id from collections where paid_txn_id = $1 limit 1',
-      [input.transactionId],
-    );
-    collectionId = rows[0]?.id ?? null;
-  } catch {
-    /* mapping is best-effort — never block persisting the feedback */
-  }
-  await db.query(
-    `insert into collection_feedback (collection_id, product, transaction_id, rating, feedback, can_share)
-     values ($1, $2, $3, $4, $5, $6)`,
-    [
-      collectionId,
-      input.product,
-      input.transactionId,
-      input.rating ?? null,
-      typeof input.feedback === 'string' && input.feedback.trim() ? input.feedback.trim() : null,
-      input.canShare ?? null,
-    ],
-  );
-}
 
 // ---- dashboard read model -------------------------------------------------
 
