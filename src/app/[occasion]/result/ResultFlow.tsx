@@ -210,8 +210,9 @@ function ResultFlowInner(props: ResultFlowProps) {
   // Audio narration (ElevenLabs). Voice is chosen on the prefs screen; generated
   // once when the tribute is created. 'idle' → 'creating' → 'ready'|'error'.
   const [audioState, setAudioState] = React.useState<'idle' | 'creating' | 'ready' | 'error'>('idle');
-  // The voice chosen on the prefs screen ('none' = no audio).
-  const [audioChoice, setAudioChoice] = React.useState<'none' | 'female' | 'male'>('none');
+  // The voice chosen on the prefs screen ('none' = no audio). Defaults to a softer
+  // voice so the spoken version reads as part of what you receive (skippable).
+  const [audioChoice, setAudioChoice] = React.useState<'none' | 'female' | 'male'>('female');
   // The voice that actually has audio ready/playing (set after generation/probe).
   const [audioVoice, setAudioVoice] = React.useState<'female' | 'male'>('female');
 
@@ -592,6 +593,15 @@ function ResultFlowInner(props: ResultFlowProps) {
               ? 'Choose how you’d like the memories woven together, then we’ll create your tribute.'
               : 'Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your tribute.'}
           </p>
+          {props.audioEnabled ? (
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
+              When it’s ready, you’ll have: one tribute woven from every memory you chose, a keepsake PDF to print, and — if you’d like — a spoken version to play at the service.
+            </p>
+          ) : (
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
+              When it’s ready, you’ll have: one tribute woven from every memory you chose, and a keepsake PDF to print.
+            </p>
+          )}
         </header>
         <form
           onSubmit={(e) => { e.preventDefault(); void onPrefsSubmit(); }}
@@ -605,21 +615,24 @@ function ResultFlowInner(props: ResultFlowProps) {
             <FieldRow field={AVOID_FIELD} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
             <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
             {props.audioEnabled ? (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 rounded-xl border border-primary/20 bg-primary/5 p-4">
                 <label htmlFor="audio-voice" className="text-sm font-medium text-foreground">
-                  Audio narration <span className="font-normal text-muted-foreground">(optional)</span>
+                  A spoken version, included
                 </label>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  We can also read the tribute aloud in a calm, steady voice — to play at the service, or for anyone
+                  whose voice may catch on the day. You can play it or download it.
+                </p>
                 <select
                   id="audio-voice"
                   value={audioChoice}
                   onChange={(e) => setAudioChoice(e.target.value as 'none' | 'female' | 'male')}
-                  className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                  className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
                 >
-                  <option value="none">No audio — text only</option>
-                  <option value="female">Yes — female voice</option>
-                  <option value="male">Yes — male voice</option>
+                  <option value="female">A softer voice</option>
+                  <option value="male">A deeper voice</option>
+                  <option value="none">No spoken version — text only</option>
                 </select>
-                <p className="text-xs text-muted-foreground">We’ll also create a spoken version you can play or download.</p>
               </div>
             ) : null}
           </SectionCard>
@@ -685,14 +698,21 @@ function ResultFlowInner(props: ResultFlowProps) {
               </div>
             </div>
           ) : (
-            <Button
-              type="submit"
-              size="lg"
-              disabled={submitting}
-              className="w-full rounded-full py-6 text-sm font-semibold"
-            >
-              {submitting ? 'Starting…' : 'Create my tribute'}
-            </Button>
+            <>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={submitting}
+                className="w-full rounded-full py-6 text-sm font-semibold"
+              >
+                {submitting ? 'Starting…' : 'Create my tribute'}
+              </Button>
+              {!paid ? (
+                <p className="text-center text-xs leading-relaxed text-muted-foreground">
+                  One time, $49. No subscription, no account. The memories you gathered are always yours to keep.
+                </p>
+              ) : null}
+            </>
           )}
 
           {submitError ? (
@@ -771,14 +791,15 @@ function ResultFlowInner(props: ResultFlowProps) {
       </article>
 
       {/* Actions */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <p className="mt-10 text-center text-xs font-semibold uppercase tracking-[0.2em] text-primary">Yours to keep</p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
         <Button
           type="button"
           size="lg"
           className="rounded-full px-6"
           onClick={() => void downloadPdf(honoree, content)}
         >
-          Download as PDF
+          Download keepsake PDF
         </Button>
         <Button
           type="button"
@@ -798,6 +819,10 @@ function ResultFlowInner(props: ResultFlowProps) {
           {copied ? 'Copied ✓' : 'Copy text'}
         </Button>
       </div>
+
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        Yours to keep, to print{audioState === 'ready' ? ', and to play at the service' : ''}.
+      </p>
 
       {/* Audio narration — voice was chosen on the prefs screen; generated once.
           Shows the player when ready, a status while creating, else nothing. */}
