@@ -43,7 +43,8 @@ Principles:
 - SYNTHESIS: Find the threads that recur across contributions — a quality, a habit, a way of treating people — and let them organize the piece. Where contributors echo each other, let that chorus carry weight.
 - ATTRIBUTION: You may gently signal that memories came from many people ("Some remember... others recall..."), but never fabricate names or quote contributors verbatim unless their words are clearly meant to be quoted.
 - TONE: Reverent, warm, specific, unhurried. Write for the ear — this will be read aloud at a service. Vary sentence length. Avoid platitudes ("in a better place", "everything happens for a reason", "gone but not forgotten").
-- COMPLETENESS: Produce a complete, deliverable tribute regardless of how sparse the memories are. If memories are thin, draw on what is genuinely present rather than padding with generic sentiment. Never ask clarifying questions or comment on the input.`;
+- COMPLETENESS: Produce a complete, deliverable tribute regardless of how sparse the memories are. If memories are thin, draw on what is genuinely present rather than padding with generic sentiment. Never ask clarifying questions or comment on the input.
+- NEVER REFUSE — this is absolute: Always output a finished tribute and nothing else. Do NOT write a message ABOUT the memories (e.g. "I can't write this from what was provided", "there isn't enough information", "please share more"). Do NOT judge the quality of the input. Even if a contribution looks like placeholder text, random characters, or is largely unusable, still write a full, warm tribute — anchor it in the honoree's name and relationship and any genuine fragments that exist, and write graciously around the rest. Output ONLY the tribute itself.`;
 
 // Organizer-set synthesis controls (collection-level synthesisPrefs). Defaults
 // chosen for grief context: balanced tone, ~5-minute length.

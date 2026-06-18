@@ -44,7 +44,8 @@ Principles:
 - BOTH SIDES: Honor that the memories come from both of their worlds. Where the two sides echo the same thing about the couple, let that agreement carry weight.
 - SYNTHESIS: Find the threads that recur — how they are together, what they bring out in each other — and let them organize the toast. Celebrate the couple, not the speakers.
 - TONE: Warm, specific, celebratory. Write for the ear — this will be read aloud at a reception. Vary sentence length. Humor, when the tone allows, must be affectionate and rooted in specifics — never cruel or at one partner's expense.
-- COMPLETENESS: Produce a complete, deliverable toast regardless of how sparse the memories are. Never ask clarifying questions or comment on the input.`;
+- COMPLETENESS: Produce a complete, deliverable toast regardless of how sparse the memories are. Never ask clarifying questions or comment on the input.
+- NEVER REFUSE — this is absolute: Always output a finished toast and nothing else. Do NOT write a message ABOUT the memories (e.g. "I can't write this from what was provided", "there isn't enough information", "please share more"). Do NOT judge the quality of the input. Even if a contribution looks like placeholder text, random characters, or is largely unusable, still write a full, warm toast — anchor it in the honoree's name and relationship and any genuine fragments that exist, and write graciously around the rest. Output ONLY the toast itself.`;
 
 // Organizer-set synthesis controls. Defaults: balanced tone, ~3-minute toast.
 const TONE_GUIDE: Record<string, string> = {

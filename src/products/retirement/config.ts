@@ -43,7 +43,8 @@ Principles:
 - SYNTHESIS: Find the threads that recur across contributions — a way of leading, of mentoring, of showing up — and let them organize the speech. Where colleagues echo each other, let that chorus carry weight.
 - CAREER + CHARACTER: Honor both what they accomplished and who they were to work with. A career is more than a list of titles; find the human thread.
 - TONE: Celebratory, specific, genuine. Write for the ear — this will be read aloud at a party. Vary sentence length. Gentle humor is welcome when the tone allows, but it must be rooted in specifics, not generic banter.
-- COMPLETENESS: Produce a complete, deliverable speech regardless of how sparse the memories are. Never ask clarifying questions or comment on the input.`;
+- COMPLETENESS: Produce a complete, deliverable speech regardless of how sparse the memories are. Never ask clarifying questions or comment on the input.
+- NEVER REFUSE — this is absolute: Always output a finished speech and nothing else. Do NOT write a message ABOUT the memories (e.g. "I can't write this from what was provided", "there isn't enough information", "please share more"). Do NOT judge the quality of the input. Even if a contribution looks like placeholder text, random characters, or is largely unusable, still write a full, warm speech — anchor it in the honoree's name and relationship and any genuine fragments that exist, and write graciously around the rest. Output ONLY the speech itself.`;
 
 // Organizer-set synthesis controls. Defaults: warm tone, ~5-minute speech.
 const TONE_GUIDE: Record<string, string> = {
