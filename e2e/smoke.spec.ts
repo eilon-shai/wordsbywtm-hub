@@ -34,7 +34,7 @@ test.describe('Tier A — render/hydration smoke (no DB writes)', () => {
 
     // Hero headline confirms the page hydrated, not just a shell.
     await expect(
-      page.getByRole('heading', { name: /when the words matter most/i }),
+      page.getByRole('heading', { name: /no one person holds the whole story/i }),
     ).toBeVisible();
   });
 

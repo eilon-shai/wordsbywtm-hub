@@ -12,7 +12,7 @@
   --card-foreground:      oklch(10%   0.005 60);
   --popover:              oklch(100%  0     0);
   --popover-foreground:   oklch(10%   0.005 60);
-  --primary:              oklch(38%   0.08  240);  /* deep slate-blue */
+  --primary:              oklch(40%   0.045 75);   /* neutral warm bronze — hub chrome (occasion-agnostic). Per-occasion accents live on the cards + /[occasion] layouts, not here. */
   --primary-foreground:   oklch(98.5% 0.005 85);
   --secondary:            oklch(95%   0.01  80);   /* warm light gray */
   --secondary-foreground: oklch(25%   0.008 60);

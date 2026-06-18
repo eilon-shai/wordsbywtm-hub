@@ -17,8 +17,9 @@ import { OCCASIONS, type OccasionMeta } from '@/lib/registry';
 // Map ad-keyword-ish values to occasion slugs (so ?focus=memories → memorial).
 const FOCUS_ALIASES: Record<string, string> = {
   memories: 'memorial', memory: 'memorial', memorial: 'memorial', funeral: 'memorial', eulogy: 'memorial', tribute: 'memorial',
-  wedding: 'wedding', weddings: 'wedding', vows: 'wedding', marriage: 'wedding',
+  wedding: 'wedding', weddings: 'wedding', vows: 'wedding', marriage: 'wedding', toast: 'wedding',
   retirement: 'retirement', retire: 'retirement', career: 'retirement', farewell: 'retirement',
+  anniversary: 'anniversary', anniversaries: 'anniversary', milestone: 'anniversary',
 };
 
 export function resolveFocusSlug(focus?: string | null): string | null {
@@ -39,7 +40,7 @@ export default function OccasionPicker({ focus }: { focus?: string | null }) {
   // No focus → the standard equal 3-up grid.
   if (!featured) {
     return (
-      <div id="occasions" className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-3">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {OCCASIONS.map((o) => (
           <OccasionCard key={o.slug} o={o} />
         ))}
