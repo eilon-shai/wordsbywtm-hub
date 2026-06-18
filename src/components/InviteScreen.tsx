@@ -96,6 +96,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
           whatsappUrl={whatsappUrl}
           emailUrl={emailUrl}
           surface="create"
+          honoreeName={honoreeName}
           organizerName={organizerName}
         />
 

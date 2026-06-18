@@ -15,8 +15,8 @@ import { getConfig } from '@/lib/registry';
 export const maxDuration = 30;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const MAX_PER_REQUEST = 3; // free plan
-const DAILY_CAP = 3; // max invite emails per collection per day (#3)
+const MAX_PER_REQUEST = 3; // safety bound per request (the UI sends one at a time)
+const DAILY_CAP = 12; // max invite emails per collection per day (flat); 1/day per recipient enforced separately
 
 function appBase(domain: string): string {
   return domain.replace(/\/$/, '');
@@ -110,9 +110,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sent: clean.length, skipped: 0, simulated: true });
   }
 
-  // #3 — at most `dailyCap` invite emails per collection per day. Paying in
-  // advance ("unlock up to 10 friends") raises the cap from 3 to 10.
-  const dailyCap = collection.paidAt ? 10 : DAILY_CAP;
+  // At most DAILY_CAP (12) invite emails per collection per day — flat, paid or
+  // not. Plus 1/day per recipient (the per-recipient lock below). These bound the
+  // email relay; they're separate from the contributor cap (who can add a memory).
+  const dailyCap = DAILY_CAP;
   let sentToday = 0;
   if (redis) {
     try {
