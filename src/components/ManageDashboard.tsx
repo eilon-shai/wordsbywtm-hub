@@ -620,8 +620,11 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
 
             <p className="mt-2 text-center text-sm text-muted-foreground">
               {data.paid
-                ? 'On the next step you’ll choose how it reads, then create the tribute.'
-                : `Finalizing closes the collection${price ? ` — ${price}, one time` : ''}. You’ll choose how it reads and pay on the next step.`}
+                ? 'On the next step you’ll choose how it reads — and whether to add a spoken version — then create the tribute.'
+                : `Finalizing closes the collection${price ? ` — ${price}, one time` : ''}. You’ll choose how it reads — and whether to add a spoken version — and pay on the next step.`}
+            </p>
+            <p className="mx-auto mt-2 max-w-prose text-center text-xs leading-relaxed text-muted-foreground">
+              When you finalize, these memories become one tribute — in a collective voice, a keepsake PDF to print, and a spoken version to play at the service.
             </p>
 
             <div className="mt-5 flex flex-col items-center gap-2">

@@ -282,7 +282,9 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
       </Button>
       <p className="mt-1.5 text-xs text-muted-foreground">
         Settle the single fee now and <span className="font-medium text-foreground">finalizing later is free</span> — and your
-        link opens up from <span className="font-medium text-foreground">3 to 10 people</span> who can add a memory.
+        link opens up from <span className="font-medium text-foreground">3 to 10 people</span> who can add a memory. It’s the
+        same one-time fee either way — and it covers the finished tribute, a keepsake PDF, and a spoken version when you’re
+        ready to create it.
       </p>
       {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}
     </div>
