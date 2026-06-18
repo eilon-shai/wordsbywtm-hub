@@ -6,6 +6,7 @@ import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { memorialLandingConfig } from '@/products/_landing/memorial';
 import { retirementLandingConfig } from '@/products/_landing/retirement';
 import { weddingLandingConfig } from '@/products/_landing/wedding';
+import { anniversaryLandingConfig } from '@/products/_landing/anniversary';
 import ComingSoon from '@/components/ComingSoon';
 
 // ---------------------------------------------------------------------------
@@ -22,6 +23,7 @@ const LANDING_CONFIGS: Record<string, LandingPageConfig> = {
   memorial: memorialLandingConfig,
   retirement: retirementLandingConfig,
   wedding: weddingLandingConfig,
+  anniversary: anniversaryLandingConfig,
 };
 
 export async function generateMetadata({
