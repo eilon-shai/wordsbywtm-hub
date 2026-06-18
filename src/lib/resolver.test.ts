@@ -54,8 +54,14 @@ describe('resolveConfigByTxn', () => {
     expect(cfg).toBe(CONFIGS.memorial);
   });
 
-  it('falls back to the single live occasion when no mapping exists', async () => {
-    const cfg = await resolveConfigByTxn('txn_unmapped');
-    expect(cfg).toBe(CONFIGS.memorial); // only live occasion with collectionConfig
+  it('resolves the correct occasion among several (no cross-occasion bleed)', async () => {
+    const prefix = CONFIGS.wedding.brand.redisKeyPrefix;
+    await fakeRedis.set(`${prefix}:txn-collection:txn_wed`, 'col_w');
+    const cfg = await resolveConfigByTxn('txn_wed');
+    expect(cfg).toBe(CONFIGS.wedding);
+  });
+
+  it('THROWS when no mapping exists — never falls back to an arbitrary occasion', async () => {
+    await expect(resolveConfigByTxn('txn_unmapped')).rejects.toThrow();
   });
 });

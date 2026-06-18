@@ -31,4 +31,28 @@ describe('registry', () => {
     expect(getOccasionMeta('memorial')?.title).toBe('Memorial');
     expect(getOccasionMeta('unknown')).toBeUndefined();
   });
+
+  // Cross-product isolation invariants — all four occasions share one DB / Redis /
+  // Paddle account / webhook, so these identifiers MUST be unique per occasion or
+  // one product's payment/data could touch another's.
+  it('every live occasion has a UNIQUE paddleProductId, redisKeyPrefix, and from-address', () => {
+    const live = OCCASIONS.filter((o) => o.live).map((o) => CONFIGS[o.slug]);
+    const productIds = live.map((c) => c.brand.paddleProductId);
+    const prefixes = live.map((c) => c.brand.redisKeyPrefix);
+    const fromEmails = live.map((c) => c.email.fromEmail);
+    expect(new Set(productIds).size).toBe(productIds.length);
+    expect(new Set(prefixes).size).toBe(prefixes.length);
+    expect(new Set(fromEmails).size).toBe(fromEmails.length);
+  });
+
+  it('every live occasion config is collection-complete (synthesis + contributor fields + deliverable copy)', () => {
+    for (const o of OCCASIONS.filter((x) => x.live)) {
+      const cc = CONFIGS[o.slug].collectionConfig;
+      expect(cc?.synthesisSystemPrompt, o.slug).toBeTruthy();
+      expect(typeof cc?.buildSynthesisPrompt, o.slug).toBe('function');
+      expect((cc?.contributorFormFields ?? []).length, o.slug).toBeGreaterThan(0);
+      expect(o.deliverableNoun, o.slug).toBeTruthy();
+      expect(o.readAloudContext, o.slug).toBeTruthy();
+    }
+  });
 });

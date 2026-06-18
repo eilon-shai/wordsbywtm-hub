@@ -121,11 +121,18 @@ interface ResultFlowProps {
   paidTxnId?: string;
   /** Whether the ElevenLabs audio-narration feature is enabled (server-resolved). */
   audioEnabled?: boolean;
+  /** What the finished piece is called for this occasion ("tribute" | "toast" | "send-off"). */
+  deliverableNoun?: string;
+  /** Where it's read aloud for this occasion ("at the service" | "at the reception" | …). */
+  readAloudContext?: string;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
 
 function ResultFlowInner(props: ResultFlowProps) {
+  // Occasion-specific copy (defaults keep memorial wording if unset).
+  const noun = props.deliverableNoun ?? 'tribute';
+  const readAloud = props.readAloudContext ?? 'at the service';
   const params = useSearchParams();
   const txnId = params.get('txn') ?? params.get('txnId') ?? '';
   // The dashboard sends ?t={adminToken} (no txn) to the prefs step. Both the
@@ -586,20 +593,20 @@ function ResultFlowInner(props: ResultFlowProps) {
     return (
       <main className="mx-auto w-full max-w-2xl px-4 py-12">
         <header className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{props.occasionTitle} tribute</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">How should the tribute read?</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{props.occasionTitle} {noun}</p>
+          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">How should the {noun} read?</h1>
           <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
             {paid
-              ? 'Choose how you’d like the memories woven together, then we’ll create your tribute.'
-              : 'Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your tribute.'}
+              ? `Choose how you’d like the memories woven together, then we’ll create your ${noun}.`
+              : `Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your ${noun}.`}
           </p>
           {props.audioEnabled ? (
             <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
-              When it’s ready, you’ll have: one tribute woven from every memory you chose, a keepsake PDF to print, and — if you’d like — a spoken version to play at the service.
+              When it’s ready, you’ll have: one {noun} woven from every memory you chose, a keepsake PDF to print, and — if you’d like — a spoken version to play {readAloud}.
             </p>
           ) : (
             <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
-              When it’s ready, you’ll have: one tribute woven from every memory you chose, and a keepsake PDF to print.
+              When it’s ready, you’ll have: one {noun} woven from every memory you chose, and a keepsake PDF to print.
             </p>
           )}
         </header>
@@ -607,7 +614,7 @@ function ResultFlowInner(props: ResultFlowProps) {
           onSubmit={(e) => { e.preventDefault(); void onPrefsSubmit(); }}
           className="space-y-5"
         >
-          <SectionCard heading="How the tribute should read">
+          <SectionCard heading={`How the ${noun} should read`}>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <FieldRow field={TONE_FIELD} value={tone} onChange={setTone} />
               <FieldRow field={LENGTH_FIELD} value={length} onChange={setLength} />
@@ -620,8 +627,8 @@ function ResultFlowInner(props: ResultFlowProps) {
                   A spoken version, included
                 </label>
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  We can also read the tribute aloud in a calm, steady voice — to play at the service, or for anyone
-                  whose voice may catch on the day. You can play it or download it.
+                  We can also read the {noun} aloud in a warm, steady voice — to play {readAloud}, or for anyone who’d
+                  rather not read it themselves. You can play it or download it.
                 </p>
                 <select
                   id="audio-voice"
@@ -675,7 +682,7 @@ function ResultFlowInner(props: ResultFlowProps) {
           {confirmingPaid ? (
             <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm" role="alertdialog" aria-label="Confirm creating the tribute">
               <p className="text-foreground">
-                Create the tribute now? This weaves all included memories into the final tribute and closes the collection. This can’t be undone.
+                Create the {noun} now? This weaves all included memories into the final {noun} and closes the collection. This can’t be undone.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button
@@ -821,7 +828,7 @@ function ResultFlowInner(props: ResultFlowProps) {
       </div>
 
       <p className="mt-3 text-center text-xs text-muted-foreground">
-        Yours to keep, to print{audioState === 'ready' ? ', and to play at the service' : ''}.
+        Yours to keep, to print{audioState === 'ready' ? `, and to play ${readAloud}` : ''}.
       </p>
 
       {/* Audio narration — voice was chosen on the prefs screen; generated once.

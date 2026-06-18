@@ -85,6 +85,8 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         paidInAdvance={paidInAdvance}
         paidTxnId={paidTxnId}
         audioEnabled={audioEnabled()}
+        deliverableNoun={meta.deliverableNoun}
+        readAloudContext={meta.readAloudContext}
       />
     </>
   );

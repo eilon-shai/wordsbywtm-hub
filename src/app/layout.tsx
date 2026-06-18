@@ -12,6 +12,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.wordsbywtm.com'),
   title: 'Words That Matter — Gather memories into one tribute',
   description:
     'Start a collection, invite the people who matter to share their memories, and weave them into one heartfelt tribute. For memorials, weddings, retirements, and the moments that matter.',

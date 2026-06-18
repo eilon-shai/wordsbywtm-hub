@@ -51,14 +51,19 @@ export async function resolveConfigByToken(
 
 /**
  * Resolve the ProductConfig for the generate route, which only carries a
- * transactionId. The checkout handler writes a `{prefix}:txn-collection:{txn}`
- * Redis mapping under each occasion's own redisKeyPrefix, so we probe the live
- * occasions' prefixes; whichever prefix holds the mapping identifies the
- * occasion. (getCollectionById is not exported from /db in 1.6.0, and there is
- * only one live occasion at launch, so prefix-probing is correct and cheap.)
+ * transactionId. The checkout handler ALWAYS writes a `{prefix}:txn-collection:{txn}`
+ * Redis mapping under the occasion's own redisKeyPrefix (both real and mock
+ * paths), so we probe the live occasions' prefixes; whichever prefix holds the
+ * mapping identifies the occasion.
  *
- * The generate handler itself re-reads the same mapping and verifies payment;
- * this resolver only selects which config to hand it.
+ * Multi-occasion safety: there is NO occasion fallback. With four live occasions,
+ * guessing (e.g. "first config with a collectionConfig") could hand the generate
+ * handler the WRONG occasion's config — and the handler verifies payment against
+ * that config's Paddle product, so a mis-guess fails anyway. If no mapping is
+ * found we throw NotFoundError → the route 404s, and the client recovers via the
+ * admin-token path (/tribute), which resolves by DB token (resolveConfigByToken).
+ * The generate handler reads the same mapping for the collectionId, so a missing
+ * mapping is unrecoverable here regardless — throwing is correct, not lossy.
  */
 export async function resolveConfigByTxn(transactionId: string): Promise<ProductConfig> {
   // Lazy import: /redis is server-only and not needed by the other resolvers.
@@ -74,10 +79,7 @@ export async function resolveConfigByTxn(transactionId: string): Promise<Product
     }
   }
 
-  // No Redis (or no mapping found, e.g. real-mode where customData carries the
-  // collectionId): fall back to the single live occasion. The handler re-resolves
-  // and verifies payment, so an unknown txn still 404s safely there.
-  const live = Object.values(CONFIGS).find((c) => !!c.collectionConfig);
-  if (!live) throw new NotFoundError('No live occasion configured');
-  return live;
+  // No mapping for this txn under any live occasion → we cannot identify the
+  // occasion. Never fall back to an arbitrary one (cross-occasion mis-resolution).
+  throw new NotFoundError('Could not resolve occasion for transaction');
 }

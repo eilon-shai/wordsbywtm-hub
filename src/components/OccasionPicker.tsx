@@ -37,7 +37,7 @@ export default function OccasionPicker({ focus }: { focus?: string | null }) {
   const focusSlug = resolveFocusSlug(focus);
   const featured = focusSlug ? OCCASIONS.find((o) => o.slug === focusSlug) ?? null : null;
 
-  // No focus → the standard equal 3-up grid.
+  // No focus → the standard equal grid (one card per live occasion; 4-up on lg).
   if (!featured) {
     return (
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

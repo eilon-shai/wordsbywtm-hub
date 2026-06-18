@@ -199,7 +199,13 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
       const res = await fetch('/api/collection/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminToken, intent: 'advance' }),
+        // Transmit the EU/UK withdrawal-waiver acknowledgement so it can be
+        // recorded server-side (with the checkout txn) rather than living only in
+        // client state. NOTE: venture-core's checkout handler must thread this into
+        // checkAndMarkTerms(waiverTimestamp/waiverVersion) to fully persist it —
+        // tracked as a venture-core follow-up; the flag is sent here so the wiring
+        // is ready the moment that lands.
+        body: JSON.stringify({ adminToken, intent: 'advance', termsWaiver: true, termsVersion: '2026-06-17' }),
       });
       const json = (await res.json().catch(() => ({}))) as {
         transactionId?: string;
@@ -274,7 +280,7 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
           <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </a>
-          . By paying, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
+          . My one-time fee is charged now; creating the finished piece is a digital service I ask to begin when I finalize, and I understand my EU/UK 14-day right to withdraw is lost once it’s created.
         </span>
       </label>
       <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void payAdvance()}>
@@ -283,7 +289,7 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
       <p className="mt-1.5 text-xs text-muted-foreground">
         Settle the single fee now and <span className="font-medium text-foreground">finalizing later is free</span> — and your
         link opens up from <span className="font-medium text-foreground">3 to 10 people</span> who can add a memory. It’s the
-        same one-time fee either way — and it covers the finished tribute, a keepsake PDF, and a spoken version when you’re
+        same one-time fee either way — and it covers the finished piece, a keepsake PDF, and a spoken version when you’re
         ready to create it.
       </p>
       {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}

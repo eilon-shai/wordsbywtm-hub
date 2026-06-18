@@ -118,6 +118,12 @@ export default function PrivacyPage() {
             transmitted to Anthropic’s API to produce the combined tribute. We do not use this content, and do not
             permit it to be used, to train or improve AI models.
           </li>
+          <li style={{ marginTop: '0.4rem' }}>
+            <strong>ElevenLabs</strong> — provides the text-to-speech model used to produce the optional spoken
+            (audio) version of your finished piece. When you request the audio, the generated text is transmitted to
+            ElevenLabs’ API to synthesize the narration. We do not use this content, and do not permit it to be used,
+            to train or improve AI models. The audio is stored with your collection and deleted on the same schedule.
+          </li>
           <li style={{ marginTop: '0.4rem' }}><strong>Neon</strong> — managed Postgres database where collection submissions are stored, encrypted at rest.</li>
           <li style={{ marginTop: '0.4rem' }}><strong>Upstash</strong> — Redis cache used for rate limiting and abuse prevention.</li>
           <li style={{ marginTop: '0.4rem' }}><strong>Resend</strong> — transactional email delivery (magic links, reminders, deliverables).</li>

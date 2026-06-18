@@ -42,7 +42,6 @@ export const weddingLandingConfig: LandingPageConfig = {
     metaDescription:
       'Start a wedding collection, invite the wedding party, family, and friends from both sides to add a story or well-wish, then weave it all into one toast for the couple. Free to create and collect. Pay once when you finalize. No account needed.',
     canonicalUrl: 'https://wordsbywtm.com/wedding',
-    ogImageUrl: 'https://wordsbywtm.com/og-wedding.png',
   },
 
   hero: {

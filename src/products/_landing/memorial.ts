@@ -58,7 +58,6 @@ export const memorialLandingConfig: LandingPageConfig = {
     metaDescription:
       'Start a memorial collection, invite everyone who knew them to add a memory, then weave it all into one tribute read aloud at the service. Free to create and collect. Pay once when you finalize. No account needed.',
     canonicalUrl: 'https://wordsbywtm.com/memorial',
-    ogImageUrl: 'https://wordsbywtm.com/og-memorial.png',
   },
 
   // No cross-occasion nav: Memorial is a standalone product and must not

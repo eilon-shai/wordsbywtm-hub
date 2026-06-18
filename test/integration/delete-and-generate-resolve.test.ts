@@ -49,11 +49,21 @@ describe('generate — txn resolve', () => {
     expect((await res.json()).generated).toBe(true);
   });
 
-  it('falls back to the single live occasion for an unmapped txn (handler re-verifies payment)', async () => {
-    // resolveConfigByTxn falls back to memorial; the generate fake acks. The
-    // real handler would re-verify payment server-side and 404 an invalid txn —
-    // that is venture-core's job, covered by its own tests.
+  it('404s an unmapped txn — never falls back to an arbitrary occasion (cross-occasion safety)', async () => {
+    // resolveConfigByTxn now throws NotFoundError when no occasion holds the
+    // txn→collection mapping (with four live occasions, guessing could resolve to
+    // the wrong product). The route maps that to 404; the client recovers via the
+    // admin-token /tribute path.
     const res = await generate(makeRequest({ transactionId: 'txn_unmapped' }));
+    expect(res.status).toBe(404);
+  });
+
+  it('resolves the correct occasion among several for a mapped txn (no cross-occasion bleed)', async () => {
+    const meta = seedCollection({ occasion: 'wedding' });
+    const txn = `MOCK_${meta.id}`;
+    await fakeRedis.set(`wtm-wedding:txn-collection:${txn}`, meta.id);
+    const res = await generate(makeRequest({ transactionId: txn }));
     expect(res.status).toBe(200);
+    expect((await res.json()).generated).toBe(true);
   });
 });
