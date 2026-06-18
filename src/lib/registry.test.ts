@@ -12,12 +12,16 @@ describe('registry', () => {
     expect(getConfig('')).toBeUndefined();
   });
 
-  it('only memorial is live and only the live occasion carries a collectionConfig', () => {
+  it('only memorial is live; retirement is built (has a collectionConfig) but not yet launched', () => {
     const live = OCCASIONS.filter((o) => o.live).map((o) => o.slug);
     expect(live).toEqual(['memorial']);
     expect(CONFIGS.memorial.collectionConfig).toBeTruthy();
+    // Retirement is fully built but stays live:false until Paddle IDs exist.
+    expect(CONFIGS.retirement.collectionConfig).toBeTruthy();
+    const retirementMeta = OCCASIONS.find((o) => o.slug === 'retirement');
+    expect(retirementMeta?.live).toBe(false);
+    // Wedding is still a stub.
     expect(CONFIGS.wedding.collectionConfig).toBeUndefined();
-    expect(CONFIGS.retirement.collectionConfig).toBeUndefined();
   });
 
   it('every live occasion has a non-empty paddleProductId (QA-6 startup guard)', () => {
