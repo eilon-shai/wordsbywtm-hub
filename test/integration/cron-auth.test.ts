@@ -62,11 +62,16 @@ describe('cron/purge auth + failure modes', () => {
 });
 
 describe('cron/collection-deadlines', () => {
-  it('runs the sweep once per LIVE occasion (memorial + retirement)', async () => {
+  it('runs the sweep once per LIVE occasion (all four)', async () => {
     const res = await deadlines(cronReq({ authorization: 'Bearer test-secret' }));
     expect(res.status).toBe(200);
     expect([...sweepCalls].sort()).toEqual(
-      ['pro_01kq7gphj79hmftt2pwj6rrad4', 'pro_01kv1g5d6c4b3wcr74jswnnspa'].sort(),
+      [
+        'pro_01kpjx66bdandnb91vvg5cw9jj', // wedding
+        'pro_01kpnffw8f2ej2n0pwv2r5btap', // anniversary
+        'pro_01kq7gphj79hmftt2pwj6rrad4', // retirement
+        'pro_01kv1g5d6c4b3wcr74jswnnspa', // memorial
+      ].sort(),
     );
   });
 

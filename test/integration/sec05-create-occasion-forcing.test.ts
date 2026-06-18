@@ -40,9 +40,12 @@ describe('SEC-05 — create occasion forcing', () => {
     expect(createCreateCollectionHandler).not.toHaveBeenCalled();
   });
 
-  it('rejects a built-but-not-live occasion (wedding: has collectionConfig, live:false) with 404', async () => {
+  it('accepts a now-live occasion (wedding) — delegates to the core handler', async () => {
+    // All four occasions are live; the meta.live gate in the route still guards
+    // any FUTURE stub occasion (no non-live fixture exists to assert that path now).
     const res = await create(makeRequest({ honoreeName: 'X' }), params('wedding'));
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
+    expect((await res.json()).occasion).toBe('wedding');
   });
 
   it('still delegates when the body is unparseable (handler returns its own validation error)', async () => {

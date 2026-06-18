@@ -125,20 +125,23 @@ export const weddingConfig: ProductConfig = {
     formPath: '/wedding/start',
     resultPath: '/wedding/result',
     redisKeyPrefix: 'wtm-wedding',
-    paddleProductId: process.env.PADDLE_PRODUCT_ID_WEDDING ?? '',
+    // Default to the sandbox product id (mirrors memorial/retirement) so the
+    // registry live-occasion guard passes in tests/local; production overrides
+    // via env.
+    paddleProductId: process.env.PADDLE_PRODUCT_ID_WEDDING ?? 'pro_01kpjx66bdandnb91vvg5cw9jj',
   },
 
   tiers: {
     basic: {
       priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_WEDDING ?? '',
-      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_WEDDING_SANDBOX ?? '',
+      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_WEDDING_SANDBOX ?? 'pri_01kvdanncn8m6d51vwhyy6sht3',
       label: 'Wedding Toast',
       modelLabel: 'Claude Sonnet',
       displayPrice: 49,
     },
     full: {
       priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_WEDDING ?? '',
-      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_WEDDING_SANDBOX ?? '',
+      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_WEDDING_SANDBOX ?? 'pri_01kvdanncn8m6d51vwhyy6sht3',
       label: 'Wedding Toast',
       modelLabel: 'Claude Sonnet',
       displayPrice: 49,

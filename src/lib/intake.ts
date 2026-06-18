@@ -125,10 +125,39 @@ const weddingIntake: OccasionIntake = {
   consentLabel: 'I’m okay with my story being woven into the toast you’ll receive.',
 };
 
+// Anniversary — collaborative MILESTONE tribute (gather from the couple's circle
+// → one tribute for a big anniversary party). Honoree is the couple.
+const anniversaryIntake: OccasionIntake = {
+  aboutThemHeading: 'About the couple',
+  honoreeLabel: 'The couple’s names',
+  honoreePlaceholder: 'e.g. Sam & Alex',
+  memoryLabel: 'A story or moment from their years together',
+  memoryPlaceholder:
+    'The trip they still argue about, the way they are at the dinner table, a moment that captures the two of them. A specific moment beats a list of compliments.',
+  qualitiesLabel: 'What have they shown you about love over the years?',
+  qualitiesPlaceholder: 'e.g. they still make each other laugh, the way they show up for everyone, partners in everything',
+  relationshipOptions: [
+    { value: 'child', label: 'Their child' },
+    { value: 'grandchild', label: 'Their grandchild' },
+    { value: 'sibling', label: 'Sibling' },
+    { value: 'family', label: 'Family' },
+    { value: 'friend', label: 'Friend' },
+    { value: 'colleague', label: 'Colleague' },
+    { value: 'other', label: 'Other' },
+  ],
+  relationshipDescriptionLabel: 'Describe your connection briefly',
+  relationshipDescriptionPlaceholder: 'e.g. their daughter, friends with them for 40 years',
+  additionalContextLabel: 'Anything else we should know',
+  additionalContextPlaceholder:
+    'e.g. which anniversary (25th, 50th), the kind of celebration, anything to keep light or avoid.',
+  consentLabel: 'I’m okay with my story being woven into the tribute you’ll receive.',
+};
+
 const INTAKE_SPECS: Record<string, OccasionIntake> = {
   memorial: memorialIntake,
   retirement: retirementIntake,
   wedding: weddingIntake,
+  anniversary: anniversaryIntake,
 };
 
 /** Intake spec for an occasion; falls back to the memorial spec if none exists. */

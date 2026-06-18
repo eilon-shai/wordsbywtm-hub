@@ -2,6 +2,7 @@ import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { memorialConfig } from '@/products/memorial/config';
 import { weddingConfig } from '@/products/wedding/config';
 import { retirementConfig } from '@/products/retirement/config';
+import { anniversaryConfig } from '@/products/anniversary/config';
 
 // ---------------------------------------------------------------------------
 // Occasion registry — the single architectural delta for the multi-occasion
@@ -16,6 +17,7 @@ export const CONFIGS: Record<string, ProductConfig> = {
   memorial: memorialConfig,
   wedding: weddingConfig,
   retirement: retirementConfig,
+  anniversary: anniversaryConfig,
 };
 
 export interface OccasionMeta {
@@ -43,7 +45,7 @@ export const OCCASIONS: OccasionMeta[] = [
     blurb: 'Collect stories and well-wishes from both sides into one toast for the couple.',
     honoreeLabel: 'the couple',
     accent: '#b08a8f',
-    live: false,
+    live: true,
   },
   {
     slug: 'retirement',
@@ -51,6 +53,14 @@ export const OCCASIONS: OccasionMeta[] = [
     blurb: 'Bring together years of colleagues and friends into one send-off speech.',
     honoreeLabel: 'the person retiring',
     accent: '#b3935a',
+    live: true,
+  },
+  {
+    slug: 'anniversary',
+    title: 'Anniversary',
+    blurb: 'Gather memories from family and friends into one tribute for the couple’s milestone.',
+    honoreeLabel: 'the couple',
+    accent: '#a8768f',
     live: true,
   },
 ];
