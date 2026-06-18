@@ -51,7 +51,7 @@ export const OCCASIONS: OccasionMeta[] = [
     blurb: 'Bring together years of colleagues and friends into one send-off speech.',
     honoreeLabel: 'the person retiring',
     accent: '#b3935a',
-    live: false,
+    live: true,
   },
 ];
 

@@ -62,10 +62,12 @@ describe('cron/purge auth + failure modes', () => {
 });
 
 describe('cron/collection-deadlines', () => {
-  it('runs the sweep once per LIVE occasion (only memorial is live)', async () => {
+  it('runs the sweep once per LIVE occasion (memorial + retirement)', async () => {
     const res = await deadlines(cronReq({ authorization: 'Bearer test-secret' }));
     expect(res.status).toBe(200);
-    expect(sweepCalls).toEqual(['pro_01kv1g5d6c4b3wcr74jswnnspa']);
+    expect([...sweepCalls].sort()).toEqual(
+      ['pro_01kq7gphj79hmftt2pwj6rrad4', 'pro_01kv1g5d6c4b3wcr74jswnnspa'].sort(),
+    );
   });
 
   it('propagates a 401/503 from a sub-call immediately', async () => {

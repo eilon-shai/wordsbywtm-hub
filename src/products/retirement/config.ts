@@ -144,20 +144,22 @@ export const retirementConfig: ProductConfig = {
     formPath: '/retirement/start',
     resultPath: '/retirement/result',
     redisKeyPrefix: 'wtm-retirement',
-    paddleProductId: process.env.PADDLE_PRODUCT_ID_RETIREMENT ?? '',
+    // Default to the sandbox product id (mirrors memorial) so the registry's
+    // live-occasion guard passes in tests/local; production overrides via env.
+    paddleProductId: process.env.PADDLE_PRODUCT_ID_RETIREMENT ?? 'pro_01kq7gphj79hmftt2pwj6rrad4',
   },
 
   tiers: {
     basic: {
       priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_RETIREMENT ?? '',
-      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_RETIREMENT_SANDBOX ?? '',
+      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_RETIREMENT_SANDBOX ?? 'pri_01kvd5rkp3w9zejv9fq6qqfspd',
       label: 'Retirement Send-Off',
       modelLabel: 'Claude Sonnet',
       displayPrice: 49,
     },
     full: {
       priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_RETIREMENT ?? '',
-      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_RETIREMENT_SANDBOX ?? '',
+      priceIdSandbox: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_RETIREMENT_SANDBOX ?? 'pri_01kvd5rkp3w9zejv9fq6qqfspd',
       label: 'Retirement Send-Off',
       modelLabel: 'Claude Sonnet',
       displayPrice: 49,
