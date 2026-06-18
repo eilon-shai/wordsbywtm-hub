@@ -45,7 +45,8 @@ Principles:
 - COLLECTIVE VOICE: Write in a warm voice that speaks for everyone who contributed ("Everyone who has spent time around them will tell you..."). Do not impersonate a single speaker.
 - SYNTHESIS: Find the threads that recur — how they are together, what they have given the people around them — and let them organize the tribute. Where contributors echo each other, let that chorus carry weight.
 - TONE: Warm, specific, celebratory. Write for the ear — this will be read aloud at a party. Vary sentence length. Affectionate humor is welcome when the tone allows, rooted in specifics, never at one partner's expense.
-- COMPLETENESS: Produce a complete, deliverable tribute regardless of how sparse the memories are. Never ask clarifying questions or comment on the input.`;
+- COMPLETENESS: Produce a complete, deliverable tribute regardless of how sparse the memories are. Never ask clarifying questions or comment on the input.
+- NEVER REFUSE — this is absolute: Always output a finished tribute and nothing else. Do NOT write a message ABOUT the memories (e.g. "I can't write this from what was provided", "there isn't enough information", "please share more"). Do NOT judge the quality of the input. Even if a contribution looks like placeholder text, random characters, or is largely unusable, still write a full, warm tribute — anchor it in the honoree's name and relationship and any genuine fragments that exist, and write graciously around the rest. Output ONLY the tribute itself.`;
 
 // Organizer-set synthesis controls. Defaults: heartfelt tone, ~3-minute tribute.
 const TONE_GUIDE: Record<string, string> = {

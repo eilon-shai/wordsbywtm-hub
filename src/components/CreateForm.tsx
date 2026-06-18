@@ -318,7 +318,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
   // POST #2 — the organizer's own first memory. Returns true on success,
   // false on a contribute failure (the user can retry the contribution only).
-  async function postContribution(created: CreateSuccess): Promise<boolean> {
+  async function postContribution(created: CreateSuccess, override = false): Promise<boolean> {
     const shareToken = (() => {
       try {
         return new URL(created.shareUrl).pathname.split('/c/')[1] ?? '';
@@ -356,7 +356,11 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             relationshipDescription: relationshipDescription.trim(),
             qualities: qualities.trim(),
           },
-          ...(overridden ? { overrideValidation: true } : {}),
+          // Use the explicit override arg, not `overridden` state: the state set
+          // in handleOverride hasn't re-rendered yet on the first click, so
+          // reading it here would omit the flag and the server would re-reject —
+          // forcing a needless second click.
+          ...(override || overridden ? { overrideValidation: true } : {}),
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -501,7 +505,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     }
 
     if (submittingMemory) {
-      const ok = await postContribution(created);
+      const ok = await postContribution(created, forceOverride || overridden);
       if (!ok) {
         setPhase('form'); // collection is in state; retry posts contribute only
         return;
