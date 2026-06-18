@@ -85,7 +85,7 @@ Plus the shared **live Paddle** vars in the ⛔ section above.
 | `ENABLE_MOCK_PAYMENT` | `true` bypasses Paddle → free generations |
 | `DISABLE_EMAIL` | `true` silences all email |
 | `DISABLE_TRIBUTE_AUDIO` | `true` forces audio OFF (fine on Preview to save TTS spend; leave **unset** in prod to keep audio on) |
-| `UNDER_CONSTRUCTION` | `true` shows a construction screen |
+| `UNDER_CONSTRUCTION` | `true` gates the **public** site behind a "coming soon" 503 (middleware). APIs/webhooks/cron + static assets stay live. Use it to run prod E2E before launch; **unset it to go live**. Bypass to browse normally while gated: `https://www.wordsbywtm.com/?preview=<SUPPORT_PASSWORD>` (sets a 24h cookie). |
 | `RESEND_CAPTURE_MODE` | `true` diverts email to capture (test mode) |
 | `NEXT_PUBLIC_ENABLE_MOCK_TESTIMONIALS` | `true` renders fake testimonials |
 | `NEXT_PUBLIC_PADDLE_PRICE_ID_MEMORIAL_EDITPACK` | keep **unset** — the Edit/Refine pack is a paid no-op until regen ships (SES-044 cap) |

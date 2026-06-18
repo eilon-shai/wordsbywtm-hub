@@ -6,10 +6,12 @@ link, each adds a memory, the organizer reviews and chooses what to include, the
 pays once to synthesize everything into one tribute.
 
 - **Framework:** Next.js 15 (App Router), Tailwind v4, TypeScript
-- **Shared library:** `@eilon-shai/venture-core` (pinned exact — currently `1.7.0`)
-- **Payments:** Paddle (Merchant of Record), one-time, pay-at-finalize
-- **Store:** Neon Postgres (collections + contributions) + Upstash Redis (locks, rate limits, txn→collection mapping)
-- **AI:** Anthropic Claude (synthesis)
+- **Shared library:** `@eilon-shai/venture-core` (pinned exact — currently `1.21.0`)
+- **Occasions (all live):** memorial, retirement, wedding, anniversary — one app, registry-driven
+- **Payments:** Paddle (Merchant of Record), one-time, pay-at-finalize (per-occasion product/price)
+- **Store:** Neon Postgres (collections + contributions + `collection_audio`) + Upstash Redis (locks, rate limits, txn→collection map, terms/waiver records)
+- **AI:** Anthropic Claude (synthesis) · ElevenLabs (optional spoken-version TTS, stored in Postgres)
+- **Analytics:** GA4 + Google Ads conversion + Microsoft Clarity (env-gated)
 - **Identity:** none — capability tokens only (no login, no accounts)
 
 Full UX/flow spec: `venture-ops/docs/COLLECTION_FLOW_DESIGN.md`.
@@ -36,7 +38,7 @@ One row per collection (one honoree / one occasion / one organizer).
 | `product` | `text` | = `ProductConfig.brand.paddleProductId`. Cross-product guard so occasions never leak across each other in the shared DB. |
 | `organizer_email` | `text` | Lower-cased at create. Where the admin magic-link + deliverable are emailed. |
 | `honoree_name` | `text` | The person/occasion being honored. |
-| `occasion` | `text` | Occasion slug (`memorial`, later `wedding`/`retirement`). Drives config resolution on token-scoped routes. |
+| `occasion` | `text` | Occasion slug (`memorial`/`retirement`/`wedding`/`anniversary` — all live). Drives config resolution on token-scoped routes. |
 | `tier` | `text` | `basic` \| `full` (single anchored tier today). |
 | `status` | `text` | `open` → `closed` → `generated`. Synthesis is one-shot; `generated` freezes the collection. |
 | `share_token` | `text` UNIQUE | **Public** capability token in the contributor link `/c/{share_token}` (short, 6 bytes). |
@@ -65,6 +67,23 @@ stores only ciphertext, never plaintext name/relationship/memory.
 
 Constraints/indexes: `UNIQUE (collection_id, idempotency_key)` makes double-submit
 a no-op (retry hits the constraint, not a new row); index on `collection_id`.
+
+### Table: `collection_audio`
+
+One row per (collection, voice) for the optional spoken version. Created lazily
+(`CREATE TABLE IF NOT EXISTS`) by `src/lib/audio.ts` — no manual migration needed.
+
+| Column | Type | Notes |
+|---|---|---|
+| `collection_id` | `uuid` | `references collections(id) ON DELETE CASCADE` — audio purges with its collection. |
+| `voice` | `text` | `female` (Sarah) \| `male` (George); part of the PK. |
+| `mp3_base64` | `text` | ElevenLabs MP3, base64. Generated once per voice and cached. |
+| `content_type` | `text` | `audio/mpeg`. |
+| `created_at` | `timestamptz` | default `now()` (re-view picks the newest voice). |
+
+PK `(collection_id, voice)`. Gated by `audioEnabled()` = `ELEVENLABS_API_KEY` set
+AND `DISABLE_TRIBUTE_AUDIO !== 'true'`. Pay-before-generate still applies (audio
+only generates for an already-generated, paid tribute).
 
 ### 1.2 Encryption of contributor PII
 
@@ -125,39 +144,52 @@ src/
       layout.tsx                     # per-occasion accent theming (--primary/--ring/--accent)
       start/page.tsx                 # S3+S4 create (full "tribute settings" form) → own-memory → invite
       result/page.tsx                # S8 result (venture-core ResultPage)
-    c/[shareToken]/page.tsx          # S5 contributor memory form (PUBLIC, no payment)
+      [occasion]/opengraph-image.tsx # generated per-occasion OG card
+    opengraph-image.tsx / icon.svg   # root OG card + favicon
+    c/[shareToken]/page.tsx          # S5 contributor memory form (PUBLIC, no payment; noindex)
     collect/manage/page.tsx          # S6+S7 organizer review dashboard + finalize
-    terms|privacy|refund/page.tsx    # S9 legal (attorney-adapted)
+    terms|privacy|refund/page.tsx    # S9 legal (interim LC-03; ElevenLabs sub-processor disclosed)
+    support/page.tsx                 # internal console (Basic-Auth via middleware)
     api/
-      [occasion]/collection/create/route.ts   # create (occasion in path)
-      collection/contribute/route.ts          # token-scoped (share)
-      collection/route.ts            # GET dashboard data (token-scoped, admin)
-      collection/moderate/route.ts            # include/exclude (admin)
-      collection/checkout/route.ts            # finalize → Paddle (admin)
-      collection/generate/route.ts            # synthesize (txn-verified)
+      [occasion]/collection/create/route.ts   # create (occasion in path; meta.live-gated)
+      collection/contribute|route|moderate|checkout|generate/route.ts  # token/txn-scoped
+      collection/invite/route.ts              # email invites (caps + HTML-escaped)
+      collection/audio/route.ts               # ElevenLabs TTS (generate once / stream)
+      webhook/route.ts                        # Paddle backstop (strict per-product routing)
+      cron/*                                   # deadline sweep + purge (CRON_SECRET)
+  middleware.ts                      # UNDER_CONSTRUCTION gate + /support Basic-Auth
   lib/
-    registry.ts                      # CONFIGS + OCCASIONS + getConfig/getOccasionMeta
-    resolver.ts                      # resolveConfigByToken / resolveConfigByTxn
+    registry.ts                      # CONFIGS + OCCASIONS (+ deliverableNoun/readAloudContext) + unique-product-id guard
+    intake.ts                        # per-occasion create-form copy + relationship taxonomy
+    resolver.ts                      # resolveConfigByToken / resolveConfigByTxn (no arbitrary fallback)
+    audio.ts                         # ElevenLabs TTS + collection_audio storage
+    analytics.ts                     # GA4 / Ads / Clarity helpers
   products/
-    memorial/config.ts               # ProductConfig + collectionConfig + buildSynthesisPrompt
-    wedding|retirement/config.ts     # stubs (live:false)
-    _landing/memorial.ts             # LandingPageConfig (hero/howItWorks/samples/pricing/faq/…)
+    {memorial,retirement,wedding,anniversary}/config.ts  # ProductConfig + collectionConfig + buildSynthesisPrompt
+    _landing/{memorial,retirement,wedding,anniversary}.ts # LandingPageConfig per occasion
   components/
-    CreateForm.tsx                   # organizer full form (tone/length/avoid/context → synthesisPrefs)
-    InviteScreen.tsx                 # share + admin links
+    CreateForm.tsx                   # organizer full form (intake-driven; → synthesisPrefs)
+    InviteScreen.tsx / InviteBlock.tsx       # share/admin links + email invites + advance-pay
     ContributorForm.tsx              # memory form (contributor + organizer variants), 3-layer guard
     ManageDashboard.tsx / MemoryCard.tsx     # review + include/exclude + finalize
     OccasionPicker.tsx / ComingSoon.tsx
+    SiteAnalytics.tsx / PurchaseTracker.tsx  # GA4+Clarity scripts + purchase conversion
     forked/FormPrimitives.tsx        # word-counter/renderers forked from venture-core IntakeForm
     vc/ClientLandingPage.tsx, vc/ClientResultPage.tsx  # 'use client' wrappers (see §5)
 ```
 
 ### 2.1 Multi-occasion model
 
-One app hosts many occasions (mirrors VocalVow's multi-product pattern). An
-occasion = one `ProductConfig` entry in `lib/registry.ts`. Each occasion has its
-own `paddleProductId` so `collections.product` isolates them in the shared DB.
-Adding wedding/retirement = a config file + registry entry — no new app/DB/key.
+One app hosts all four occasions (mirrors VocalVow's multi-product pattern). An
+occasion = one `ProductConfig` (`products/<occasion>/config.ts`) + `OccasionMeta`
+(`lib/registry.ts`) + intake spec (`lib/intake.ts`) + landing (`_landing/<occasion>.ts`).
+Each occasion has its **own** `paddleProductId`, `redisKeyPrefix`, and from-address;
+`collections.product` isolates rows in the shared DB. The registry guards that every
+live occasion's `paddleProductId` is non-empty **and unique** (cross-product
+isolation invariant). The webhook routes strictly by `customData.product` (no
+fallback). Adding an occasion = config + meta + intake + landing — no new app/DB/key.
+`OccasionMeta.deliverableNoun`/`readAloudContext` keep shared UI copy occasion-correct
+("tribute"/"toast"/"send-off"; "at the service"/"at the reception"/…).
 
 ### 2.2 Token → occasion resolution
 
@@ -229,10 +261,13 @@ content-free, so output-before-pay is impossible.
 
 ## 5. venture-core dependency notes
 
-- Pinned **exact** (`1.7.0`). Version history relevant to this app:
+- Pinned **exact** (`1.21.0`). Version history relevant to this app:
   - **1.6.0** — collaborative-collection feature (db layer, 6 handlers, synthesis, COLLECTION_RUBRIC).
-  - **1.6.1** — `collection-generate` returns `{ tier: 'basic', … }` so the shared `ResultPage` renders the tribute.
-  - **1.7.0** — collection-level `synthesisPrefs` (the `synthesis_prefs` jsonb column + create-handler intake + `CollectionMeta.synthesisPrefs`).
+  - **1.6.1 / 1.7.0** — result `tier` shape; collection-level `synthesisPrefs` (`synthesis_prefs` jsonb).
+  - **~1.13–1.15** — deadline auto-finalize/delete/extend; data-loss guards (purge guard, atomic contributor cap, webhook mark-paid backstop, fail-closed mock/crons, keyed-HMAC dedup).
+  - **1.20.x** — collaborative-collection maturity (the line this app pins).
+  - **1.21.0** — `collection-checkout-handler` records the EU/UK withdrawal-waiver via `checkAndMarkTerms` when `termsWaiver`+`termsVersion` are sent (SES-046 fix).
+- **Audio** is app-side (`src/lib/audio.ts` + `collection_audio` table), not venture-core.
 - **Known follow-up:** the published `@eilon-shai/venture-core/components` barrel lacks a `'use client'` directive, so RSC pages can't import `LandingPage`/`ResultPage` directly — we wrap them in `src/components/vc/Client*.tsx`. Remove the wrappers once venture-core ships the directive.
 
 ---

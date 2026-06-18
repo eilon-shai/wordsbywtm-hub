@@ -8,6 +8,27 @@
 
 ---
 
+## 0. Remediation status (2026-06-18, post-review — PR #25 + venture-core 1.21.0)
+
+The engineering findings below were remediated in **PR #25** (app) and
+**venture-core 1.21.0** (re-pinned). Status:
+
+- ✅ **HIGH — ElevenLabs sub-processor disclosure** — added to interim Privacy §4 + Terms §8 (still pending LC-03 attorney ratification).
+- ✅ **MEDIUM — EU withdrawal-waiver server-side** — app transmits the flag; venture-core **1.21.0** `collection-checkout-handler` now records it via `checkAndMarkTerms`. App re-pinned to 1.21.0.
+- ✅ **MEDIUM — per-occasion copy** — `OccasionMeta.deliverableNoun`/`readAloudContext`; no more "tribute/play at the service" on toast/send-off.
+- ✅ **MEDIUM — advance-pay checkbox copy** — deferred-performance model.
+- ✅ **MEDIUM — manual E2E** — rebuilt as a per-occasion matrix + isolation rows.
+- ✅ **MEDIUM — test coverage** — cross-product isolation + occasion-config + audio tests (→90).
+- ✅ **MEDIUM — OG/favicon 404** — favicon + generated `opengraph-image` (root + per-occasion) + `metadataBase`.
+- ✅ **MEDIUM — share/start metadata** — `robots:noindex` on `/c/[shareToken]` + `/[occasion]/start`.
+- ✅ **MEDIUM — homepage pillars** — hero now names woven piece + PDF + audio.
+- ✅ **LOW** — resolver no-arbitrary-fallback; registry unique-product-id guard; invite-email HTML escaping; audio newest-voice; duplicate H1; accent-token parity (manage); stale comments. Plus: `UNDER_CONSTRUCTION` gate implemented (was a no-op).
+- ⏳ **Founder-owned (unchanged):** production Paddle live prices, MKT-002 analytics ids (code shipped — GA4 + Clarity + Ads conversion), LC-03 attorney ratification (must include the ElevenLabs + waiver edits).
+
+Net: every engineering finding closed; remaining items are founder-owned + the live preview run (the 9+ lever).
+
+---
+
 ## 1. Scorecard
 
 | Expert | Confidence | Quality | Prod-Readiness |

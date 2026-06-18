@@ -2,7 +2,7 @@
 
 **From:** Words That Matter LLC (Eilon Shai)
 **Date:** 2026-06-17
-**Re:** Terms of Service + Privacy Policy updates for a NEW product model (collaborative memory collection) launching at **wordsbywtm.com** (memorial use first).
+**Re:** Terms of Service + Privacy Policy updates for a NEW product model (collaborative memory collection) launching at **wordsbywtm.com**. **Four occasions are now live** on one platform — **memorial, retirement, wedding, anniversary** (identical flow + legal posture; the deliverable is a tribute / send-off / toast). Memorial is the most sensitive (bereavement / special-category data).
 **Status:** Engineering complete; **launch is gated on your review.** Please advise on the clauses below and confirm the retention/withdrawal positions so we can bump the Terms version + effective date.
 
 > This is a new flow, materially different from our existing single-user speech/eulogy generators (vocalvow.com, tributewords.com, milestonescribe.com), which you previously reviewed. The product, payment timing, third-party data handling, and **automated deletion/generation** are different. Please treat the existing pages as a starting point but assume the data flows below are new.
@@ -17,6 +17,7 @@
 4. The organizer reviews the memories on a dashboard (include/exclude) and adds their own.
 5. The organizer **pays a one-time fee** (Merchant of Record: **Paddle**; no subscription). Payment can happen at finalize, **or in advance**.
 6. After payment, our AI (**Anthropic Claude**) synthesizes all included memories into **one combined tribute**, which is emailed to the organizer and viewable via their private link.
+7. **Optional spoken version:** the organizer may request an audio (text-to-speech) reading of the finished tribute. The tribute text is sent to **ElevenLabs** to synthesize the narration, which is stored with the collection and deleted on the same schedule.
 
 ## 2. The parts that need new legal language
 
@@ -38,6 +39,7 @@ The organizer sets an optional **deadline** (max ~1 month out). A daily automate
 ### (c) Pay-in-advance + deferred/automatic performance (EU/UK withdrawal)
 - The one-time fee may be paid **before** the tribute is generated (the actual "digital content" is produced later — at finalize or automatically at the deadline).
 - We need your position on the **EU/UK 14-day right of withdrawal** for digital content: when is performance deemed to begin, and what acknowledgement/consent-to-immediate-performance language is required given that generation can occur automatically days after payment? (Our current single-user products waive the 14-day right at the point of immediate delivery; here delivery may be deferred.)
+- **Implemented since this brief:** the pay-in-advance checkout now shows a deferred-performance acknowledgement checkbox and **records that waiver server-side** (terms version + timestamp + IP, keyed to the transaction). Please confirm the **exact checkbox wording** and that this acknowledgement model is sufficient.
 
 ### (d) Contributor data (third parties, not the buyer)
 - Contributors are **third parties** who submit personal data (their name, relationship, **email**, and a memory that may include personal data about the deceased/honoree and others).
@@ -54,7 +56,7 @@ The organizer sets an optional **deadline** (max ~1 month out). A daily automate
 | Both | IP address | transient (Redis) for rate-limiting / abuse prevention | Legitimate interest | short-lived |
 | Payment | handled by Paddle (Merchant of Record) — we do **not** store card data | Paddle | Contract | per Paddle |
 
-**Sub-processors / third parties data is shared with:** Paddle (payments/MoR), Neon (database hosting), Upstash (Redis cache/rate-limiting), Resend (transactional email), **Anthropic (the memory text is sent to Anthropic's API to generate the tribute)**. The Anthropic processing of contributed memories is the most sensitive disclosure — please confirm how you want it described.
+**Sub-processors / third parties data is shared with:** Paddle (payments/MoR), Neon (database hosting), Upstash (Redis cache/rate-limiting), Resend (transactional email), **Anthropic (the memory text is sent to Anthropic's API to generate the tribute)**, and **ElevenLabs (the finished tribute text is sent to ElevenLabs' API to generate the optional spoken/audio version)**. The Anthropic + ElevenLabs processing of contributed memories is the most sensitive disclosure — both are now disclosed in the interim in-app Privacy §4 + Terms §8; please confirm how you want each described. (Both are contractually no-training; please confirm that representation.)
 
 ## 4. Specific changes we believe are needed (please confirm/redraft)
 
@@ -84,7 +86,8 @@ The organizer sets an optional **deadline** (max ~1 month out). A daily automate
 1. Approve / redraft the ToS "Collections" section and the Privacy additions above.
 2. **Confirm the retention period** to state (we proposed 30 days post-generation).
 3. **Confirm the EU/UK withdrawal position** for pay-in-advance + deferred/automatic generation, and the exact acknowledgement wording to show at payment.
-4. Confirm the **Anthropic (AI sub-processor)** disclosure wording.
+4. Confirm the **Anthropic + ElevenLabs (AI sub-processor)** disclosure wording.
+5. Confirm this covers **all four live occasions** (memorial / retirement / wedding / anniversary) — same flow, one set of legal pages.
 5. Once approved, we will update the rendered Terms/Privacy/Refund pages and **bump the Terms version + effective date** (our consent records store the version, so a version bump matters).
 
 *Reference: this corresponds to internal finding **LC-03** (plus LC-04/LC-06/LC-08) in our pre-launch review (`docs/EXPERT_PANEL_REVIEW_SES044.md`). The engineering for all of the above (encryption, consent recording, automated deletion, retention purge, disclosures in-app) is already implemented and live; only the attorney-authored legal-page wording remains before paid launch.*
