@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import OccasionPicker, { resolveFocusSlug } from '@/components/OccasionPicker';
+import { getOccasionMeta } from '@/lib/registry';
 import FocusScroll from '@/components/FocusScroll';
 
 // ---------------------------------------------------------------------------
@@ -19,9 +20,6 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://wordsbywtm.com' },
 };
 
-// A short synthesized multi-voice excerpt — the model in miniature, above the fold.
-const HUB_EXCERPT = `Ask anyone who knew her and the same word surfaces first: present. Some remember the way she'd put down whatever she was holding the moment you walked in. Others recall the recipe box that was never really about recipes — tucked between the cards were birthdays, the names of people's dogs, the date you'd started a new job so she'd know to ask. What comes through every memory gathered here is that she made people feel known. We carry that forward now. All of us. Together.`;
-
 const STEPS = [
   { n: '01', t: 'Start a collection', b: 'Free. Tell us who you’re honoring; we email you a private link to manage it.' },
   { n: '02', t: 'Invite the circle', b: 'Share one link. Each person adds a memory in two minutes — no account, no payment.' },
@@ -37,6 +35,12 @@ export default async function HubPage({
   // ?focus=<occasion-or-alias> (set per ad group) puts one product in focus.
   const { focus } = await searchParams;
   const focusSlug = resolveFocusSlug(focus);
+  const focusMeta = focusSlug ? getOccasionMeta(focusSlug) : null;
+  // Focus-aware primary CTA (nav + final): unknown intent → scroll to the
+  // occasion picker (you can't "start" before choosing); known intent (ad
+  // deep-link ?focus=) → straight into that occasion. Never hardcode an occasion.
+  const ctaHref = focusSlug ? `/${focusSlug}` : '#occasions';
+  const ctaLabel = focusMeta ? `Start a ${focusMeta.title} collection →` : 'Choose an occasion';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -52,68 +56,43 @@ export default async function HubPage({
               How it works
             </a>
             <Link
-              href="/memorial"
+              href={ctaHref}
               className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              Start a collection
+              {ctaLabel}
             </Link>
           </div>
         </div>
       </header>
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="relative overflow-hidden px-4 pb-16 pt-24 text-center">
-          {/* Background image — visible, with a soft scrim so the text stays legible */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-40"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1600&q=80&auto=format&fit=crop')",
-            }}
-          />
-          {/* Lighter scrim: mostly clear at top, fades into the page only at the bottom edge */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10"
-            style={{
-              background:
-                'linear-gradient(to bottom, color-mix(in oklch, var(--background) 20%, transparent) 0%, color-mix(in oklch, var(--background) 35%, transparent) 55%, var(--background) 100%)',
-            }}
-          />
+        {/* Hero — compact, mechanism-first. Occasion-neutral so the hub serves
+            grief and celebration alike; the four accent cards below carry tone.
+            (No occasion-coded copy/imagery here — that's the per-occasion
+            landings' job. The picker is the primary CTA, just below.) */}
+        <section className="relative px-4 pb-10 pt-24 text-center">
           <div className="mx-auto flex max-w-3xl flex-col items-center">
             <span className="mb-8 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Gathered · Woven · Read Aloud
             </span>
             <h1 className="font-serif text-5xl leading-tight tracking-tight text-foreground md:text-6xl lg:text-7xl">
-              When the words matter most,
+              No one person holds the whole story.
               <br />
-              <em className="italic text-primary">gather them together.</em>
+              <em className="italic text-primary">So gather everyone’s.</em>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              No one person holds the whole of a life. Invite everyone who knew them to share a
-              memory — and we weave the memories into one tribute, in a voice that belongs to all of
-              you.
+              Invite the people who were there to each add one memory. We weave them into a single
+              piece — written in a voice that belongs to all of you — ready to read aloud.
             </p>
             <p className="mt-8 text-sm font-medium text-muted-foreground">
               Free to create · Free to collect · Pay once when you’re ready
             </p>
-
-            {/* Synthesized multi-voice excerpt — the model in miniature */}
-            <div className="mx-auto mt-12 w-full max-w-2xl">
-              <div className="relative rounded-2xl border border-border bg-card p-8 text-left shadow-lg md:p-10">
-                <div className="absolute -top-3 right-6">
-                  <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
-                    Woven from many memories
-                  </span>
-                </div>
-                <div className="mb-2 select-none font-serif text-6xl leading-none text-border" aria-hidden>
-                  &ldquo;
-                </div>
-                <p className="speech-text text-foreground">{HUB_EXCERPT}</p>
-              </div>
-            </div>
+            <a
+              href={ctaHref}
+              className="mt-9 inline-block rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              {ctaLabel}
+            </a>
           </div>
         </section>
 
@@ -123,8 +102,8 @@ export default async function HubPage({
             <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-primary">Choose the occasion</p>
             <h2 className="font-serif text-3xl text-foreground md:text-4xl">One way to honor every kind of moment</h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              Memorials are live today. Weddings and retirements are on the way — same idea, gather
-              many voices into one.
+              Pick the moment you’re marking — it’s the same idea every time: gather many voices into
+              one piece to read aloud.
             </p>
           </div>
           <OccasionPicker focus={focus} />
@@ -203,17 +182,17 @@ export default async function HubPage({
           />
           <div className="relative mx-auto max-w-xl">
             <h2 className="font-serif text-3xl text-primary-foreground md:text-4xl">
-              Gather the memories before they scatter.
+              Gather the words while everyone remembers.
             </h2>
             <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-primary-foreground/70">
-              Start a collection now — it’s free. Invite the people who knew them, and weave their
-              memories into one tribute when you’re ready.
+              Start a collection now — it’s free. Invite the people who were there, and weave their
+              memories into one piece when you’re ready.
             </p>
             <Link
-              href="/memorial"
+              href={ctaHref}
               className="mt-10 inline-block rounded-full bg-primary px-10 py-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              Start a Memorial Collection →
+              {ctaLabel}
             </Link>
             <p className="mt-5 text-xs text-primary-foreground/40">
               Free to create and collect · Pay once when you finalize · No account needed
