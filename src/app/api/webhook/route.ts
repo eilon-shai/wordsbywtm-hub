@@ -15,6 +15,11 @@ import { OCCASIONS, getConfig } from '@/lib/registry';
 // collections get marked paid. The chosen handler still re-verifies the
 // signature and re-checks the product (defense in depth).
 //
+// Strict isolation: we route ONLY to the config whose Paddle product matches.
+// There is no "first live config" fallback — an unmatched/missing product must
+// never be dispatched to an arbitrary occasion (a payment for one product must
+// never touch another's collections). Unmatched events 200 no-op.
+//
 // Configure in Paddle (Developer Tools → Notifications) to POST here, and set
 // PADDLE_WEBHOOK_SECRET[_SANDBOX] + PADDLE_API_KEY[_SANDBOX].
 
@@ -39,9 +44,15 @@ export async function POST(request: NextRequest): Promise<Response> {
     };
     product = body?.data?.custom_data?.product ?? body?.data?.customData?.product;
   } catch {
-    /* unparseable — fall back to the first live config so the signature is still checked */
+    /* unparseable — treated as unmatched below (no-op) */
   }
 
-  const target = (product && LIVE_CONFIGS.find((c) => c.brand.paddleProductId === product)) || LIVE_CONFIGS[0];
+  // No fallback: dispatch only on an exact product match. Missing/unmatched →
+  // 200 no-op (nothing to mark; returning 200 stops Paddle retrying a
+  // non-actionable event).
+  const target = product ? LIVE_CONFIGS.find((c) => c.brand.paddleProductId === product) : undefined;
+  if (!target) {
+    return NextResponse.json({ ok: true, note: 'no matching live product for event' });
+  }
   return createWebhookHandler(target)(request);
 }

@@ -12,6 +12,7 @@ import {
 } from '@eilon-shai/venture-core/ui';
 import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { validateMemoriesField } from '@eilon-shai/venture-core/validation';
+import type { OccasionIntake } from '@/lib/intake';
 import { InviteScreen } from './InviteScreen';
 import { composeMemory } from './ContributorForm';
 import {
@@ -36,6 +37,8 @@ interface CreateFormProps {
   occasionTitle: string;
   /** Contributor field defs — reused for the organizer's own first memory. */
   contributorFields: FormFieldConfig[];
+  /** Per-occasion intake copy + relationship taxonomy. */
+  intake: OccasionIntake;
 }
 
 interface CreateSuccess {
@@ -69,68 +72,11 @@ const CONTRIBUTOR_NAME_FIELD: FormFieldConfig = {
   maxLength: 100,
 };
 
-const RELATIONSHIP_OPTIONS = [
-  { value: 'child', label: 'Son or Daughter' },
-  { value: 'parent', label: 'Mother or Father' },
-  { value: 'sibling', label: 'Brother or Sister' },
-  { value: 'spouse', label: 'Husband, Wife, or Partner' },
-  { value: 'friend', label: 'Close Friend' },
-  { value: 'colleague', label: 'Colleague or Mentor' },
-  { value: 'other', label: 'Other' },
-];
-
-const RELATIONSHIP_DESCRIPTION_FIELD: FormFieldConfig = {
-  name: 'relationshipDescription',
-  type: 'text',
-  label: 'Describe your relationship briefly',
-  placeholder: 'e.g. her eldest daughter, his best friend of 30 years',
-  required: true,
-  maxLength: 200,
-};
-
-const HONOREE_FIELD: FormFieldConfig = {
-  name: 'honoreeName',
-  type: 'text',
-  label: 'Their name',
-  placeholder: 'e.g. Michael, Mike, or Michael James Chen',
-  required: true,
-  maxLength: 120,
-};
-
-const MEMORY_FIELD: FormFieldConfig = {
-  name: 'memory',
-  type: 'textarea',
-  label: '2–3 specific memories or stories',
-  placeholder:
-    "The smell of her kimchi filling the house every Sunday. The way he'd quietly slip a $20 into your pocket on the way out. A specific moment — even a small one — beats a list of nice words.",
-  required: true,
-  maxLength: 4000,
-};
-
-const QUALITIES_FIELD: FormFieldConfig = {
-  name: 'qualities',
-  type: 'textarea',
-  label: 'What qualities made them who they were?',
-  placeholder: 'e.g. endlessly patient, quietly funny, the first to show up when anyone needed help',
-  required: true,
-  maxLength: 1000,
-};
-
 const THINGS_TO_AVOID_FIELD: FormFieldConfig = {
   name: 'thingsToAvoid',
   type: 'textarea',
   label: 'Topics or details to avoid',
   placeholder: "e.g. Please don't mention his illness or the years he was estranged from the family.",
-  required: false,
-  maxLength: 500,
-};
-
-const ADDITIONAL_CONTEXT_FIELD: FormFieldConfig = {
-  name: 'additionalContext',
-  type: 'textarea',
-  label: 'Anything else we should know',
-  placeholder:
-    'e.g. She was deeply religious — Catholic faith was central to her life; the death was sudden; the service is non-religious.',
   required: false,
   maxLength: 500,
 };
@@ -172,8 +118,51 @@ function isoDay(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields }: CreateFormProps) {
+export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields, intake }: CreateFormProps) {
   void contributorFields; // organizer memory now lives inline in this merged form
+
+  // Per-occasion field defs, built from the intake spec (relationship taxonomy,
+  // labels, placeholders) so each occasion uses its own vocabulary.
+  const HONOREE_FIELD: FormFieldConfig = {
+    name: 'honoreeName',
+    type: 'text',
+    label: intake.honoreeLabel,
+    placeholder: intake.honoreePlaceholder,
+    required: true,
+    maxLength: 120,
+  };
+  const MEMORY_FIELD: FormFieldConfig = {
+    name: 'memory',
+    type: 'textarea',
+    label: intake.memoryLabel,
+    placeholder: intake.memoryPlaceholder,
+    required: true,
+    maxLength: 4000,
+  };
+  const QUALITIES_FIELD: FormFieldConfig = {
+    name: 'qualities',
+    type: 'textarea',
+    label: intake.qualitiesLabel,
+    placeholder: intake.qualitiesPlaceholder,
+    required: true,
+    maxLength: 1000,
+  };
+  const RELATIONSHIP_DESCRIPTION_FIELD: FormFieldConfig = {
+    name: 'relationshipDescription',
+    type: 'text',
+    label: intake.relationshipDescriptionLabel,
+    placeholder: intake.relationshipDescriptionPlaceholder,
+    required: true,
+    maxLength: 200,
+  };
+  const ADDITIONAL_CONTEXT_FIELD: FormFieldConfig = {
+    name: 'additionalContext',
+    type: 'textarea',
+    label: intake.additionalContextLabel,
+    placeholder: intake.additionalContextPlaceholder,
+    required: false,
+    maxLength: 500,
+  };
 
   const [phase, setPhase] = React.useState<Phase>('form');
 
@@ -664,7 +653,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               field={{
                 ...RELATIONSHIP_FIELD_BASE,
                 label: `Your relationship to ${honoreeLabel}`,
-                options: RELATIONSHIP_OPTIONS,
+                options: intake.relationshipOptions,
               }}
               value={relationship}
               error={fieldError.relationship}
@@ -688,8 +677,8 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           </div>
         </SectionCard>
 
-        {/* Section — About them */}
-        <SectionCard heading="About them">
+        {/* Section — About the honoree */}
+        <SectionCard heading={intake.aboutThemHeading}>
           <div ref={refs.honoreeName}>
             <FieldRow
               field={HONOREE_FIELD}
@@ -798,7 +787,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
             />
             <span className="text-sm text-foreground leading-relaxed">
-              I’m okay with my memory being woven into the tribute you’ll receive.
+              {intake.consentLabel}
             </span>
           </label>
           {consentError && (

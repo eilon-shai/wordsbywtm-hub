@@ -12,12 +12,14 @@ describe('registry', () => {
     expect(getConfig('')).toBeUndefined();
   });
 
-  it('only memorial is live and only the live occasion carries a collectionConfig', () => {
-    const live = OCCASIONS.filter((o) => o.live).map((o) => o.slug);
-    expect(live).toEqual(['memorial']);
+  it('memorial and retirement are live with a collectionConfig; wedding is still a stub', () => {
+    const live = OCCASIONS.filter((o) => o.live).map((o) => o.slug).sort();
+    expect(live).toEqual(['memorial', 'retirement']);
     expect(CONFIGS.memorial.collectionConfig).toBeTruthy();
+    expect(CONFIGS.retirement.collectionConfig).toBeTruthy();
+    // Wedding is still a stub (no collectionConfig, not live).
     expect(CONFIGS.wedding.collectionConfig).toBeUndefined();
-    expect(CONFIGS.retirement.collectionConfig).toBeUndefined();
+    expect(OCCASIONS.find((o) => o.slug === 'wedding')?.live).toBe(false);
   });
 
   it('every live occasion has a non-empty paddleProductId (QA-6 startup guard)', () => {

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
+import { getIntake } from '@/lib/intake';
 import { CreateForm } from '@/components/CreateForm';
 
 interface StartPageProps {
@@ -43,6 +44,7 @@ export default async function StartPage({ params, searchParams }: StartPageProps
         tier={tier}
         occasionTitle={meta.title}
         contributorFields={config.collectionConfig.contributorFormFields}
+        intake={getIntake(occasion)}
       />
 
       <footer className="mt-auto pt-8 text-center text-xs text-muted-foreground">

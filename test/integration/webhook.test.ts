@@ -34,13 +34,21 @@ describe('webhook route — multi-occasion dispatch', () => {
     expect((await res.json()).routedTo).toBe(MEMORIAL);
   });
 
-  it('falls back to the first live config when product is unknown', async () => {
+  it('no-ops on an unknown product — never falls back to another occasion', async () => {
     const res = await POST(req({ data: { custom_data: { product: 'pro_not_a_real_one' } } }));
     expect(res.status).toBe(200);
-    expect((await res.json()).routedTo).toBe(MEMORIAL);
+    const body = await res.json();
+    expect(body.routedTo).toBeUndefined(); // no handler invoked
+    expect(body.note).toBeTruthy();
   });
 
-  it('still invokes a handler on an unparseable body (signature gets re-checked)', async () => {
+  it('no-ops on a missing product (no cross-product routing)', async () => {
+    const res = await POST(req({ data: {} }));
+    expect(res.status).toBe(200);
+    expect((await res.json()).routedTo).toBeUndefined();
+  });
+
+  it('no-ops on an unparseable body (nothing to route — no handler invoked)', async () => {
     const bad = new NextRequest('http://localhost/api/webhook', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -48,5 +56,6 @@ describe('webhook route — multi-occasion dispatch', () => {
     });
     const res = await POST(bad);
     expect(res.status).toBe(200);
+    expect((await res.json()).routedTo).toBeUndefined();
   });
 });

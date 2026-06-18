@@ -4,6 +4,7 @@ import { LandingPage } from '@/components/vc/ClientLandingPage';
 import type { LandingPageConfig } from '@eilon-shai/venture-core';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { memorialLandingConfig } from '@/products/_landing/memorial';
+import { retirementLandingConfig } from '@/products/_landing/retirement';
 import ComingSoon from '@/components/ComingSoon';
 
 // ---------------------------------------------------------------------------
@@ -18,6 +19,7 @@ import ComingSoon from '@/components/ComingSoon';
 // Per-occasion landing configs. Only live occasions need one.
 const LANDING_CONFIGS: Record<string, LandingPageConfig> = {
   memorial: memorialLandingConfig,
+  retirement: retirementLandingConfig,
 };
 
 export async function generateMetadata({
