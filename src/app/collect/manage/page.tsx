@@ -61,8 +61,11 @@ export default async function ManagePage({ searchParams }: PageProps) {
           ? ({
               '--primary': accent,
               '--ring': accent,
-              '--accent': accent,
-              '--accent-foreground': '#ffffff',
+              // Match [occasion]/layout.tsx semantics: --accent is a SOFT tint of
+              // the hue and --accent-foreground is the accent itself — not raw-hex
+              // + white, which over-saturated accent surfaces only on the dashboard.
+              '--accent': `color-mix(in oklab, ${accent} 14%, var(--background))`,
+              '--accent-foreground': accent,
             } as React.CSSProperties)
           : undefined
       }

@@ -47,7 +47,12 @@ GA4 + Clarity load and the `purchase`/Ads `conversion` fire automatically once s
 - **MKT-007** — abandoned-funnel recovery emails.
 - **QA-7 / E4** — scheduled Tier-B Playwright E2E (multi-actor, DB writes) in CI.
 - **Domains** — vocalvow/tributewords/milestonescribe → hub routing (redirect vs SEO landers).
-- LOW cosmetics (accent-token parity, result-page accent, hero PDF/audio pillars) — see SES-046 doc.
+
+## 🛠️ Maintenance gate (implemented PR #25)
+- `UNDER_CONSTRUCTION=true` now serves a "coming soon" 503 on all **page** routes
+  (APIs/webhooks/cron + static assets stay live). **Bypass** to run prod E2E while
+  the public is gated: visit `https://www.wordsbywtm.com/?preview=<SUPPORT_PASSWORD>`
+  once — it sets a 24h cookie and you browse normally. Unset the var to go live.
 
 ## ✅ Done (reference) — do NOT redo
 - Multi-occasion migration: 4 occasions live via the registry; per-occasion configs/synthesis/intake; strict per-product webhook routing + unique-product-id guard; create-route `meta.live` gate.
