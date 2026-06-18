@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbClient, getCollectionByAdminToken, getGeneratedContentByAdminToken } from '@eilon-shai/venture-core/db';
-import { audioEnabled, ensureAudioTable, getStoredAudio, generateAndStoreAudio, normalizeVoice, AUDIO_CONTENT_TYPE } from '@/lib/audio';
+import { audioEnabled, ensureAudioTable, getStoredAudio, generateAndStoreAudio, listAudioVoices, normalizeVoice, AUDIO_CONTENT_TYPE } from '@/lib/audio';
 
 // Tribute audio narration (ElevenLabs → Postgres). Admin-token scoped.
 //   POST { adminToken }      → generate (if missing) + store; returns { ok }.
@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
   const adminToken = (url.searchParams.get('t') ?? '').trim();
   const voice = normalizeVoice(url.searchParams.get('voice'));
   const download = url.searchParams.get('download') != null;
+  const info = url.searchParams.get('info') != null;
   if (!adminToken) return new NextResponse('Missing token', { status: 400 });
 
   const db = getDbClient();
@@ -60,6 +61,18 @@ export async function GET(req: NextRequest) {
 
   const collection = await getCollectionByAdminToken(db, adminToken).catch(() => null);
   if (!collection) return new NextResponse('Not found', { status: 404 });
+
+  // info mode: report which voices already exist (re-view shows the player without
+  // re-generating). JSON, not audio bytes.
+  if (info) {
+    try {
+      await ensureAudioTable(db);
+      const voices = await listAudioVoices(db, collection.id);
+      return NextResponse.json({ voices });
+    } catch {
+      return NextResponse.json({ voices: [] });
+    }
+  }
 
   let stored: Awaited<ReturnType<typeof getStoredAudio>> = null;
   try {

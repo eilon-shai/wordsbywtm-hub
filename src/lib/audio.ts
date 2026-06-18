@@ -44,6 +44,16 @@ export async function ensureAudioTable(db: SqlClient): Promise<void> {
   tableEnsured = true;
 }
 
+// Which voices already have audio for this collection (for re-view: show the
+// player without regenerating).
+export async function listAudioVoices(db: SqlClient, collectionId: string): Promise<Voice[]> {
+  const rows = await db.query<{ voice: string }>(
+    'select voice from collection_audio where collection_id = $1',
+    [collectionId],
+  );
+  return rows.map((r) => normalizeVoice(r.voice));
+}
+
 export async function getStoredAudio(
   db: SqlClient,
   collectionId: string,
