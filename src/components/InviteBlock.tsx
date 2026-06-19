@@ -292,8 +292,14 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
         </p>
       </div>
 
-      {/* Consent + waiver — quiet fine print, last. Button validates on click; not gated. */}
-      <label className="mt-4 flex max-w-full cursor-pointer items-start gap-2 text-xs text-muted-foreground">
+      {/* Consent + waiver — quiet fine print, last. Boxed so it reads as one unit;
+          the box turns destructive on a validation miss (paired with the role=alert
+          message below for screen readers). Button validates on click; not gated. */}
+      <label
+        className={`mt-4 flex max-w-full cursor-pointer items-start gap-2 rounded-lg border p-3 text-xs text-muted-foreground transition-colors ${
+          termsError ? 'border-destructive bg-destructive/5' : 'border-border'
+        }`}
+      >
         <input
           type="checkbox"
           checked={termsAccepted}
