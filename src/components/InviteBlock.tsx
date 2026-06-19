@@ -183,9 +183,15 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
 
   if (paid) {
     return (
-      <Card className="flex items-center gap-2 border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
-        <Badge variant="secondary">Paid</Badge>
-        Up to <span className="font-medium">10 people</span> can add a memory with your link, and finalizing is free.
+      <Card className="border-primary/30 bg-primary/5 p-4">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">Paid</Badge>
+          <span className="text-sm font-medium text-foreground">You’re all set</span>
+        </div>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Up to <span className="font-medium text-foreground">10 people</span> can add a memory with your link, and
+          finalizing is free.
+        </p>
       </Card>
     );
   }
