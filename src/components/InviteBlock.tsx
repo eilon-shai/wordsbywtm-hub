@@ -157,15 +157,16 @@ export function InviteBlock({
         </p>
       </div>
 
+      {/* ============= ZONE 1.5 — PAY-NOW UPSELL (its own card) ================== */}
+      <AdvancePayBlock adminToken={adminToken} organizerEmail={organizerEmail} paid={paid} price={price} />
+
       {/* ====================== ZONE 2 — SECONDARY EMAIL CARD ==================== */}
       <DirectEmailCard
         adminToken={adminToken}
         inviteText={inviteText}
         organizerName={organizerName}
         honoreeName={honoreeName}
-        organizerEmail={organizerEmail}
         paid={paid}
-        price={price}
         atCap={atCap}
       />
     </div>
@@ -182,10 +183,10 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
 
   if (paid) {
     return (
-      <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground">
+      <Card className="flex items-center gap-2 border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
         <Badge variant="secondary">Paid</Badge>
         Up to <span className="font-medium">10 people</span> can add a memory with your link, and finalizing is free.
-      </div>
+      </Card>
     );
   }
 
@@ -254,13 +255,45 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
     }
   }
 
+  const priceLabel = price ?? '$49';
   return (
-    <div className="mt-3">
-      <label
-        className={`mb-2 flex w-fit max-w-full items-start gap-2 rounded-lg p-2 cursor-pointer text-xs text-muted-foreground ${
-          termsError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
-        }`}
-      >
+    <Card className="border-primary/30 bg-primary/5 p-4">
+      {/* Value first — lead with what the organizer gains. */}
+      <p className="text-xs font-semibold uppercase tracking-wide text-primary">Pay now (optional)</p>
+      <h3 className="mt-1 font-serif text-lg text-foreground">Open your collection to more voices</h3>
+
+      <div className="mt-3 flex items-baseline gap-3">
+        <span className="font-serif text-3xl leading-none text-foreground">
+          3 <span className="text-muted-foreground">→</span> 10
+        </span>
+        <span className="text-xs text-muted-foreground">people who can add a memory</span>
+      </div>
+
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-primary/60">
+        <li>
+          More people can add a memory — your share link opens from{' '}
+          <span className="font-medium text-foreground">3 to 10</span>. No one person holds the whole story, so this makes
+          room to gather it.
+        </li>
+        <li>
+          It’s the <span className="font-medium text-foreground">same one-time {priceLabel}</span> whether you pay now or at
+          the end.
+        </li>
+        <li>Finalizing later is then already paid for — no checkout at the last step.</li>
+      </ul>
+
+      {/* CTA — primary, prominent. */}
+      <div className="mt-4">
+        <Button type="button" size="lg" className="w-full sm:w-auto" disabled={busy} onClick={() => void payAdvance()}>
+          {busy ? 'Starting…' : `Pay now and open to 10 people${price ? ` — ${price}` : ''}`}
+        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Same price either way — paying now just adds room and saves you a step later.
+        </p>
+      </div>
+
+      {/* Consent + waiver — quiet fine print, last. Button validates on click; not gated. */}
+      <label className="mt-4 flex max-w-full cursor-pointer items-start gap-2 text-xs text-muted-foreground">
         <input
           type="checkbox"
           checked={termsAccepted}
@@ -269,8 +302,9 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
             if (e.target.checked) setTermsError(false);
           }}
           disabled={busy}
+          aria-invalid={termsError}
+          aria-describedby={termsError ? 'advance-terms-error' : undefined}
           className="mt-0.5 h-4 w-4 rounded border-border"
-          aria-label="Agree to terms and start delivery"
         />
         <span>
           I agree to the{' '}
@@ -281,20 +315,17 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
           <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </a>
-          . My one-time fee is charged now; creating the finished piece is a digital service I ask to begin when I finalize, and I understand my EU/UK 14-day right to withdraw is lost once it’s created.
+          . My one-time fee is charged now. Creating the finished piece is a digital service I’m asking to begin when I
+          finalize, and I understand that once it’s created I lose my EU/UK 14-day right to withdraw.
         </span>
       </label>
-      <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void payAdvance()}>
-        {busy ? 'Starting…' : `Pay your one-time fee now${price ? ` — ${price}` : ''}`}
-      </Button>
-      <p className="mt-1.5 text-xs text-muted-foreground">
-        Settle the single fee now and <span className="font-medium text-foreground">finalizing later is free</span> — and your
-        link opens up from <span className="font-medium text-foreground">3 to 10 people</span> who can add a memory. It’s the
-        same one-time fee either way — and it covers the finished piece, a keepsake PDF, and a spoken version when you’re
-        ready to create it.
-      </p>
-      {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}
-    </div>
+      {termsError ? (
+        <p id="advance-terms-error" role="alert" aria-live="polite" className="mt-1 text-xs text-destructive">
+          Please agree to the terms to continue.
+        </p>
+      ) : null}
+      {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
+    </Card>
   );
 }
 
@@ -306,17 +337,13 @@ function DirectEmailCard({
   inviteText,
   organizerName,
   honoreeName,
-  organizerEmail,
   paid,
-  price,
 }: {
   adminToken: string;
   inviteText: string;
   organizerName?: string;
   honoreeName?: string;
-  organizerEmail?: string;
   paid: boolean;
-  price: string | null;
   atCap?: boolean;
 }) {
   const [name, setName] = React.useState('');
@@ -379,10 +406,7 @@ function DirectEmailCard({
         email address.
       </p>
 
-      {/* Advance-pay: unlock 10/day + free finalize. */}
-      <AdvancePayBlock adminToken={adminToken} organizerEmail={organizerEmail} paid={paid} price={price} />
-
-      <p className="mt-3 text-xs font-medium text-muted-foreground">Invite someone</p>
+      <p className="mt-4 text-xs font-medium text-muted-foreground">Invite someone</p>
 
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
