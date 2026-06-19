@@ -45,6 +45,13 @@ interface SubmitErrorState {
   retryable: boolean;
 }
 
+// Respect the user's reduced-motion preference for our programmatic scrolls.
+function scrollBehavior(): ScrollBehavior {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
+}
+
 export interface ContributorFormProps {
   shareToken: string;
   occasionTitle: string;
@@ -158,7 +165,7 @@ export function ContributorForm({
   const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
     if (blockedReason && blockedPanelRef.current) {
-      blockedPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      blockedPanelRef.current.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
     }
   }, [blockedReason]);
 
@@ -166,9 +173,25 @@ export function ContributorForm({
   const consentRef = React.useRef<HTMLLabelElement | null>(null);
   React.useEffect(() => {
     if (consentError && consentRef.current) {
-      consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      consentRef.current.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
     }
   }, [consentError]);
+
+  // On a failed submit (missing required field or bad email), scroll the first
+  // invalid field into view — otherwise the error can be off-screen and the submit
+  // looks like it silently did nothing. Gated on a per-submit nonce (not on the
+  // errors object) so it fires once per attempt, never while the user is typing a
+  // fix into a different field. The field's own role="alert" error announces it to
+  // screen readers, so we scroll rather than steal focus. Scoped to text controls.
+  const formRef = React.useRef<HTMLFormElement | null>(null);
+  const [errorScrollNonce, setErrorScrollNonce] = React.useState(0);
+  React.useEffect(() => {
+    if (errorScrollNonce === 0) return;
+    const el = formRef.current?.querySelector<HTMLElement>(
+      'input[aria-invalid="true"], textarea[aria-invalid="true"]',
+    );
+    el?.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
+  }, [errorScrollNonce]);
 
   const setField = React.useCallback((name: string, v: string) => {
     setValues((prev) => ({ ...prev, [name]: v }));
@@ -192,6 +215,7 @@ export function ContributorForm({
     }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      setErrorScrollNonce((n) => n + 1); // scroll to the first invalid field
       return;
     }
 
@@ -199,6 +223,7 @@ export function ContributorForm({
     setEmailError(null);
     if (!isOrganizer && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
       setEmailError('Please enter a valid email address.');
+      setErrorScrollNonce((n) => n + 1);
       return;
     }
 
@@ -461,7 +486,7 @@ export function ContributorForm({
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-5">
           <SectionCard heading="About you">
             {nameField && (
               <FieldRow
@@ -489,7 +514,9 @@ export function ContributorForm({
                   type="email"
                   autoComplete="email"
                   inputMode="email"
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  aria-invalid={!!emailError || undefined}
+                  aria-describedby={emailError ? 'contributor-email-error' : undefined}
+                  className={`w-full rounded-md border bg-background px-3 py-2 text-sm ${emailError ? 'border-destructive focus-visible:ring-destructive' : 'border-border'}`}
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => {
@@ -501,7 +528,7 @@ export function ContributorForm({
                   So we can keep memories tidy — one per person. We won’t publish it or sign you up for anything.
                 </p>
                 {emailError && (
-                  <p className="mt-1 text-xs text-destructive" role="alert">
+                  <p id="contributor-email-error" className="mt-1 text-xs text-destructive" role="alert">
                     {emailError}
                   </p>
                 )}
