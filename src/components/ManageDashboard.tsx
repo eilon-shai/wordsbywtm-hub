@@ -390,9 +390,11 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const deadline = formatDeadline(data.deadline);
   const deadlineDaysLeft = daysUntil(data.deadline);
   const price = data.priceShown ? `$${data.priceShown}` : null;
-  const progressValue = data.minContributions
-    ? Math.min(100, Math.round((includedCount / data.minContributions) * 100))
-    : 100;
+  // Completeness scale = everyone who can add a memory: the invite cap (3 free /
+  // 10 paid) plus the organizer's own memory. The bar grows with each memory
+  // instead of snapping to full at the minimum-of-1 synthesis floor.
+  const completenessTarget = (data.contributorCap ?? (data.paid ? 10 : 3)) + 1;
+  const progressValue = Math.min(100, Math.round((includedCount / completenessTarget) * 100));
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const shareLink = buildShareLink(origin, data.shareToken, data.occasion);

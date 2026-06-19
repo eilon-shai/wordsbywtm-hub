@@ -2,8 +2,9 @@
 // S5 — Contributor share page. PUBLIC, per contributor (baked backend path).
 // Server component: resolves the collection from the shareToken to learn the
 // occasion + status, then renders the (client) ContributorForm. No payment.
-// Pre-submit copy is generic by design — no public read of the honoree name
-// exists; the warm thank-you uses honoreeName from the submit response (§S5).
+// Invited contributors see the honoree name + occasion deliverable (they already
+// know who they're honoring); the organizer's name is shown once it's persisted
+// on the collection (venture-core follow-up).
 // ---------------------------------------------------------------------------
 
 import type { Metadata } from 'next';
@@ -115,7 +116,7 @@ export default async function ContributorSharePage({
           <div className="text-5xl mb-6" aria-hidden="true">🤍</div>
           <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">This collection is full</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Thank you for wanting to share a memory of {meta.honoreeLabel}. This collection has reached the
+            Thank you for wanting to share a memory of {collection.honoreeName}. This collection has reached the
             number of memories it can take — please let whoever invited you know if you’d still like yours included.
           </p>
         </div>
@@ -128,6 +129,8 @@ export default async function ContributorSharePage({
       shareToken={shareToken}
       occasionTitle={meta.title}
       honoreeLabel={meta.honoreeLabel}
+      honoreeName={collection.honoreeName}
+      deliverableNoun={meta.deliverableNoun}
       fields={fields}
       homeHref="/"
     />

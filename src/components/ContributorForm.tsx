@@ -48,8 +48,14 @@ interface SubmitErrorState {
 export interface ContributorFormProps {
   shareToken: string;
   occasionTitle: string;
-  /** Generic pre-submit honoree label (no public read exists before submit). */
+  /** Generic occasion honoree label (e.g. "the person we are honoring"). Fallback. */
   honoreeLabel: string;
+  /** Real honoree/couple name, shown to invited contributors. Falls back to honoreeLabel. */
+  honoreeName?: string;
+  /** Occasion deliverable noun for copy, e.g. "tribute" / "toast". Defaults to "tribute". */
+  deliverableNoun?: string;
+  /** Name of the organizer who invited them ("{name} is gathering…"). Optional. */
+  organizerName?: string;
   /** Field definitions from collectionConfig.contributorFormFields. */
   fields: FormFieldConfig[];
   /** Cross-occasion home for the soft cross-sell after submit. */
@@ -75,6 +81,9 @@ export function ContributorForm({
   shareToken,
   occasionTitle,
   honoreeLabel,
+  honoreeName,
+  deliverableNoun,
+  organizerName,
   fields,
   homeHref,
   variant = 'contributor',
@@ -85,6 +94,12 @@ export function ContributorForm({
   // Embedded create-flow step OR the dashboard write-later path: either way this
   // memory belongs to the organizer (flagged isOrganizer server-side).
   const isOrganizer = variant === 'organizer' || !!organizerReturnHref;
+  // Personalized pre-submit copy: name the honoree (invited contributors already
+  // know who they're honoring), the occasion's deliverable, and — when known —
+  // the organizer who invited them.
+  const honoreeDisplay = (honoreeName ?? '').trim() || honoreeLabel;
+  const deliverable = (deliverableNoun ?? '').trim() || 'tribute';
+  const inviter = (organizerName ?? '').trim();
   // Idempotency key generated once at mount, held across retries (§4).
   const idempotencyKeyRef = React.useRef<string>('');
   if (!idempotencyKeyRef.current) {
@@ -439,8 +454,10 @@ export function ContributorForm({
             {organizerReturnHref
               ? `Your memory of ${honoreeLabel} is pinned to the top of your collection and is always part of the final tribute.`
               : isOrganizer
-                ? `Add your own memory of ${honoreeLabel} first — it becomes the heart of the tribute. You’ll invite others to add theirs next.`
-                : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account to create, and you don’t pay anything.`}
+                ? `Add your own memory of ${honoreeDisplay} first — it becomes the heart of the ${deliverable}. You’ll invite others to add theirs next.`
+                : inviter
+                  ? `${inviter} is gathering memories of ${honoreeDisplay} into one ${deliverable} — and you’re invited to add yours. It takes a couple of minutes. No account to create, and you don’t pay anything.`
+                  : `You’ve been invited to add a memory of ${honoreeDisplay}, woven together with others into one ${deliverable}. It takes a couple of minutes. No account to create, and you don’t pay anything.`}
           </p>
         </div>
 
