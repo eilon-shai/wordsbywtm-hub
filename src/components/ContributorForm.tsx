@@ -45,11 +45,36 @@ interface SubmitErrorState {
   retryable: boolean;
 }
 
+// Respect the user's reduced-motion preference for our programmatic scrolls.
+function scrollBehavior(): ScrollBehavior {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
+}
+
 export interface ContributorFormProps {
   shareToken: string;
   occasionTitle: string;
-  /** Generic pre-submit honoree label (no public read exists before submit). */
+  /** Generic occasion honoree label (e.g. "the person we are honoring"). Fallback. */
   honoreeLabel: string;
+  /** Real honoree/couple name, shown to invited contributors. Falls back to honoreeLabel. */
+  honoreeName?: string;
+  /** Occasion deliverable noun for copy, e.g. "tribute" / "toast". Defaults to "tribute". */
+  deliverableNoun?: string;
+  /** Name of the organizer who invited them ("{name} is gathering…"). Optional. */
+  organizerName?: string;
+  /**
+   * Verified recipient email from an emailed invite's signed ?inv token. When
+   * set, the email field is prefilled and read-only — the contributor can't
+   * submit under a different address (the server also derives it from the token).
+   */
+  lockedEmail?: string;
+  /**
+   * The raw signed invite token (only passed when it verified). Sent on submit so
+   * the contribute handler derives the contributor email from it, ignoring the
+   * client field — tamper-proof one-memory-per-person identity.
+   */
+  inviteToken?: string;
   /** Field definitions from collectionConfig.contributorFormFields. */
   fields: FormFieldConfig[];
   /** Cross-occasion home for the soft cross-sell after submit. */
@@ -75,6 +100,11 @@ export function ContributorForm({
   shareToken,
   occasionTitle,
   honoreeLabel,
+  honoreeName,
+  deliverableNoun,
+  organizerName,
+  lockedEmail,
+  inviteToken,
   fields,
   homeHref,
   variant = 'contributor',
@@ -85,6 +115,12 @@ export function ContributorForm({
   // Embedded create-flow step OR the dashboard write-later path: either way this
   // memory belongs to the organizer (flagged isOrganizer server-side).
   const isOrganizer = variant === 'organizer' || !!organizerReturnHref;
+  // Personalized pre-submit copy: name the honoree (invited contributors already
+  // know who they're honoring), the occasion's deliverable, and — when known —
+  // the organizer who invited them.
+  const honoreeDisplay = (honoreeName ?? '').trim() || honoreeLabel;
+  const deliverable = (deliverableNoun ?? '').trim() || 'tribute';
+  const inviter = (organizerName ?? '').trim();
   // Idempotency key generated once at mount, held across retries (§4).
   const idempotencyKeyRef = React.useRef<string>('');
   if (!idempotencyKeyRef.current) {
@@ -112,7 +148,9 @@ export function ContributorForm({
   const [errors, setErrors] = React.useState<Record<string, string | undefined>>({});
   // Contributor email — required (the identity key for one-memory-per-person).
   // Organizers (write-later) are exempt; they're capped server-side another way.
-  const [email, setEmail] = React.useState('');
+  // For emailed invites the address is pre-verified and locked (read-only).
+  const emailLocked = !!lockedEmail;
+  const [email, setEmail] = React.useState(lockedEmail ?? '');
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [consent, setConsent] = React.useState(false);
   const [consentError, setConsentError] = React.useState(false);
@@ -143,7 +181,7 @@ export function ContributorForm({
   const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
     if (blockedReason && blockedPanelRef.current) {
-      blockedPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      blockedPanelRef.current.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
     }
   }, [blockedReason]);
 
@@ -151,9 +189,25 @@ export function ContributorForm({
   const consentRef = React.useRef<HTMLLabelElement | null>(null);
   React.useEffect(() => {
     if (consentError && consentRef.current) {
-      consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      consentRef.current.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
     }
   }, [consentError]);
+
+  // On a failed submit (missing required field or bad email), scroll the first
+  // invalid field into view — otherwise the error can be off-screen and the submit
+  // looks like it silently did nothing. Gated on a per-submit nonce (not on the
+  // errors object) so it fires once per attempt, never while the user is typing a
+  // fix into a different field. The field's own role="alert" error announces it to
+  // screen readers, so we scroll rather than steal focus. Scoped to text controls.
+  const formRef = React.useRef<HTMLFormElement | null>(null);
+  const [errorScrollNonce, setErrorScrollNonce] = React.useState(0);
+  React.useEffect(() => {
+    if (errorScrollNonce === 0) return;
+    const el = formRef.current?.querySelector<HTMLElement>(
+      'input[aria-invalid="true"], textarea[aria-invalid="true"]',
+    );
+    el?.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
+  }, [errorScrollNonce]);
 
   const setField = React.useCallback((name: string, v: string) => {
     setValues((prev) => ({ ...prev, [name]: v }));
@@ -177,6 +231,7 @@ export function ContributorForm({
     }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      setErrorScrollNonce((n) => n + 1); // scroll to the first invalid field
       return;
     }
 
@@ -184,6 +239,7 @@ export function ContributorForm({
     setEmailError(null);
     if (!isOrganizer && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
       setEmailError('Please enter a valid email address.');
+      setErrorScrollNonce((n) => n + 1);
       return;
     }
 
@@ -214,6 +270,9 @@ export function ContributorForm({
           shareToken,
           contributorName: values[NAME_FIELD].trim(),
           ...(email.trim() ? { contributorEmail: email.trim() } : {}),
+          // Tamper-proof identity for emailed invites: the server derives the
+          // email from this verified token, ignoring contributorEmail above.
+          ...(inviteToken ? { inviteToken } : {}),
           relationship: (values[RELATIONSHIP_FIELD] ?? '').trim() || undefined,
           memory: composeMemory(memoryValue, extras, isOrganizer),
           consent: true,
@@ -305,7 +364,7 @@ export function ContributorForm({
         retryable: true,
       });
     }
-  }, [consent, memoryValue, shareToken, values, extras, email, isOrganizer, onSubmitted, contributedKey]);
+  }, [consent, memoryValue, shareToken, values, extras, email, inviteToken, isOrganizer, onSubmitted, contributedKey]);
 
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
@@ -439,12 +498,14 @@ export function ContributorForm({
             {organizerReturnHref
               ? `Your memory of ${honoreeLabel} is pinned to the top of your collection and is always part of the final tribute.`
               : isOrganizer
-                ? `Add your own memory of ${honoreeLabel} first — it becomes the heart of the tribute. You’ll invite others to add theirs next.`
-                : `Someone invited you to add a memory of ${honoreeLabel}. It takes a couple of minutes, and it joins others into one combined tribute. No account to create, and you don’t pay anything.`}
+                ? `Add your own memory of ${honoreeDisplay} first — it becomes the heart of the ${deliverable}. You’ll invite others to add theirs next.`
+                : inviter
+                  ? `${inviter} is gathering memories of ${honoreeDisplay} into one ${deliverable} — and you’re invited to add yours. It takes a couple of minutes. No account to create, and you don’t pay anything.`
+                  : `You’ve been invited to add a memory of ${honoreeDisplay}, woven together with others into one ${deliverable}. It takes a couple of minutes. No account to create, and you don’t pay anything.`}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-5">
           <SectionCard heading="About you">
             {nameField && (
               <FieldRow
@@ -472,19 +533,29 @@ export function ContributorForm({
                   type="email"
                   autoComplete="email"
                   inputMode="email"
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  readOnly={emailLocked}
+                  aria-invalid={!!emailError || undefined}
+                  aria-describedby={emailError ? 'contributor-email-error' : undefined}
+                  className={`w-full rounded-md border px-3 py-2 text-sm ${
+                    emailLocked
+                      ? 'cursor-not-allowed border-border bg-muted text-muted-foreground'
+                      : 'bg-background'
+                  } ${emailError ? 'border-destructive bg-background focus-visible:ring-destructive' : 'border-border'}`}
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => {
+                    if (emailLocked) return;
                     setEmail(e.target.value);
                     if (emailError) setEmailError(null);
                   }}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
-                  So we can keep memories tidy — one per person. We won’t publish it or sign you up for anything.
+                  {emailLocked
+                    ? 'This invite was sent to you here — it keeps your memory tied to your name. We won’t publish it or sign you up for anything.'
+                    : 'So we can keep memories tidy — one per person. We won’t publish it or sign you up for anything.'}
                 </p>
                 {emailError && (
-                  <p className="mt-1 text-xs text-destructive" role="alert">
+                  <p id="contributor-email-error" className="mt-1 text-xs text-destructive" role="alert">
                     {emailError}
                   </p>
                 )}

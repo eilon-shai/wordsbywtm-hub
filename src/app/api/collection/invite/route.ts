@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
+import { getDbClient, getCollectionByAdminToken, signInviteEmail } from '@eilon-shai/venture-core/db';
 import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
 import { getRedisClient } from '@eilon-shai/venture-core/redis';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
@@ -188,12 +188,17 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
+    // Tamper-proof per-recipient link: a signed token of THIS recipient's email
+    // (r.email is already trimmed + lowercased above). The contributor page locks
+    // the email field to it, and the contribute handler derives the email from the
+    // verified token — so a recipient can't submit under a different address.
+    const inviteUrl = `${shareUrl}&inv=${encodeURIComponent(signInviteEmail(r.email))}`;
     try {
       await sendEmail(resend, {
         from,
         to: r.email,
         subject: `Add a memory for ${collection.honoreeName}`,
-        html: inviteEmailHtml({ honoreeName: collection.honoreeName, shareUrl, organizerName: orgName, accent, recipientName: r.name || undefined, deliverableNoun }),
+        html: inviteEmailHtml({ honoreeName: collection.honoreeName, shareUrl: inviteUrl, organizerName: orgName, accent, recipientName: r.name || undefined, deliverableNoun }),
       });
       sent += 1;
       if (redis) {

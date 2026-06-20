@@ -414,8 +414,7 @@ function DirectEmailCard({
       <p className="text-sm font-medium text-foreground">Prefer we send the invite for you? (optional)</p>
       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
         Your link can be used by up to <span className="font-medium text-foreground">{paid ? 10 : 3} people</span>. Email or
-        WhatsApp the invite one person at a time — up to <span className="font-medium text-foreground">12 a day</span>, once per
-        email address.
+        WhatsApp the invite one person at a time.
       </p>
 
       <p className="mt-4 text-xs font-medium text-muted-foreground">Invite someone</p>

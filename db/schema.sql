@@ -16,11 +16,14 @@ create table if not exists collections (
   created_at    timestamptz not null default now(),
   deadline      timestamptz,
   purge_after   timestamptz,
-  synthesis_prefs jsonb                                   -- organizer-set tone/length/avoid/context
+  synthesis_prefs jsonb,                                  -- organizer-set tone/length/avoid/context
+  organizer_name text                                     -- organizer display name (shown to invited contributors)
 );
 
 -- Additive migration for tables created before synthesis_prefs existed.
 alter table collections add column if not exists synthesis_prefs jsonb;
+-- Additive migration for tables created before organizer_name existed.
+alter table collections add column if not exists organizer_name text;
 
 create index if not exists collections_share_token_idx on collections (share_token);
 create index if not exists collections_admin_token_idx on collections (admin_token);

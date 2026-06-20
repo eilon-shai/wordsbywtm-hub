@@ -404,6 +404,9 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         body: JSON.stringify({
           honoreeName: honoreeName.trim(),
           organizerEmail: organizerEmail.trim(),
+          // The organizer's display name (their "Your name"), persisted so invited
+          // contributors see "{name} is gathering memories…" instead of "Someone".
+          ...(contributorName.trim() ? { organizerName: contributorName.trim() } : {}),
           occasion,
           tier,
           ...(deadline ? { deadline } : {}),
