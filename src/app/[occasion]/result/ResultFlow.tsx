@@ -836,7 +836,10 @@ function ResultFlowInner(props: ResultFlowProps) {
       {props.audioEnabled && backToken && audioState !== 'idle' ? (
         <div className="mt-6 flex flex-col items-center gap-2">
           {audioState === 'creating' ? (
-            <p className="text-sm text-muted-foreground">Creating the {audioVoice} audio narration… (a few seconds)</p>
+            <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status" aria-live="polite">
+              <Spinner size={16} />
+              Creating the {audioVoice} audio narration… (a few seconds)
+            </p>
           ) : null}
           {audioState === 'ready' ? (
             <>
