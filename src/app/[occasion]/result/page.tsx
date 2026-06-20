@@ -57,18 +57,58 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
   // paid-in-advance path (there's no per-finalize txn there, and the feedback
   // handler rejects non-txn ids like the admin token).
   let paidTxnId: string | undefined;
+  // When the lookup DEFINITIVELY returns no collection for a real admin token
+  // (e.g. the organizer deleted it), show a calm not-found instead of the
+  // prefs/checkout flow. We only set this on a clean null result — a DB error is
+  // swallowed below so a transient hiccup doesn't hard-block (the client re-checks).
+  let collectionMissing = false;
   if (adminToken) {
     try {
       const db = getDbClient();
       if (db) {
         const collection = await getCollectionByAdminToken(db, adminToken);
-        organizerEmail = collection?.organizerEmail;
-        paidInAdvance = !!collection?.paidAt;
-        paidTxnId = collection?.paidTxnId ?? undefined;
+        if (!collection) {
+          collectionMissing = true;
+        } else {
+          organizerEmail = collection.organizerEmail;
+          paidInAdvance = !!collection.paidAt;
+          paidTxnId = collection.paidTxnId ?? undefined;
+        }
       }
     } catch {
       /* lookup failed — leave defaults; the client re-checks via the API */
     }
+  }
+
+  // A deleted/expired collection reached via its ?t={adminToken} tribute link:
+  // its memories are gone, so there's nothing to finalize. Mirror the contributor
+  // share page's calm "couldn't open this" rather than rendering the prefs form.
+  if (collectionMissing) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="min-h-[60vh] bg-background flex items-center justify-center px-4 py-16">
+          <div className="max-w-md w-full text-center">
+            <div className="text-5xl mb-6" aria-hidden="true">🕯️</div>
+            <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
+              This collection is no longer available
+            </h1>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+              It looks like this collection has been deleted, so there’s nothing left to finalize —
+              the memories that were gathered have been removed. If this isn’t what you expected,
+              reach out at{' '}
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="underline hover:text-foreground">{SUPPORT_EMAIL}</a>.
+            </p>
+            <a
+              href={`/${occasion}`}
+              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              Start a new collection
+            </a>
+          </div>
+        </main>
+      </>
+    );
   }
 
   return (
