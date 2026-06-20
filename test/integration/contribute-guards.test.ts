@@ -62,4 +62,18 @@ describe('contribute guards', () => {
     expect(res.status).toBe(409);
     expect((await res.json()).code).toBe('COLLECTION_CLOSED');
   });
+
+  it('rejects a public contribution that uses the organizer’s own email (INVALID_EMAIL)', async () => {
+    // seeded organizerEmail is organizer@example.com — case-insensitive match.
+    const res = await contribute(makeRequest({ ...base, contributorEmail: 'Organizer@Example.com' }));
+    expect(res.status).toBe(400);
+    expect((await res.json()).code).toBe('INVALID_EMAIL');
+  });
+
+  it('allows the organizer’s own memory via isOrganizer (email guard does not apply)', async () => {
+    const res = await contribute(
+      makeRequest({ ...base, isOrganizer: true, contributorEmail: 'organizer@example.com', email: 'organizer@example.com' }),
+    );
+    expect(res.status).toBe(200);
+  });
 });

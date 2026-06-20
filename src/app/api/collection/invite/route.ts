@@ -110,6 +110,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unknown occasion', code: 'NOT_FOUND', retryable: false }, { status: 404 });
   }
 
+  // The organizer can't invite themselves — their own memory goes through the
+  // dashboard (as the pinned organizer entry), never as a contributor invite.
+  // Silently drop their address; only error if that leaves nobody to email.
+  const organizerEmailNorm = collection.organizerEmail.trim().toLowerCase();
+  const targets = clean.filter((r) => r.email !== organizerEmailNorm);
+  const selfSkipped = clean.length - targets.length;
+  if (targets.length === 0) {
+    return NextResponse.json(
+      { error: 'You can’t invite yourself — add the email addresses of the people you’d like to contribute.', code: 'INVALID_SESSION', retryable: false },
+      { status: 400 },
+    );
+  }
+
   const shareUrl = `${appBase(config.brand.domain)}/c/${collection.shareToken}?occasion=${collection.occasion}&src=invite`;
   const accent = config.email.brandColor || '#5a8fab';
   const deliverableNoun = getOccasionMeta(collection.occasion)?.deliverableNoun ?? 'tribute';
@@ -122,7 +135,7 @@ export async function POST(req: NextRequest) {
   // Respect DISABLE_EMAIL (preview/E2E): report success without consuming the
   // daily/per-recipient quota, so previews stay testable.
   if (process.env.DISABLE_EMAIL === 'true') {
-    return NextResponse.json({ sent: clean.length, skipped: 0, simulated: true });
+    return NextResponse.json({ sent: targets.length, skipped: selfSkipped, simulated: true });
   }
 
   // At most DAILY_CAP (12) invite emails per collection per day — flat, paid or
@@ -152,8 +165,8 @@ export async function POST(req: NextRequest) {
 
   const dayKey = `${prefix}:invite-day:${collection.id}:${today}`;
   let sent = 0;
-  let skipped = 0; // already emailed this person today (#1)
-  for (const r of clean) {
+  let skipped = selfSkipped; // organizer's own address (above) + already-emailed-today (below)
+  for (const r of targets) {
     const rcptKey = `${prefix}:invite-rcpt:${collection.id}:${r.email}`;
     if (redis) {
       try {

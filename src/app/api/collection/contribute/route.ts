@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { createSubmitContributionHandler } from '@eilon-shai/venture-core/api';
-import { getDbClient, getCollectionByShareToken } from '@eilon-shai/venture-core/db';
+import { getDbClient, getCollectionByShareToken, verifyInviteEmail } from '@eilon-shai/venture-core/db';
 import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
 import { resolveForTokenPost } from '@/lib/route-helpers';
 
@@ -67,11 +67,47 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Peek at the body (clone) BEFORE the handler consumes it, so we can notify the
   // organizer after a successful, non-organizer contribution.
-  let peek: { shareToken?: unknown; contributorName?: unknown; isOrganizer?: unknown } = {};
+  let peek: {
+    shareToken?: unknown;
+    contributorName?: unknown;
+    contributorEmail?: unknown;
+    inviteToken?: unknown;
+    isOrganizer?: unknown;
+  } = {};
   try {
     peek = await request.clone().json();
   } catch {
     /* unparseable — the handler will reject it; no notify */
+  }
+
+  // The organizer's email is reserved for the organizer's own (dashboard) memory —
+  // it must never be used to add a memory through the public share link. Block any
+  // non-organizer contribution whose effective email is the organizer's. The
+  // effective email is the inviteToken-derived one when present (tamper-proof),
+  // else the typed contributorEmail. We compare server-side and never expose the
+  // organizer's address to the client.
+  if (peek.isOrganizer !== true && typeof peek.shareToken === 'string' && peek.shareToken) {
+    let email =
+      typeof peek.contributorEmail === 'string' ? peek.contributorEmail.trim().toLowerCase() : '';
+    if (typeof peek.inviteToken === 'string' && peek.inviteToken) {
+      const verified = verifyInviteEmail(peek.inviteToken);
+      if (verified) email = verified.trim().toLowerCase();
+    }
+    if (email) {
+      const db = getDbClient();
+      const collection = db ? await getCollectionByShareToken(db, peek.shareToken).catch(() => null) : null;
+      if (collection && email === collection.organizerEmail.trim().toLowerCase()) {
+        return NextResponse.json(
+          {
+            error:
+              'That’s the organizer’s email. If you’re the organizer, add your memory from your collection dashboard — otherwise please use your own email.',
+            code: 'INVALID_EMAIL',
+            retryable: false,
+          },
+          { status: 400 },
+        );
+      }
+    }
   }
 
   const res = await createSubmitContributionHandler(resolved)(request);

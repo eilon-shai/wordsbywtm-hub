@@ -63,6 +63,23 @@ describe('invite anti-abuse — body/content-type guards (DISABLE_EMAIL on)', ()
     expect((await res.json()).code).toBe('COLLECTION_CLOSED');
   });
 
+  it('drops the organizer’s own email from recipients (can’t invite yourself)', async () => {
+    seedCollection({ occasion: 'memorial', adminToken: 'ad', organizerEmail: 'organizer@example.com' });
+    const res = await invite(
+      inviteReq({ adminToken: 'ad', recipients: [r('Me', 'Organizer@example.com'), r('B', 'b@example.com')] }),
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.sent).toBe(1); // only b@ — organizer self filtered out (case-insensitive)
+    expect(body.skipped).toBe(1); // the organizer's own address
+  });
+
+  it('400 when the only recipient is the organizer themselves', async () => {
+    seedCollection({ occasion: 'memorial', adminToken: 'ad', organizerEmail: 'organizer@example.com' });
+    const res = await invite(inviteReq({ adminToken: 'ad', recipients: [r('Me', 'organizer@example.com')] }));
+    expect(res.status).toBe(400);
+  });
+
   it('dedupes + slices to MAX_PER_REQUEST=3 and returns simulated under DISABLE_EMAIL', async () => {
     seedCollection({ occasion: 'memorial', adminToken: 'ad' });
     const res = await invite(
