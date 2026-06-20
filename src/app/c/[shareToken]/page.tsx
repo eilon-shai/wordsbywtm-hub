@@ -3,12 +3,13 @@
 // Server component: resolves the collection from the shareToken to learn the
 // occasion + status, then renders the (client) ContributorForm. No payment.
 // Invited contributors see the honoree name + occasion deliverable (they already
-// know who they're honoring); the organizer's name is shown once it's persisted
-// on the collection (venture-core follow-up).
+// know who they're honoring) and the organizer's name ("{name} is gathering…"),
+// now persisted on the collection. Emailed invites also carry a signed ?inv token
+// that locks the contributor's email to the verified recipient address.
 // ---------------------------------------------------------------------------
 
 import type { Metadata } from 'next';
-import { getDbClient, getCollectionByShareToken, countContributors, contributorCap } from '@eilon-shai/venture-core/db';
+import { getDbClient, getCollectionByShareToken, countContributors, contributorCap, verifyInviteEmail } from '@eilon-shai/venture-core/db';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ContributorForm } from '@/components/ContributorForm';
 import { OrganizerMemoryForm } from '@/components/OrganizerMemoryForm';
@@ -43,10 +44,18 @@ export default async function ContributorSharePage({
 }: {
   // Next 15 — params and searchParams are Promises.
   params: Promise<{ shareToken: string }>;
-  searchParams: Promise<{ as?: string; t?: string }>;
+  searchParams: Promise<{ as?: string; t?: string; inv?: string }>;
 }) {
   const { shareToken } = await params;
   const sp = await searchParams;
+
+  // Emailed invites carry ?inv=<signed email token>. Verify it server-side and,
+  // only when valid, lock the contributor's email to the verified address. A
+  // missing/tampered token simply degrades to the open form (editable email) —
+  // it never blocks contributing, and the contribute handler re-verifies the
+  // token, so a forged value can't be used to submit under someone else's email.
+  const invToken = typeof sp.inv === 'string' && sp.inv ? sp.inv : undefined;
+  const lockedEmail = invToken ? verifyInviteEmail(invToken) : null;
 
   const db = getDbClient();
   if (!db) {
@@ -131,6 +140,9 @@ export default async function ContributorSharePage({
       honoreeLabel={meta.honoreeLabel}
       honoreeName={collection.honoreeName}
       deliverableNoun={meta.deliverableNoun}
+      organizerName={collection.organizerName ?? undefined}
+      lockedEmail={lockedEmail ?? undefined}
+      inviteToken={lockedEmail ? invToken : undefined}
       fields={fields}
       homeHref="/"
     />

@@ -39,6 +39,11 @@ export function dbMockFactory() {
     countContributors: async (_db: unknown, collectionId: string) =>
       store.contributorCounts.get(collectionId) ?? 0,
     contributorCap: (paid: boolean) => (paid ? 10 : 3),
+    // Deterministic, round-trippable stand-ins for the real HMAC tokens — the
+    // app only needs sign→verify to round-trip and a tampered token to fail.
+    signInviteEmail: (email: string) => `inv1.${email.trim().toLowerCase()}`,
+    verifyInviteEmail: (token: string) =>
+      typeof token === 'string' && token.startsWith('inv1.') ? token.slice(5) : null,
     purgeExpired: async (_db: unknown) => {
       if (store.purgeThrows) throw new Error('purge boom');
       return store.purgedCount;

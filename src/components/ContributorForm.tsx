@@ -63,6 +63,18 @@ export interface ContributorFormProps {
   deliverableNoun?: string;
   /** Name of the organizer who invited them ("{name} is gathering…"). Optional. */
   organizerName?: string;
+  /**
+   * Verified recipient email from an emailed invite's signed ?inv token. When
+   * set, the email field is prefilled and read-only — the contributor can't
+   * submit under a different address (the server also derives it from the token).
+   */
+  lockedEmail?: string;
+  /**
+   * The raw signed invite token (only passed when it verified). Sent on submit so
+   * the contribute handler derives the contributor email from it, ignoring the
+   * client field — tamper-proof one-memory-per-person identity.
+   */
+  inviteToken?: string;
   /** Field definitions from collectionConfig.contributorFormFields. */
   fields: FormFieldConfig[];
   /** Cross-occasion home for the soft cross-sell after submit. */
@@ -91,6 +103,8 @@ export function ContributorForm({
   honoreeName,
   deliverableNoun,
   organizerName,
+  lockedEmail,
+  inviteToken,
   fields,
   homeHref,
   variant = 'contributor',
@@ -134,7 +148,9 @@ export function ContributorForm({
   const [errors, setErrors] = React.useState<Record<string, string | undefined>>({});
   // Contributor email — required (the identity key for one-memory-per-person).
   // Organizers (write-later) are exempt; they're capped server-side another way.
-  const [email, setEmail] = React.useState('');
+  // For emailed invites the address is pre-verified and locked (read-only).
+  const emailLocked = !!lockedEmail;
+  const [email, setEmail] = React.useState(lockedEmail ?? '');
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [consent, setConsent] = React.useState(false);
   const [consentError, setConsentError] = React.useState(false);
@@ -254,6 +270,9 @@ export function ContributorForm({
           shareToken,
           contributorName: values[NAME_FIELD].trim(),
           ...(email.trim() ? { contributorEmail: email.trim() } : {}),
+          // Tamper-proof identity for emailed invites: the server derives the
+          // email from this verified token, ignoring contributorEmail above.
+          ...(inviteToken ? { inviteToken } : {}),
           relationship: (values[RELATIONSHIP_FIELD] ?? '').trim() || undefined,
           memory: composeMemory(memoryValue, extras, isOrganizer),
           consent: true,
@@ -345,7 +364,7 @@ export function ContributorForm({
         retryable: true,
       });
     }
-  }, [consent, memoryValue, shareToken, values, extras, email, isOrganizer, onSubmitted, contributedKey]);
+  }, [consent, memoryValue, shareToken, values, extras, email, inviteToken, isOrganizer, onSubmitted, contributedKey]);
 
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
@@ -514,18 +533,26 @@ export function ContributorForm({
                   type="email"
                   autoComplete="email"
                   inputMode="email"
+                  readOnly={emailLocked}
                   aria-invalid={!!emailError || undefined}
                   aria-describedby={emailError ? 'contributor-email-error' : undefined}
-                  className={`w-full rounded-md border bg-background px-3 py-2 text-sm ${emailError ? 'border-destructive focus-visible:ring-destructive' : 'border-border'}`}
+                  className={`w-full rounded-md border px-3 py-2 text-sm ${
+                    emailLocked
+                      ? 'cursor-not-allowed border-border bg-muted text-muted-foreground'
+                      : 'bg-background'
+                  } ${emailError ? 'border-destructive bg-background focus-visible:ring-destructive' : 'border-border'}`}
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => {
+                    if (emailLocked) return;
                     setEmail(e.target.value);
                     if (emailError) setEmailError(null);
                   }}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
-                  So we can keep memories tidy — one per person. We won’t publish it or sign you up for anything.
+                  {emailLocked
+                    ? 'This invite was sent to you here — it keeps your memory tied to your name. We won’t publish it or sign you up for anything.'
+                    : 'So we can keep memories tidy — one per person. We won’t publish it or sign you up for anything.'}
                 </p>
                 {emailError && (
                   <p id="contributor-email-error" className="mt-1 text-xs text-destructive" role="alert">
