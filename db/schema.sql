@@ -42,9 +42,8 @@ create index if not exists collections_admin_token_idx on collections (admin_tok
 create index if not exists collections_purge_idx on collections (purge_after)
   where status <> 'generated';
 -- Deadline sweep target: open collections at/after their deadline.
--- TODO: confirm predicate matches prod pg_indexes (collections_deadline_idx).
 create index if not exists collections_deadline_idx on collections (deadline)
-  where status = 'open';
+  where status = 'open' and deadline is not null;
 
 create table if not exists contributions (
   id              uuid        primary key,
@@ -69,16 +68,16 @@ create index if not exists contributions_collection_idx on contributions (collec
 
 -- Race-safe abuse backstops (the documented one-memory-per-email / one-organizer
 -- guarantees). Partial unique indexes so two concurrent same-email (or
--- organizer-flagged) inserts can't both land. 'removed' rows are excluded so a
--- removed memory frees the slot for a resubmit.
--- TODO: confirm predicate matches prod pg_indexes (contributions_email_uniq).
+-- organizer-flagged) inserts can't both land. Predicates match prod pg_indexes
+-- exactly (verified 2026-06-21): the email slot is keyed on (collection_id,
+-- contributor_email_hash) regardless of status — i.e. a removed memory does NOT
+-- free the email to resubmit; one organizer row per collection regardless of status.
 create unique index if not exists contributions_email_uniq
   on contributions (collection_id, contributor_email_hash)
-  where contributor_email_hash is not null and status <> 'removed';
--- TODO: confirm predicate matches prod pg_indexes (contributions_organizer_uniq).
+  where contributor_email_hash is not null;
 create unique index if not exists contributions_organizer_uniq
   on contributions (collection_id)
-  where is_organizer = true and status <> 'removed';
+  where is_organizer;
 
 -- Feedback for the metrics dashboard. collection_id is a nullable FK so a row
 -- cascade-purges with its collection when the txn maps; product + transaction_id
