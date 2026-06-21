@@ -31,6 +31,16 @@ on:
   schedule:
     - cron: '0 6 * * *' # nightly 06:00 UTC — pre-spend signal
   workflow_dispatch: {} # run on demand (e.g. right after a venture-core bump)
+  # MF-6 (SES-048): a venture-core bump is exactly when contract drift lands, so
+  # run the gate as a real status check on any PR that touches the dependency pin.
+  # (Still gated on RUN_REVENUE_E2E below, so it no-ops until the founder provisions
+  # the test branch.) Mark "Revenue journey (Tier B)" a REQUIRED check in branch
+  # protection to block merging a bump that breaks the revenue path — see
+  # docs/REVENUE_E2E_SETUP.md.
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
 
 concurrency:
   group: revenue-e2e

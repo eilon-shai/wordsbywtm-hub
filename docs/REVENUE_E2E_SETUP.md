@@ -37,6 +37,13 @@ so it never red-X's for missing setup.
 
 5. Trigger a first run: **Actions → Revenue journey (Tier B e2e) → Run workflow**.
 
+6. **(MF-6) Make it a required check on dependency bumps.** The workflow also runs
+   automatically on any PR that changes `package.json` / `package-lock.json` (i.e. a
+   venture-core repin — exactly when contract drift lands). To block merging a bump
+   that breaks the revenue path: **Settings → Branches → branch protection for `main`
+   → Require status checks to pass → add `Revenue journey (Tier B)`**. (Until
+   `RUN_REVENUE_E2E=true` the job no-ops, so it won't block on un-provisioned forks.)
+
 ## What the run does
 - Applies `db/schema.sql` to the test branch (idempotent), so the branch is always current.
 - Boots `next dev` with `ENABLE_MOCK_PAYMENT=true DISABLE_EMAIL=true` and the test DB/Redis/Anthropic env.
