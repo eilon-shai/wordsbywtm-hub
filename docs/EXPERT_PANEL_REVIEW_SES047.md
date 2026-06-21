@@ -185,3 +185,51 @@ The adversarial pass found **no HIGH/CRITICAL finding to refute** — every HIGH
 **To clear the mandatory minimum (Prod-Readiness 7.60 → ≥8.0):** the single highest-leverage move is **fixing + verifying the schema** (§6.1) — it alone lifts the Backend cell off 6.8 and removes the Legal erasure-promise gap, which moves two of the lowest cells materially. Then land the four campaign-readiness HIGHs: `isOrganizer` gate (§6.2), pay-in-advance conversion (§6.3), consent banner + Consent Mode v2 (§6.4), and sub-processor disclosure (§6.5). Those five fixes are concentrated and small, and they directly raise the Backend, Security, Marketing, and Legal Prod-Readiness cells above 8.
 
 **To reach ≥9 (the lever, still not pulled):** add mid-funnel events + sitemap/robots (§6.6), put the revenue journey behind a scheduled real-DB CI gate + the double-usage idempotency tests (§6.7, §7), reconcile the venture-core source/dist divergence so the deployed artifact is auditable, ship the occasion-aware success icon, and complete a live preview run across all four occasions on both payment paths. With the schema CRITICAL closed and the campaign-readiness cluster landed, the codebase is comfortably ≥8 across the board; the 9+ tier is gated on automated revenue-path coverage + the live run, not on new correctness work.
+
+---
+
+## 10. Issue Tracker (progress)
+
+Status legend: ✅ done · 🔵 verified N/A (no action needed) · ⬜ open (engineering) · 👤 founder-owned · ⏳ deferred / track-only.
+Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
+
+### Resolved in PR #42
+- [x] ✅ **[HIGH][Security] `isOrganizer` trusted without admin-token proof** — server now honors it only on a constant-time `adminToken` match; unproven claims degraded to a normal capped/email contribution. `contribute/route.ts` (+clients) — *PR #42, +tests*
+- [x] ✅ **[CRITICAL/HIGH][Backend/Architect/Legal] `db/schema.sql` stale vs runtime** — reconciled: all runtime columns + the 2 partial unique indexes + deadline idx, predicates matched **exactly** to prod `pg_indexes`. `db/schema.sql` — *PR #42*
+- [x] ✅ **[HIGH][Marketing] Pay-in-advance never fires the `purchase` event** — fires once on `/collect/paid`, txn-deduped. `collect/paid/page.tsx` — *PR #42*
+- [x] ✅ **[HIGH][Legal] Trackers load with no consent gate** — Consent Mode v2 default-denied + consent banner; Clarity loads only on consent. `SiteAnalytics.tsx`, `ConsentBanner.tsx` — *PR #42*
+- [x] ✅ **[HIGH][Legal] Privacy omits Google/Microsoft sub-processors + no cookie section** — added (interim, pending LC-03). `privacy/page.tsx` — *PR #42*
+- [x] ✅ **[HIGH][Marketing] No mid-funnel events** — `collection_created` + `begin_checkout` on both pay paths. `analytics.ts`, `CreateForm.tsx`, `ResultFlow.tsx`, `InviteBlock.tsx` — *PR #42*
+- [x] ✅ **[HIGH][Marketing] No sitemap/robots** — added `app/sitemap.ts` + `app/robots.ts`. *PR #42*
+- [x] ✅ **[MEDIUM][UX] Success icon hardcoded 🤍 (mourning) on all occasions** — `OccasionMeta.successIcon` threaded (memorial 🤍, wedding 🥂, retirement 🎉, anniversary 💞). *PR #42*
+
+### Verified N/A (prod confirmed correct — see §0)
+- [x] 🔵 **[CRITICAL] "prod payment/synthesis broken by stale schema"** — prod Neon has all columns + both unique indexes; not broken. (Schema *file* still reconciled above for fresh/DR DBs.)
+- [x] 🔵 **[MEDIUM][Backend] one-per-email / one-organizer backstop lost (TOCTOU)** — the unique indexes exist in prod.
+
+### Open — engineering (not yet done)
+- [ ] ⬜ **[HIGH][QA] Revenue journey has no automated CI gate** — stand up a disposable Neon test branch + scheduled (pre-spend) happy-path run with `E2E_ALLOW_DB_WRITES=1`. `e2e/collection-happy-path.spec.ts`
+- [ ] ⬜ **[MEDIUM][QA] No double-usage idempotency tests** — webhook replay / double mark-paid / double finalize. `test/integration/webhook.test.ts`
+- [ ] ⬜ **[MEDIUM][QA] Signed-invite HMAC has no round-trip/tamper test** (venture-core unit tests). 
+- [ ] ⬜ **[MEDIUM][QA] 3 new abuse guards missing from the manual E2E checklist** (rate-limit 429, organizer-own-address rejection, deleted-token not-found). `docs/MANUAL_E2E_TEST_PLAN.md`
+- [ ] ⬜ **[MEDIUM][Architect] Startup guard doesn't assert prod-vs-sandbox** Paddle ids/prices. `src/lib/registry.ts`
+- [ ] ⬜ **[MEDIUM][UX] Create form front-loads 8 required fields** — make "write later" prominent; consider deferring `relationshipDescription`. `CreateForm.tsx`
+- [ ] ⬜ **[MEDIUM][UX] Hardcoded "$49"** on prefs/pay + upsell — pass `config.tiers.full.displayPrice`. `ResultFlow.tsx`, `InviteBlock.tsx`
+- [ ] ⬜ **[MEDIUM][UX/Frontend] Required fields signalled by visual-only asterisk** — add `aria-required` + sr-only "(required)". `forked/FormPrimitives.tsx`
+- [ ] ⬜ **[MEDIUM][Marketing] `metadataBase` (www) contradicts non-www canonical** — align + 301. `layout.tsx`
+- [ ] ⬜ **[MEDIUM][Frontend] Create-form deadline date hydration-mismatch risk** (server UTC vs client local). `CreateForm.tsx`
+- [ ] ⬜ **[MEDIUM][Frontend] Edit-memory modal doesn't inert/scroll-lock the background.** `ManageDashboard.tsx`
+- [ ] ⬜ **[MEDIUM][Architect] venture-core source/dist divergence** (working tree 1.5.0 vs deployed 1.24.0) — portfolio continuity. 
+- [ ] ⬜ **[LOW] batch** — `PurchaseTracker` Suspense wrap; audio player a11y name; confirm-email `autoComplete`; moderate-toggle error visibility; `isProd`→`VERCEL_ENV`; audio POST rate-limit; webhook `event_id` dedup (hygiene); `setCollectionGenerated` conditional write; `resend-link` hash email key; `check-existing` oracle note; invite-token nonce/TTL; encryption-key naming; organizer-email-at-rest parity; render-test for the noun; `rate-limit.ts` unit tests; mobile share-link wrap; canonical waiver string; "done"-screen tone labels; Twitter card meta. *(see §7 LOW — pick up opportunistically)*
+
+### Founder-owned (not engineering defects)
+- [ ] 👤 **LC-03** — attorney ratification of the legal pages (must cover the interim Google/Microsoft sub-processors, consent-version, GDPR Art. 9 special-category, AI Act Art. 50 marking plan).
+- [ ] 👤 **Production live Paddle PRICE ids** for every live occasion (verify non-sandbox in prod).
+- [ ] 👤 **Set `CONTRIBUTION_HASH_SECRET`** (+ ideally a dedicated encryption key) in Vercel prod.
+- [ ] 👤 **Real-money smoke** on BOTH pay paths after analytics fixes (GA4 DebugView + Ads tag assistant).
+- [ ] 👤 **Ad-ops guardrail** (policy): memorial = keyword search only; no remarketing / Customer Match off memorial traffic.
+
+### Deferred / track-only
+- [ ] ⏳ **[MEDIUM][Legal] AI-content label/watermark** (EU AI Act Art. 50, ~Dec-2026). `ResultFlow.tsx`
+- [ ] ⏳ **[MEDIUM][Legal] Contributor consent as bare boolean** — store timestamp + consent-text version (or soften policy); fold into LC-03. `ContributorForm.tsx`
+- [ ] ⏳ **[MEDIUM][Legal] GDPR Art. 9 special-category basis** for grief/health/religious memories — fold into LC-03. `privacy/page.tsx`
