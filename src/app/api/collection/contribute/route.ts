@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse, after } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { createSubmitContributionHandler } from '@eilon-shai/venture-core/api';
 import { getDbClient, getCollectionByShareToken, verifyInviteEmail } from '@eilon-shai/venture-core/db';
@@ -7,6 +8,17 @@ import { resolveForTokenPost } from '@/lib/route-helpers';
 import { getOccasionMeta } from '@/lib/registry';
 
 export const maxDuration = 60;
+
+// Constant-time compare of two secrets. Guards length first (timingSafeEqual
+// throws on unequal-length Buffers) — a length mismatch is an immediate,
+// non-secret-leaking false.
+function tokenMatches(provided: unknown, expected: string): boolean {
+  if (typeof provided !== 'string' || !provided || !expected) return false;
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 function appBase(domain: string): string {
   return domain.startsWith('http') ? domain.replace(/\/$/, '') : `https://${domain}`;
@@ -68,13 +80,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (resolved instanceof NextResponse) return resolved;
 
   // Peek at the body (clone) BEFORE the handler consumes it, so we can notify the
-  // organizer after a successful, non-organizer contribution.
+  // organizer after a successful, non-organizer contribution AND gate the
+  // client-supplied isOrganizer flag on admin-token proof.
   let peek: {
     shareToken?: unknown;
     contributorName?: unknown;
     contributorEmail?: unknown;
     inviteToken?: unknown;
     isOrganizer?: unknown;
+    adminToken?: unknown;
   } = {};
   try {
     peek = await request.clone().json();
@@ -82,45 +96,78 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     /* unparseable — the handler will reject it; no notify */
   }
 
+  // Resolve the collection once (used for both the organizer-token proof and the
+  // organizer-email guard). Best-effort; a null result degrades safely below.
+  const shareTokenStr = typeof peek.shareToken === 'string' ? peek.shareToken : '';
+  let collection: Awaited<ReturnType<typeof getCollectionByShareToken>> | null = null;
+  if (shareTokenStr) {
+    const db = getDbClient();
+    collection = db ? await getCollectionByShareToken(db, shareTokenStr).catch(() => null) : null;
+  }
+
+  // SECURITY: isOrganizer is a CLIENT-supplied flag. Honored only when proven —
+  // the request carries the collection's private adminToken (constant-time match).
+  // Without proof we MUST NOT trust it: a bare isOrganizer:true would otherwise
+  // bypass the email requirement, the contributor cap, and the email-dedup, and
+  // squat the pinned organizer slot. When unproven we DEGRADE (don't reject):
+  // rewrite the forwarded body with isOrganizer forced to false so the request
+  // is processed as a normal capped, email-required contribution.
+  const claimsOrganizer = peek.isOrganizer === true;
+  const provenOrganizer =
+    claimsOrganizer && !!collection && tokenMatches(peek.adminToken, collection.adminToken);
+
   // The organizer's email is reserved for the organizer's own (dashboard) memory —
   // it must never be used to add a memory through the public share link. Block any
-  // non-organizer contribution whose effective email is the organizer's. The
-  // effective email is the inviteToken-derived one when present (tamper-proof),
-  // else the typed contributorEmail. We compare server-side and never expose the
-  // organizer's address to the client.
-  if (peek.isOrganizer !== true && typeof peek.shareToken === 'string' && peek.shareToken) {
+  // non-(proven-)organizer contribution whose effective email is the organizer's.
+  // A proven organizer legitimately uses the organizer email, so skip this guard
+  // for them. The effective email is the inviteToken-derived one when present
+  // (tamper-proof), else the typed contributorEmail. Compared server-side; the
+  // organizer's address is never exposed to the client.
+  if (!provenOrganizer && shareTokenStr) {
     let email =
       typeof peek.contributorEmail === 'string' ? peek.contributorEmail.trim().toLowerCase() : '';
     if (typeof peek.inviteToken === 'string' && peek.inviteToken) {
       const verified = verifyInviteEmail(peek.inviteToken);
       if (verified) email = verified.trim().toLowerCase();
     }
-    if (email) {
-      const db = getDbClient();
-      const collection = db ? await getCollectionByShareToken(db, peek.shareToken).catch(() => null) : null;
-      if (collection && email === collection.organizerEmail.trim().toLowerCase()) {
-        return NextResponse.json(
-          {
-            error:
-              'That’s the organizer’s email. If you’re the organizer, add your memory from your collection dashboard — otherwise please use your own email.',
-            code: 'INVALID_EMAIL',
-            retryable: false,
-          },
-          { status: 400 },
-        );
-      }
+    if (email && collection && email === collection.organizerEmail.trim().toLowerCase()) {
+      return NextResponse.json(
+        {
+          error:
+            'That’s the organizer’s email. If you’re the organizer, add your memory from your collection dashboard — otherwise please use your own email.',
+          code: 'INVALID_EMAIL',
+          retryable: false,
+        },
+        { status: 400 },
+      );
     }
   }
 
-  const res = await createSubmitContributionHandler(resolved)(request);
+  // When isOrganizer was claimed but NOT proven, rewrite the forwarded request
+  // body with isOrganizer:false (degrade to a normal contribution) before
+  // delegating. Mirror the create route's clone+rebuild. A proven organizer (and
+  // any request that didn't claim organizer) passes through unchanged.
+  let forwarded = request;
+  if (claimsOrganizer && !provenOrganizer) {
+    try {
+      const body = (await request.clone().json()) as Record<string, unknown>;
+      body.isOrganizer = false;
+      forwarded = new NextRequest(request.url, {
+        method: 'POST',
+        headers: request.headers,
+        body: JSON.stringify(body),
+      });
+    } catch {
+      // Unparseable — the handler will reject it; nothing to rewrite.
+    }
+  }
 
-  if (
-    res.ok &&
-    peek.isOrganizer !== true &&
-    typeof peek.shareToken === 'string' &&
-    peek.shareToken
-  ) {
-    const shareToken = peek.shareToken;
+  const res = await createSubmitContributionHandler(resolved)(forwarded);
+
+  // Notify the organizer for any non-(proven-)organizer contribution — including a
+  // degraded (unproven isOrganizer) one, which is now a normal contribution.
+  if (res.ok && !provenOrganizer && shareTokenStr) {
+    const shareToken = shareTokenStr;
     const contributorName = typeof peek.contributorName === 'string' ? peek.contributorName : '';
     try {
       after(() => notifyOrganizer(resolved, shareToken, contributorName));

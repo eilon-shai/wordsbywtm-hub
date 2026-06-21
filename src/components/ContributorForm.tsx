@@ -61,6 +61,8 @@ export interface ContributorFormProps {
   honoreeName?: string;
   /** Occasion deliverable noun for copy, e.g. "tribute" / "toast". Defaults to "tribute". */
   deliverableNoun?: string;
+  /** Occasion success/terminal icon (e.g. 🤍 memorial, 🥂 wedding). Defaults to 🤍. */
+  successIcon?: string;
   /** Name of the organizer who invited them ("{name} is gathering…"). Optional. */
   organizerName?: string;
   /**
@@ -102,6 +104,7 @@ export function ContributorForm({
   honoreeLabel,
   honoreeName,
   deliverableNoun,
+  successIcon,
   organizerName,
   lockedEmail,
   inviteToken,
@@ -120,6 +123,7 @@ export function ContributorForm({
   // the organizer who invited them.
   const honoreeDisplay = (honoreeName ?? '').trim() || honoreeLabel;
   const deliverable = (deliverableNoun ?? '').trim() || 'tribute';
+  const icon = (successIcon ?? '').trim() || '🤍';
   const inviter = (organizerName ?? '').trim();
   // Idempotency key generated once at mount, held across retries (§4).
   const idempotencyKeyRef = React.useRef<string>('');
@@ -379,7 +383,7 @@ export function ContributorForm({
     return (
       <CenteredCard>
         <div className="text-5xl mb-6" aria-hidden="true">
-          🤍
+          {icon}
         </div>
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           You’ve already shared a memory
@@ -394,7 +398,7 @@ export function ContributorForm({
 
   // ---- terminal: closed / not-found / full ---------------------------------
   if (terminal) {
-    const icon = terminal === 'closed' ? '🤍' : terminal === 'full' ? '🤍' : '🔗';
+    const terminalIcon = terminal === 'notfound' ? '🔗' : icon;
     const heading =
       terminal === 'closed'
         ? 'This collection has closed'
@@ -409,7 +413,7 @@ export function ContributorForm({
           : 'We couldn’t find a collection for this link. Ask whoever invited you for a fresh one.';
     return (
       <CenteredCard>
-        <div className="text-5xl mb-6" aria-hidden="true">{icon}</div>
+        <div className="text-5xl mb-6" aria-hidden="true">{terminalIcon}</div>
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">{heading}</h1>
         <p className="text-muted-foreground text-sm leading-relaxed">{body}</p>
       </CenteredCard>
@@ -426,7 +430,7 @@ export function ContributorForm({
       return (
         <CenteredCard>
           <div className="text-5xl mb-6" aria-hidden="true">
-            🤍
+            {icon}
           </div>
           <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
             Your memory of {who} has been added
@@ -450,7 +454,7 @@ export function ContributorForm({
     return (
       <CenteredCard>
         <div className="text-5xl mb-6" aria-hidden="true">
-          🤍
+          {icon}
         </div>
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           Thank you — your memory of {who} has been added

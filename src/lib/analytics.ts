@@ -39,3 +39,29 @@ export function trackPurchase(opts: { value: number; occasion: string; transacti
     });
   }
 }
+
+/**
+ * Fire a mid-funnel lead event when a collection is created (the free→paid
+ * funnel's top micro-conversion). Safe no-op when GA4 isn't configured.
+ */
+export function trackLead(opts: { occasion: string }): void {
+  const g = gtag();
+  if (!g) return;
+  g('event', 'collection_created', {
+    items: [{ item_id: opts.occasion, item_name: `${opts.occasion} collection` }],
+  });
+}
+
+/**
+ * Fire a begin_checkout event when the Paddle overlay opens (either pay path).
+ * Feeds Smart Bidding a micro-conversion during cold-start. No-op without GA4.
+ */
+export function trackBeginCheckout(opts: { value: number; occasion: string }): void {
+  const g = gtag();
+  if (!g) return;
+  g('event', 'begin_checkout', {
+    value: opts.value,
+    currency: 'USD',
+    items: [{ item_id: opts.occasion, item_name: `${opts.occasion} collection` }],
+  });
+}

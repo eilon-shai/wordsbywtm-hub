@@ -53,6 +53,14 @@ describe('registry', () => {
       expect((cc?.contributorFormFields ?? []).length, o.slug).toBeGreaterThan(0);
       expect(o.deliverableNoun, o.slug).toBeTruthy();
       expect(o.readAloudContext, o.slug).toBeTruthy();
+      expect(o.successIcon, o.slug).toBeTruthy();
+    }
+  });
+
+  it('memorial keeps the white heart; celebratory occasions use a distinct icon', () => {
+    expect(getOccasionMeta('memorial')?.successIcon).toBe('🤍');
+    for (const slug of ['wedding', 'retirement', 'anniversary']) {
+      expect(getOccasionMeta(slug)?.successIcon, slug).not.toBe('🤍');
     }
   });
 });

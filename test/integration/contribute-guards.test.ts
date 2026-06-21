@@ -70,10 +70,43 @@ describe('contribute guards', () => {
     expect((await res.json()).code).toBe('INVALID_EMAIL');
   });
 
-  it('allows the organizer’s own memory via isOrganizer (email guard does not apply)', async () => {
+  it('honors isOrganizer + the organizer email when proven by a matching adminToken', async () => {
+    const meta = [...store.collections.values()][0];
     const res = await contribute(
-      makeRequest({ ...base, isOrganizer: true, contributorEmail: 'organizer@example.com', email: 'organizer@example.com' }),
+      makeRequest({
+        ...base,
+        isOrganizer: true,
+        adminToken: meta.adminToken,
+        contributorEmail: 'organizer@example.com',
+        email: 'organizer@example.com',
+      }),
     );
+    // Proven organizer: the organizer-email guard is skipped, so the request
+    // passes through to the handler (200) instead of the INVALID_EMAIL rejection.
     expect(res.status).toBe(200);
+  });
+
+  it('degrades isOrganizer:true with NO adminToken to a normal contribution (email guard applies)', async () => {
+    // Unproven organizer using the organizer's own email → degraded to a normal
+    // contribution, so the public organizer-email guard rejects it.
+    const res = await contribute(
+      makeRequest({ ...base, isOrganizer: true, contributorEmail: 'organizer@example.com' }),
+    );
+    expect(res.status).toBe(400);
+    expect((await res.json()).code).toBe('INVALID_EMAIL');
+  });
+
+  it('degrades isOrganizer:true with a WRONG adminToken to a normal, capped/deduped contribution', async () => {
+    // Fill the free cap of 3 with normal contributors (the first one claims
+    // isOrganizer with a wrong token, so it must still count against the cap).
+    await contribute(makeRequest({ ...base, isOrganizer: true, adminToken: 'wrong', email: 'one@example.com' }));
+    await contribute(makeRequest({ ...base, email: 'two@example.com' }));
+    await contribute(makeRequest({ ...base, email: 'three@example.com' }));
+    // A 4th unproven-organizer submit must be capped (NOT exempted by isOrganizer).
+    const res = await contribute(
+      makeRequest({ ...base, isOrganizer: true, adminToken: 'wrong', email: 'four@example.com' }),
+    );
+    expect(res.status).toBe(409);
+    expect((await res.json()).code).toBe('COLLECTION_FULL');
   });
 });

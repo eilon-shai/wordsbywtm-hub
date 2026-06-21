@@ -23,6 +23,7 @@ import {
   setActiveTransaction,
 } from '@eilon-shai/venture-core/components';
 import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitives';
+import { trackBeginCheckout } from '@/lib/analytics';
 
 // sessionStorage key for the chosen synthesis prefs — persisted right before we
 // open Paddle on the unpaid path so they survive the redirect back with ?txn=.
@@ -126,6 +127,8 @@ interface ResultFlowProps {
   deliverableNoun?: string;
   /** Where it's read aloud for this occasion ("at the service" | "at the reception" | …). */
   readAloudContext?: string;
+  /** Numeric finalize price — used for the begin_checkout analytics value. */
+  priceValue?: number;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
@@ -533,6 +536,9 @@ function ResultFlowInner(props: ResultFlowProps) {
         setSubmitting(false);
         return;
       }
+
+      // Mid-funnel: checkout is starting (overlay/redirect about to open).
+      trackBeginCheckout({ value: props.priceValue ?? 0, occasion: props.occasion });
 
       // Mock mode: synthetic txn + redirectUrl — just navigate to the return URL.
       if (transactionId.startsWith('mock_')) {
