@@ -60,7 +60,7 @@ export const weddingLandingConfig: LandingPageConfig = {
 
   howItWorks: {
     eyebrow: 'How it works',
-    heading: 'Three steps, one toast',
+    heading: 'Four steps, one toast',
     steps: [
       {
         step: '01',
@@ -70,10 +70,15 @@ export const weddingLandingConfig: LandingPageConfig = {
       {
         step: '02',
         title: 'Invite both sides',
-        body: 'Share one link with the wedding party, family, and friends. Each person adds a story in about two minutes — no account, no payment — then you review every one and choose what to include.',
+        body: 'Share one link with the wedding party, family, and friends. Each person adds a story in about two minutes — no account, no payment.',
       },
       {
         step: '03',
+        title: 'Review what came in',
+        body: 'Read every story as it arrives. Everything’s included by default — leave out anything that doesn’t fit.',
+      },
+      {
+        step: '04',
         title: 'Weave them into one toast',
         body: 'When you’re ready, pay once and we weave the stories into one toast — then it’s yours to read at the reception, keep as a printable page, and hear in a warm voice.',
       },

@@ -60,7 +60,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
 
   howItWorks: {
     eyebrow: 'How it works',
-    heading: 'Three steps, one tribute',
+    heading: 'Four steps, one tribute',
     steps: [
       {
         step: '01',
@@ -70,10 +70,15 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       {
         step: '02',
         title: 'Invite family and friends',
-        body: 'Share one link with everyone who knows the couple. Each person adds a memory in about two minutes — no account, no payment — then you review every one and choose what to include.',
+        body: 'Share one link with everyone who knows the couple. Each person adds a memory in about two minutes — no account, no payment.',
       },
       {
         step: '03',
+        title: 'Review what came in',
+        body: 'Read every memory as it arrives. Everything’s included by default — leave out anything that doesn’t belong.',
+      },
+      {
+        step: '04',
         title: 'Weave them into one tribute',
         body: 'When you’re ready, pay once and we weave the memories into one tribute — then it’s yours to read at the celebration, keep as a printable page, and hear in a warm voice.',
       },
