@@ -105,19 +105,14 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible();
 
     // ── 2. A contributor adds a memory via the share link ───────────────────
-    // Derive the share token from the dashboard's invite link (buildShareLink).
-    const shareHref = await page
-      .getByRole('link', { name: /\/c\// })
+    // The dashboard (InviteBlock hero) renders the full share URL as TEXT, not an
+    // <a>, so read the visible URL and pull the token out. (Bounded timeout — a
+    // missing element should fail fast, not eat the whole test budget.)
+    const shareText = await page
+      .getByText(/\/c\/[A-Za-z0-9_-]+/)
       .first()
-      .getAttribute('href')
-      .catch(() => null);
-    // Fallback: read any visible /c/<token> text on the page.
-    const shareToken =
-      (shareHref && shareHref.match(/\/c\/([^/?#]+)/)?.[1]) ||
-      (await page.locator('text=/\\/c\\/[A-Za-z0-9_-]+/').first().textContent())?.match(
-        /\/c\/([A-Za-z0-9_-]+)/,
-      )?.[1] ||
-      null;
+      .textContent({ timeout: 15_000 });
+    const shareToken = shareText?.match(/\/c\/([A-Za-z0-9_-]+)/)?.[1] ?? null;
     expect(shareToken, 'should resolve a contributor share token').toBeTruthy();
 
     const contributor = await page.context().newPage();
