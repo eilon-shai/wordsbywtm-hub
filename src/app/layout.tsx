@@ -14,13 +14,13 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.wordsbywtm.com'),
-  title: 'Words That Matter — Gather memories into one tribute',
+  title: 'Words That Matter — Gather memories into one piece',
   description:
-    'Start a collection, invite the people who matter to share their memories, and weave them into one heartfelt tribute. For memorials, weddings, retirements, and the moments that matter.',
+    'Start a collection, invite the people who matter to share their memories, and weave them into one heartfelt piece. For memorials, weddings, retirements, and the moments that matter.',
   alternates: { canonical: 'https://wordsbywtm.com' },
   openGraph: {
     title: 'Words That Matter',
-    description: 'Gather memories from everyone who matters into one tribute.',
+    description: 'Gather memories from everyone who matters into one piece.',
     type: 'website',
   },
 };

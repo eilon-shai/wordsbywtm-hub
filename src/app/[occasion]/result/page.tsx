@@ -28,7 +28,7 @@ const SUPPORT_EMAIL = 'hello@wordsbywtm.com';
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { occasion } = await params;
   const meta = getOccasionMeta(occasion);
-  const title = meta ? `${meta.title} tribute — Words That Matter` : 'Words That Matter';
+  const title = meta ? `${meta.title} ${meta.deliverableNoun} — Words That Matter` : 'Words That Matter';
   return { title, robots: { index: false, follow: false } };
 }
 
@@ -89,7 +89,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         <SiteHeader />
         <main className="min-h-[60vh] bg-background flex items-center justify-center px-4 py-16">
           <div className="max-w-md w-full text-center">
-            <div className="text-5xl mb-6" aria-hidden="true">🕯️</div>
+            <div className="text-5xl mb-6" aria-hidden="true">🤍</div>
             <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
               This collection is no longer available
             </h1>

@@ -30,7 +30,7 @@ const PREFS_KEY = 'wtm:collection-prefs';
 
 // Download the tribute as a real PDF. jsPDF is dynamically imported so it only
 // loads when the organizer actually clicks download (keeps the page bundle lean).
-async function downloadPdf(honoree: string, content: string) {
+async function downloadPdf(honoree: string, content: string, noun: string) {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
   const margin = 72; // 1 inch
@@ -43,7 +43,7 @@ async function downloadPdf(honoree: string, content: string) {
   // Title (serif — jsPDF ships Times built-in).
   doc.setFont('times', 'bold');
   doc.setFontSize(18);
-  const titleLines = doc.splitTextToSize(`A tribute for ${honoree}`, maxWidth) as string[];
+  const titleLines = doc.splitTextToSize(`A ${noun} for ${honoree}`, maxWidth) as string[];
   doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
   y += titleLines.length * 22 + 18;
 
@@ -77,7 +77,8 @@ async function downloadPdf(honoree: string, content: string) {
   doc.setTextColor(0, 0, 0);
 
   const safeName = (honoree || 'them').replace(/[\\/:*?"<>|]+/g, '').trim().slice(0, 80) || 'them';
-  doc.save(`Tribute for ${safeName}.pdf`);
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  doc.save(`${cap(noun)} for ${safeName}.pdf`);
 }
 
 const TONE_FIELD: FormFieldConfig = {
@@ -133,6 +134,11 @@ function ResultFlowInner(props: ResultFlowProps) {
   // Occasion-specific copy (defaults keep memorial wording if unset).
   const noun = props.deliverableNoun ?? 'tribute';
   const readAloud = props.readAloudContext ?? 'at the service';
+  // Occasion-aware AVOID field — the placeholder names the occasion's deliverable.
+  const avoidField: FormFieldConfig = {
+    ...AVOID_FIELD,
+    placeholder: `Topics, details, or names you’d rather the ${noun} not mention.`,
+  };
   const params = useSearchParams();
   const txnId = params.get('txn') ?? params.get('txnId') ?? '';
   // The dashboard sends ?t={adminToken} (no txn) to the prefs step. Both the
@@ -180,7 +186,7 @@ function ResultFlowInner(props: ResultFlowProps) {
   const [honoree, setHonoree] = React.useState('');
   const [count, setCount] = React.useState(0);
   const [error, setError] = React.useState<string | null>(
-    canStart ? null : 'We couldn’t find your tribute session. Please reopen the link from your collection.',
+    canStart ? null : `We couldn’t find your ${noun} session. Please reopen the link from your collection.`,
   );
   const [copied, setCopied] = React.useState(false);
   // Prefs-screen submit state.
@@ -342,11 +348,11 @@ function ResultFlowInner(props: ResultFlowProps) {
               } catch {
                 /* fall through to the error message */
               }
-              setError('This tribute was already created. Open it from the link in your email, or from your collection.');
+              setError(`This ${noun} was already created. Open it from the link in your email, or from your collection.`);
               setPhase('error');
               return;
             }
-            setError(d.error ?? 'Something went wrong creating your tribute.');
+            setError(d.error ?? `Something went wrong creating your ${noun}.`);
             setPhase('error');
             return;
           }
@@ -363,10 +369,10 @@ function ResultFlowInner(props: ResultFlowProps) {
           await new Promise((r) => setTimeout(r, 2500));
         }
       }
-      setError('Creating your tribute is taking longer than expected. Please check your email shortly.');
+      setError(`Creating your ${noun} is taking longer than expected. Please check your email shortly.`);
       setPhase('error');
     },
-    [txnId, adminToken, props.audioEnabled, triggerAudio],
+    [txnId, adminToken, props.audioEnabled, triggerAudio, noun],
   );
 
   // retryGenerate(): re-run the last attempt after a failure. Falls back to the
@@ -582,7 +588,7 @@ function ResultFlowInner(props: ResultFlowProps) {
     return (
       <main className="mx-auto w-full max-w-2xl px-4 py-20 text-center">
         <div className="mb-6 flex justify-center"><Spinner size={28} /></div>
-        <p className="text-sm text-muted-foreground">Opening your tribute…</p>
+        <p className="text-sm text-muted-foreground">Opening your {noun}…</p>
       </main>
     );
   }
@@ -619,7 +625,7 @@ function ResultFlowInner(props: ResultFlowProps) {
               <FieldRow field={TONE_FIELD} value={tone} onChange={setTone} />
               <FieldRow field={LENGTH_FIELD} value={length} onChange={setLength} />
             </div>
-            <FieldRow field={AVOID_FIELD} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
+            <FieldRow field={avoidField} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
             <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
             {props.audioEnabled ? (
               <div className="flex flex-col gap-1.5 rounded-xl border border-primary/20 bg-primary/5 p-4">
@@ -680,7 +686,7 @@ function ResultFlowInner(props: ResultFlowProps) {
 
           {/* Paid-in-advance: inline one-way confirmation (no charge). */}
           {confirmingPaid ? (
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm" role="alertdialog" aria-label="Confirm creating the tribute">
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm" role="alertdialog" aria-label={`Confirm creating the ${noun}`}>
               <p className="text-foreground">
                 Create the {noun} now? This weaves all included memories into the final {noun} and closes the collection. This can’t be undone.
               </p>
@@ -712,7 +718,7 @@ function ResultFlowInner(props: ResultFlowProps) {
                 disabled={submitting}
                 className="w-full rounded-full py-6 text-sm font-semibold"
               >
-                {submitting ? 'Starting…' : 'Create my tribute'}
+                {submitting ? 'Starting…' : `Create my ${noun}`}
               </Button>
               {!paid ? (
                 <p className="text-center text-xs leading-relaxed text-muted-foreground">
@@ -781,7 +787,7 @@ function ResultFlowInner(props: ResultFlowProps) {
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
       <header className="mb-10 text-center" ref={doneHeadingRef} tabIndex={-1} role="status" aria-live="polite" style={{ outline: 'none' }}>
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-          A tribute for {honoree}
+          A {noun} for {honoree}
         </p>
         {count > 0 && (
           <p className="text-sm text-muted-foreground">
@@ -804,7 +810,7 @@ function ResultFlowInner(props: ResultFlowProps) {
           type="button"
           size="lg"
           className="rounded-full px-6"
-          onClick={() => void downloadPdf(honoree, content)}
+          onClick={() => void downloadPdf(honoree, content, noun)}
         >
           Download keepsake PDF
         </Button>
@@ -854,7 +860,7 @@ function ResultFlowInner(props: ResultFlowProps) {
             </>
           ) : null}
           {audioState === 'error' ? (
-            <p className="text-xs text-destructive">The audio narration couldn’t be created. Your tribute is unaffected.</p>
+            <p className="text-xs text-destructive">The audio narration couldn’t be created. Your {noun} is unaffected.</p>
           ) : null}
         </div>
       ) : null}
@@ -871,10 +877,10 @@ function ResultFlowInner(props: ResultFlowProps) {
       ) : null}
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        We’ve also emailed this tribute to you, ready to read aloud.
+        We’ve also emailed this {noun} to you, ready to read aloud.
       </p>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Your collection and this tribute are automatically deleted about 30 days after creation, so please download or copy the text to keep a permanent copy.
+        Your collection and this {noun} are automatically deleted about 30 days after creation, so please download or copy the text to keep a permanent copy.
       </p>
 
       {/* Edit & Refine pack intentionally NOT rendered: the regeneration backend

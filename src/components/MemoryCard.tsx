@@ -31,6 +31,8 @@ interface MemoryCardProps {
   onEdit?: (c: Contribution) => void;
   /** When false, hides the organizer Edit button entirely (e.g. after generation). */
   canEdit?: boolean;
+  /** What the finished piece is called for this occasion ("tribute" | "toast" | …). */
+  deliverableNoun?: string;
 }
 
 function formatDate(iso?: string | null): string {
@@ -45,9 +47,10 @@ function formatDate(iso?: string | null): string {
  * default; the toggle removes/restores. No "approve" language, no editing of the
  * contributor's words (v1 — moderate-contribution-handler exposes remove/restore only).
  */
-export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit, canEdit = true }: MemoryCardProps) {
+export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit, canEdit = true, deliverableNoun }: MemoryCardProps) {
   const { id, contributorName, relationship, memory, createdAt, isOrganizer } = contribution;
   const date = formatDate(createdAt);
+  const noun = (deliverableNoun ?? '').trim() || 'tribute';
 
   return (
     <Card className={isOrganizer ? 'border-primary/40 ring-1 ring-primary/20' : included ? '' : 'opacity-60'}>
@@ -82,7 +85,7 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
           {isOrganizer ? (
             // Organizer's own memory: always included, editable — no toggle.
             <>
-              <span className="text-sm text-muted-foreground">Always part of the tribute</span>
+              <span className="text-sm text-muted-foreground">Always part of the {noun}</span>
               {canEdit ? (
                 <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={() => onEdit?.(contribution)}>
                   Edit
@@ -99,7 +102,7 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
                 type="button"
                 role="switch"
                 aria-checked={included}
-                aria-label="Include in the tribute"
+                aria-label={`Include in the ${noun}`}
                 disabled={disabled}
                 onClick={() => onToggle(id, !included)}
                 className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed ${
@@ -112,7 +115,7 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
                   }`}
                 />
               </button>
-              <span className="select-none text-foreground">Include in the tribute</span>
+              <span className="select-none text-foreground">Include in the {noun}</span>
             </label>
           )}
         </div>

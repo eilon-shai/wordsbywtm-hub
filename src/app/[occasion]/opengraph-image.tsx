@@ -13,7 +13,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ occ
   const meta = getOccasionMeta(occasion);
   const accent = meta?.accent ?? '#6b5a45';
   const title = meta?.title ?? 'Words That Matter';
-  const blurb = meta?.blurb ?? 'Gather memories from everyone into one tribute.';
+  const blurb = meta?.blurb ?? 'Gather memories from everyone into one piece.';
 
   return new ImageResponse(
     (

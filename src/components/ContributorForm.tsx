@@ -394,7 +394,7 @@ export function ContributorForm({
 
   // ---- terminal: closed / not-found / full ---------------------------------
   if (terminal) {
-    const icon = terminal === 'closed' ? '🕯️' : terminal === 'full' ? '🤍' : '🔗';
+    const icon = terminal === 'closed' ? '🤍' : terminal === 'full' ? '🤍' : '🔗';
     const heading =
       terminal === 'closed'
         ? 'This collection has closed'
@@ -433,7 +433,7 @@ export function ContributorForm({
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed mb-8">
             It’s pinned to the top of your collection as your own — you can edit it any time, and it’s
-            always part of the final tribute.
+            always part of the final {deliverable}.
           </p>
           <Link
             href={organizerReturnHref}
@@ -456,7 +456,7 @@ export function ContributorForm({
           Thank you — your memory of {who} has been added
         </h1>
         <p className="text-muted-foreground text-sm leading-relaxed mb-10">
-          The person gathering these will read it and may weave it into one combined tribute. That’s
+          The person gathering these will read it and may weave it into one combined {deliverable}. That’s
           everything we need from you.
         </p>
 
@@ -496,7 +496,7 @@ export function ContributorForm({
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
             {organizerReturnHref
-              ? `Your memory of ${honoreeLabel} is pinned to the top of your collection and is always part of the final tribute.`
+              ? `Your memory of ${honoreeLabel} is pinned to the top of your collection and is always part of the final ${deliverable}.`
               : isOrganizer
                 ? `Add your own memory of ${honoreeDisplay} first — it becomes the heart of the ${deliverable}. You’ll invite others to add theirs next.`
                 : inviter
@@ -622,7 +622,7 @@ export function ContributorForm({
                   rows={2}
                   maxLength={400}
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  placeholder="Optional — we’ll keep it out of the tribute."
+                  placeholder={`Optional — we’ll keep it out of the ${deliverable}.`}
                   value={extras.avoid}
                   onChange={(e) => setExtras((p) => ({ ...p, avoid: e.target.value }))}
                 />
@@ -644,12 +644,12 @@ export function ContributorForm({
               checkbox + its label — not the whole card. */}
           <SectionCard>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              The person collecting this will read it and may include it in one combined tribute.
+              The person collecting this will read it and may include it in one combined {deliverable}.
               Your memory isn’t published publicly. You don’t pay, and we use your email only to keep
               memories to one per person — see our <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Privacy Policy</a>.
               You can ask us to remove your memory any time at{' '}
               <a href="mailto:hello@wordsbywtm.com" className="underline hover:text-foreground">hello@wordsbywtm.com</a>.
-              At the organizer’s deadline, your memory may be woven into the tribute; if the collection isn’t finalized, it’s deleted.
+              At the organizer’s deadline, your memory may be woven into the {deliverable}; if the collection isn’t finalized, it’s deleted.
             </p>
             <label
               ref={consentRef}
@@ -667,7 +667,7 @@ export function ContributorForm({
                 className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
               />
               <span className="text-sm text-foreground leading-relaxed">
-                I’m okay with my memory being woven into a tribute for {honoreeLabel}, which the
+                I’m okay with my memory being woven into a {deliverable} for {honoreeLabel}, which the
                 organizer will receive.
               </span>
             </label>
