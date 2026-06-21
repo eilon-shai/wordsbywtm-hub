@@ -192,3 +192,50 @@ Items 1–2 alone would credibly move Prod-Readiness and Quality into the high-8
 - **No lens-level CRITICAL or HIGH finding was refuted in adversarial verification.** Both findings escalated to adversarial review (Marketing's memorial-remarketing HIGH and QA's memorial-only-coverage HIGH) were independently confirmed `isReal=true`, and the Chair re-verified both against `main`.
 - **Marketing's "ad-policy guardrail not documented" SES-047 item was *upgraded*, not refuted:** SES-047 classified memorial remarketing as a founder-owned policy item; SES-048 correctly establishes it is a code-level gap (global `ad_personalization` grant) that a manual policy cannot close — now MF-1 (HIGH).
 - **No finding was downgraded below its claimed severity on refutation grounds.** The QA memorial-only-coverage item, scored HIGH for launch impact by the QA lens, is actioned in MF-4 alongside the other test-depth items; the Chair notes the shared `[occasion]` route gives partial structural coverage (a total render collapse would be caught by the memorial smoke), which is why it is not CRITICAL.
+
+---
+
+## 12. Issue Tracker (progress)
+
+Status legend: ✅ done · ⬜ open (engineering) · 👤 founder-owned · ⏳ deferred / track-only.
+Updated 2026-06-21.
+
+**Snapshot:** the one HIGH (MF-1) and both pure-code MEDIUMs (MF-2, MF-3) are **fixed in PR #51** (typecheck clean, 121 vitest, build green). Once #51 merges, **paid ads are unconditionally GO across all four occasions**. Remaining items are test-depth (MF-4, the main lever toward ≥9), two trivial ops items (MF-5/MF-6), a handful of LOWs, and the standing founder-owned launch items.
+
+### Must-fix
+- [x] ✅ **MF-1 [HIGH] — memorial `ad_personalization` suppression** (the only HIGH; gated memorial paid ads). `/memorial` routes now keep `ad_personalization`/`ad_user_data` denied even after consent (conversions still fire via `ad_storage`+`analytics_storage`); path-aware re-eval on route change via `usePathname`. `ConsentBanner.tsx`, `SiteAnalytics.tsx` — **PR #51 (open)**
+- [x] ✅ **MF-2 [MEDIUM] — `redisKeyPrefix` uniqueness startup guard.** Fail-closed at boot if two live occasions share a prefix (or one is empty); mirrors the `paddleProductId` guard. `registry.ts` — **PR #51 (open)**
+- [x] ✅ **MF-3 [MEDIUM] — occasion-aware tone/context on the prefs/pay screen.** Memorial keeps solemn-first + grief-sensitive prompt; wedding/retirement/anniversary lead "Warm & celebratory" + neutral prompt. Stored values (`solemn|balanced|warm`) unchanged → synthesis unaffected. `ResultFlow.tsx` — **PR #51 (open)**
+- [ ] ⬜ **MF-4 [MEDIUM, eng/QA] — close the test pyramid where it is zero and money/flow-critical.** (a) per-occasion render smoke for all four occasions (closes the FLOWS-coverage gap that holds mandate #1 at CONDITIONAL); (b) conversion-layer unit tests (purchase fires once per txn, deduped across both pay paths via the shared `wtm:purchase-tracked:${txn}` key; consent default-denied→granted; `trackPurchase` no-op without gtag; **+ MF-1 regression: `ad_personalization` stays denied on `/memorial` after consent**); (c) a replay + double-finalize step in the Tier-B revenue gate so real-handler idempotency is actually exercised. *The single biggest remaining lever on Quality + Confidence toward ≥9.*
+- [ ] ⬜ **MF-5 [LOW] — warn when `ADS_CONVERSION_LABEL` is unset while `ADS_TAG_ID` is set** (Ads conversion silently no-ops → Smart Bidding gets no signal). Dev/startup warning + pre-spend env checklist. `analytics.ts`
+- [ ] ⬜ **MF-6 [LOW] — surface `revenue-e2e` green status + make it a required check on venture-core bump PRs** (it is opt-in via `vars.RUN_REVENUE_E2E`, invisible from the repo; bumps are exactly when contract drift lands). `.github/workflows/revenue-e2e.yml`
+
+### Other confirmed findings (MEDIUM/LOW)
+- [ ] ⬜ **[MEDIUM][Architect] venture-core source/dist divergence** — deployed 1.24.2 not rebuildable from the monorepo working tree (portfolio continuity/audit/DR; not a hub-only fix).
+- [ ] ⬜ **[MEDIUM][Marketing] no social proof / explicit guarantee near CTA** on $49 cold paid traffic (founder-rationalized — recommend one trust line + surfaced refund statement; see Founder-owned).
+- [ ] ⏳ **[LOW] celebratory `successIcon` over-applied on negative terminal screens** (🎉/🥂 above "This collection has closed" on non-memorial occasions) — *regression from the SES-047 icon fix.* `c/[shareToken]/page.tsx`, `result/page.tsx`, `ContributorForm.tsx`
+- [ ] ⏳ **[LOW] finalize under a Redis outage can waste one Claude synthesis call** (cost only; data integrity intact). venture-core dist
+- [ ] ⏳ **[LOW] `collection_audio` table created lazily; absent from canonical `db/schema.sql`** (DR/audit completeness). `src/lib/audio.ts`
+- [ ] ⏳ **[LOW] no `force-dynamic` on `result/page.tsx`** while sibling token routes declare it (safe today via awaited searchParams; parity/intent). `[occasion]/result/page.tsx`
+- [ ] ⏳ **[LOW] per-occasion `ogImageUrl` undefined** (OG cards rely on file-convention fallback). `[occasion]/page.tsx`
+- [ ] ⏳ **[LOW] home hero hotlinks an external Unsplash CDN** for the decorative background (self-host under `/public`). `src/app/page.tsx`
+- [ ] ⏳ **[LOW] Vercel Web Analytics loads un-gated + undisclosed as a sub-processor** (cookieless, acceptable; add one-line disclosure). `layout.tsx`
+- [ ] ⏳ **[LOW] env-signal inconsistency** (`VERCEL_ENV` vs `VERCEL_ENV||NODE_ENV` vs `PADDLE_ENVIRONMENT||NODE_ENV`); all fail-closed today; no deploy-time auto-migration hook. `purge/route.ts`, `middleware.ts`
+- [ ] ⏳ **[LOW] minor a11y nits** — edit-memory dialog uses `aria-label` not `aria-labelledby`; field help-text not linked via `aria-describedby`. `ManageDashboard.tsx`, `FormPrimitives.tsx`
+- [ ] ⏳ **[LOW, deferred-by-design] invite tokens deterministic/non-expiring/not collection-bound** (a leaked invite URL is a permanent non-revocable credential) — track v2 token format. venture-core dist
+- [ ] ⏳ **[LOW] no dedicated `CONTRIBUTION_ENCRYPTION_KEY`** (contributions still keyed on `REDIS_FORM_ENCRYPTION_KEY`; naming/blast-radius smell; supports rotation). venture-core dist
+- [ ] ⏳ **[LOW] webhook has no event_id replay dedup before the email side effect** (safe today — all money/data effects idempotent; gate any future non-idempotent side effect behind Redis `SET NX`). venture-core dist
+
+### Founder-owned (not engineering defects)
+- [ ] 👤 **Enable memorial ad spend only after MF-1 ships** (the fix is PR #51; the spend toggle is the founder's gate). Wedding/retirement/anniversary may spend now.
+- [ ] 👤 **Pre-spend env/ad-ops checklist:** `ADS_TAG_ID` + `ADS_CONVERSION_LABEL` both set (MF-5); GA4/Clarity ids set; `CONTRIBUTION_HASH_SECRET` remains a distinct prod secret.
+- [ ] 👤 **`vars.RUN_REVENUE_E2E=true`** and confirm a green run on current `main` (MF-6).
+- [ ] 👤 **LC-03 attorney pass** (GDPR Art. 9 special-category basis, EU AI Act Art. 50 marking) — ~Dec-2026 horizon, budget-gated; not a launch blocker. Legal copy attorney-owned.
+- [ ] 👤 **Real-money smoke on BOTH pay paths** after analytics are confirmed (GA4 DebugView + Ads tag assistant).
+- [ ] 👤 **Social proof / guarantee** decision on cold $49 traffic (founder rationale: await first cohort).
+- [ ] 👤 **ElevenLabs paid plan** for audio (free tier blocks commercial use + caps credits).
+- [ ] 👤 **Clean up the demo "Eleanor" collection** in prod DB.
+
+### Deferred / track-only (Dec-2026 horizon)
+- [ ] ⏳ **[MEDIUM][Legal] GDPR Art. 9 special-category basis** for grief/health/faith memories — fold into LC-03. `privacy/page.tsx`
+- [ ] ⏳ **[MEDIUM][Legal] EU AI Act Art. 50 AI-content marking** on the deliverable — fold into LC-03. `ResultFlow.tsx`
