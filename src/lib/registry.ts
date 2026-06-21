@@ -32,8 +32,10 @@ export interface OccasionMeta {
   deliverableNoun: string;
   /** Where it's read aloud (e.g. "at the service", "at the reception"). Replaces the memorial-only "at the service". */
   readAloudContext: string;
-  /** Tasteful emoji for success/terminal screens. Memorial keeps the white heart; celebratory occasions get their own so 🤍 doesn't read as mourning. */
+  /** Tasteful emoji for SUCCESS screens (ready / done / thank-you). Memorial uses a candle; celebratory occasions get their own so it doesn't read as mourning. */
   successIcon: string;
+  /** Emoji for NEGATIVE terminal screens (collection full / closed). Memorial reuses its calm symbol; celebratory occasions use a calm fallback (NOT their celebratory success icon, which reads wrong over "this collection has closed"). */
+  terminalIcon: string;
 }
 
 export const OCCASIONS: OccasionMeta[] = [
@@ -46,7 +48,8 @@ export const OCCASIONS: OccasionMeta[] = [
     live: true,
     deliverableNoun: 'tribute',
     readAloudContext: 'at the service',
-    successIcon: '🤍',
+    successIcon: '🕯️',
+    terminalIcon: '🕯️',
   },
   {
     slug: 'wedding',
@@ -58,6 +61,7 @@ export const OCCASIONS: OccasionMeta[] = [
     deliverableNoun: 'toast',
     readAloudContext: 'at the reception',
     successIcon: '🥂',
+    terminalIcon: '🤍',
   },
   {
     slug: 'retirement',
@@ -69,6 +73,7 @@ export const OCCASIONS: OccasionMeta[] = [
     deliverableNoun: 'send-off',
     readAloudContext: 'at the party',
     successIcon: '🎉',
+    terminalIcon: '🤍',
   },
   {
     slug: 'anniversary',
@@ -80,6 +85,7 @@ export const OCCASIONS: OccasionMeta[] = [
     deliverableNoun: 'toast',
     readAloudContext: 'at the celebration',
     successIcon: '💞',
+    terminalIcon: '🤍',
   },
 ];
 

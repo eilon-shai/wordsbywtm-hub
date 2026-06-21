@@ -54,6 +54,7 @@ describe('registry', () => {
       expect(o.deliverableNoun, o.slug).toBeTruthy();
       expect(o.readAloudContext, o.slug).toBeTruthy();
       expect(o.successIcon, o.slug).toBeTruthy();
+      expect(o.terminalIcon, o.slug).toBeTruthy();
     }
   });
 
@@ -68,10 +69,10 @@ describe('registry', () => {
     expect(getOccasionMeta('anniversary')?.deliverableNoun).toBe('toast');
   });
 
-  it('memorial keeps the white heart; celebratory occasions use a distinct icon', () => {
-    expect(getOccasionMeta('memorial')?.successIcon).toBe('🤍');
+  it('memorial uses the candle; celebratory occasions use a distinct success icon', () => {
+    expect(getOccasionMeta('memorial')?.successIcon).toBe('🕯️');
     for (const slug of ['wedding', 'retirement', 'anniversary']) {
-      expect(getOccasionMeta(slug)?.successIcon, slug).not.toBe('🤍');
+      expect(getOccasionMeta(slug)?.successIcon, slug).not.toBe('🕯️');
     }
   });
 });
