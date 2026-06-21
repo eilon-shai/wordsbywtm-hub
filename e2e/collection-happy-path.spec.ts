@@ -152,6 +152,37 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     // ── 6. Reach the generated tribute (done screen) ────────────────────────
     await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible({ timeout: 90_000 });
 
+    // ── 7. Idempotency on the REAL handlers (MF-4c) ─────────────────────────
+    // The mocked vitest suite can only assert idempotency against fakes; this is
+    // the one place it runs against the real venture-core generate handler + DB.
+    // After payment the result URL carries the paid txn.
+    const afterPay = new URL(page.url());
+    const txn = afterPay.searchParams.get('txn') ?? afterPay.searchParams.get('txnId');
+    expect(txn, 'result URL should carry the paid txn').toBeTruthy();
+
+    // Replay /generate twice with the same txn. The durable status guard
+    // (status='generated') must return the EXISTING content both times — and the
+    // two responses must be byte-identical, which a fresh Claude synthesis could
+    // not produce. This proves a webhook/refresh replay never re-synthesizes.
+    const replay1 = await page.request.post('/api/collection/generate', {
+      data: { transactionId: txn },
+    });
+    expect(replay1.ok(), 'generate replay #1 returns the existing tribute').toBeTruthy();
+    const replay2 = await page.request.post('/api/collection/generate', {
+      data: { transactionId: txn },
+    });
+    expect(replay2.ok(), 'generate replay #2 returns the existing tribute').toBeTruthy();
+    const content1 = ((await replay1.json()) as { content?: string }).content ?? '';
+    const content2 = ((await replay2.json()) as { content?: string }).content ?? '';
+    expect(content1, 'replay returns non-empty stored content').toBeTruthy();
+    expect(content2, 'second replay is identical — no re-synthesis').toBe(content1);
+    expect(content1).toContain(HONOREE);
+
+    // Double-finalize via the UI: reloading the result page must re-show the SAME
+    // tribute (status guard returns existing), never regenerate or error out.
+    await page.reload();
+    await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible({ timeout: 90_000 });
+
     // Cleanup runs in afterEach via the captured admin token.
   });
 });

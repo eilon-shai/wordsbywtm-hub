@@ -19,6 +19,12 @@ import { PurchaseTracker } from '@/components/PurchaseTracker';
 // in its self-fetch). Pay-before-generate + one-time-use stay server-enforced.
 // ---------------------------------------------------------------------------
 
+// Token/payment route: never statically optimize. Parity with the sibling token
+// routes (collect/manage, c/[shareToken]) — this page reads an admin token + txn
+// from searchParams and must always render dynamically. (Safe today via awaited
+// searchParams; declared explicitly to remove the intent footgun.)
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ occasion: string }>;
   searchParams: Promise<{ t?: string; txn?: string; txnId?: string }>;

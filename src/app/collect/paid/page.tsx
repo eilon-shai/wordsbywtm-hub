@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import * as React from 'react';
 import { useSearchParams } from 'next/navigation';
-import { trackPurchase } from '@/lib/analytics';
+import { trackPurchaseOnce } from '@/lib/analytics';
 
 // /collect/paid — return target after an ADVANCE Paddle payment. The shared
 // callback redirects here as `/collect/paid?txnId=...`. We record the payment
@@ -49,18 +49,14 @@ function PaidReturnInner() {
           if (res.ok) {
             // Fire the GA4/Ads purchase conversion for the ADVANCE payment — the
             // post-checkout PurchaseTracker never runs on this path (it returns to
-            // the dashboard, not the result page with ?txn=). Deduped on the txn id
-            // with the SAME sessionStorage key PurchaseTracker uses, so the two can
-            // never double-count the same transaction. Occasion + value were
-            // stashed by the advance-pay block before checkout.
+            // the dashboard, not the result page with ?txn=). trackPurchaseOnce
+            // dedupes on the SAME shared txn key PurchaseTracker uses, so the two
+            // pay paths can never double-count one transaction. Occasion + value
+            // were stashed by the advance-pay block before checkout.
             try {
-              const key = `wtm:purchase-tracked:${txnId}`;
-              if (!sessionStorage.getItem(key)) {
-                sessionStorage.setItem(key, '1');
-                const occasion = sessionStorage.getItem('wtm:advance-occasion') ?? '';
-                const value = Number(sessionStorage.getItem('wtm:advance-value') ?? '0') || 0;
-                trackPurchase({ value, occasion, transactionId: txnId });
-              }
+              const occasion = sessionStorage.getItem('wtm:advance-occasion') ?? '';
+              const value = Number(sessionStorage.getItem('wtm:advance-value') ?? '0') || 0;
+              trackPurchaseOnce({ value, occasion, transactionId: txnId });
             } catch {
               /* sessionStorage/analytics unavailable — skip the conversion event */
             }

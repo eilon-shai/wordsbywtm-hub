@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { GA4_ID, ADS_TAG_ID, CLARITY_ID } from '@/lib/analytics';
+import { grantedConsentState } from '@/lib/consent';
 
 // ---------------------------------------------------------------------------
 // ConsentBanner — Google Consent Mode v2 consent gate.
@@ -30,26 +31,11 @@ function gtag(): GtagFn | null {
   return typeof w.gtag === 'function' ? w.gtag : null;
 }
 
-// Memorial is a sensitive-category (grief) context. Google's policies forbid
-// building personalized remarketing / Customer Match audiences from sensitive-
-// category traffic, so on memorial routes we never enable ad_personalization /
-// ad_user_data — even after the visitor accepts. Conversion measurement still
-// works (ad_storage + analytics_storage are granted); only the personalization
-// signals stay denied. Note: this is path-based on /memorial (the ad-landing
-// surface). Contributor share links (/c/[shareToken]) don't carry the occasion
-// in the URL and aren't ad-driven, so they're out of scope here.
-function isSensitivePath(pathname: string | null): boolean {
-  return pathname === '/memorial' || (pathname?.startsWith('/memorial/') ?? false);
-}
-
+// Grant consent (path-aware). On memorial (sensitive-category) routes the
+// personalization signals stay denied even after Accept — see grantedConsentState
+// in @/lib/consent, where the rule lives as a pure, unit-tested function.
 function grantConsent(pathname: string | null): void {
-  const sensitive = isSensitivePath(pathname);
-  gtag()?.('consent', 'update', {
-    ad_storage: 'granted',
-    analytics_storage: 'granted',
-    ad_user_data: sensitive ? 'denied' : 'granted',
-    ad_personalization: sensitive ? 'denied' : 'granted',
-  });
+  gtag()?.('consent', 'update', grantedConsentState(pathname));
 }
 
 // Load Microsoft Clarity once (idempotent — guards on window.clarity). Only ever

@@ -75,6 +75,42 @@ test.describe('Tier A — render/hydration smoke (no DB writes)', () => {
     ).toBeVisible();
   });
 
+  // MF-4a (SES-048): browser coverage used to be memorial-only, so a broken or
+  // mis-wired config for wedding/retirement/anniversary (e.g. the wedding-specific
+  // relationship Select) would ship unseen. Load EVERY live occasion's landing +
+  // create form and assert it renders, hydrates, and carries its OWN copy.
+  const OCCASIONS = [
+    { slug: 'memorial', honoree: 'the person we are honoring' },
+    { slug: 'wedding', honoree: 'the couple' },
+    { slug: 'retirement', honoree: 'the person retiring' },
+    { slug: 'anniversary', honoree: 'the couple' },
+  ] as const;
+
+  for (const { slug, honoree } of OCCASIONS) {
+    test(`${slug}: landing renders and create form hydrates with its own copy`, async ({ page }) => {
+      // Landing (the ad-click destination) builds + renders a top-level heading.
+      await page.goto(`/${slug}`);
+      await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+
+      // /start → CreateForm. Shared heading proves the per-occasion config resolved.
+      await page.goto(`/${slug}/start`);
+      await expect(
+        page.getByRole('heading', { name: 'Set up the collection and write your first memory' }),
+      ).toBeVisible();
+
+      // Occasion-specific copy: the relationship field names this occasion's
+      // honoree label ("the couple" vs "the person retiring" …) — proves the RIGHT
+      // config is wired, not memorial's, on a celebratory occasion.
+      await expect(page.getByText(`Your relationship to ${honoree}`).first()).toBeVisible();
+
+      // Hydration probe: the email field is interactive. We never submit.
+      const email = page.getByRole('textbox', { name: 'Your email', exact: true });
+      await expect(email).toBeVisible();
+      await email.fill('smoke@example.com');
+      await expect(email).toHaveValue('smoke@example.com');
+    });
+  }
+
   test('bogus contributor token renders the graceful not-found screen (DB read only)', async ({
     page,
   }) => {

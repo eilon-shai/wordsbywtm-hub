@@ -41,6 +41,63 @@ export function trackPurchase(opts: { value: number; occasion: string; transacti
 }
 
 /**
+ * sessionStorage flag key that dedupes the purchase conversion across BOTH pay
+ * paths — the result-page PurchaseTracker (pay-at-finalize) and the advance-pay
+ * /collect/paid return. Keying both on the txn id means the same transaction can
+ * never be counted twice.
+ */
+export const purchaseTrackedKey = (transactionId: string): string =>
+  `wtm:purchase-tracked:${transactionId}`;
+
+/**
+ * Fire the purchase conversion AT MOST ONCE per transaction. Guards on a
+ * sessionStorage flag (shared key across both pay paths) so a refresh — or the
+ * two pay paths overlapping — can't double-count. Returns true if it fired this
+ * call. If sessionStorage is unavailable it fires anyway (worst case: a dup on
+ * refresh) so a real sale is never silently dropped.
+ */
+export function trackPurchaseOnce(opts: {
+  value: number;
+  occasion: string;
+  transactionId: string;
+}): boolean {
+  const key = purchaseTrackedKey(opts.transactionId);
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      if (sessionStorage.getItem(key)) return false;
+      sessionStorage.setItem(key, '1');
+    }
+  } catch {
+    /* sessionStorage unavailable — fall through and fire (worst case: dup on refresh) */
+  }
+  trackPurchase(opts);
+  return true;
+}
+
+/**
+ * MF-5: the Ads purchase conversion only fires when BOTH the tag id and the
+ * conversion label are set (see trackPurchase). If the tag is set but the label
+ * is missing, the conversion silently no-ops and Smart Bidding gets no signal —
+ * the worst kind of analytics bug because nothing errors. True when misconfigured.
+ */
+export function adsMisconfigured(tagId?: string, conversionLabel?: string): boolean {
+  return !!tagId && !conversionLabel;
+}
+
+// Surface the MF-5 misconfiguration loudly in the browser console (dev/preview
+// only — never spam a production console) so it's caught before ad spend.
+if (
+  typeof window !== 'undefined' &&
+  process.env.NODE_ENV !== 'production' &&
+  adsMisconfigured(ADS_TAG_ID, ADS_CONVERSION_LABEL)
+) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[analytics] NEXT_PUBLIC_GOOGLE_ADS_TAG_ID is set but NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL is not — the Ads purchase conversion will NOT fire, so Smart Bidding receives no signal. Set the conversion label before turning on ad spend.',
+  );
+}
+
+/**
  * Fire a mid-funnel lead event when a collection is created (the free→paid
  * funnel's top micro-conversion). Safe no-op when GA4 isn't configured.
  */
