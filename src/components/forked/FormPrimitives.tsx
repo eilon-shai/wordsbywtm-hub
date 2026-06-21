@@ -268,8 +268,12 @@ export function SelectFieldRenderer({
   error?: string;
   onChange: (v: string) => void;
 }) {
+  // Base UI's <Select> renders the raw VALUE in the trigger (and SelectValue)
+  // unless it's given an `items` value→label map — without it the trigger showed
+  // e.g. "child" instead of "Son or Daughter" (E2E finding F-3).
+  const items = Object.fromEntries((field.options ?? []).map((o) => [o.value, o.label]));
   return (
-    <Select value={value || undefined} onValueChange={(v) => onChange(v ?? '')}>
+    <Select items={items} value={value || undefined} onValueChange={(v) => onChange(v ?? '')}>
       <SelectTrigger
         id={field.name}
         className="w-full"

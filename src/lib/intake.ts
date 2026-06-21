@@ -150,7 +150,7 @@ const anniversaryIntake: OccasionIntake = {
   additionalContextLabel: 'Anything else we should know',
   additionalContextPlaceholder:
     'e.g. which anniversary (25th, 50th), the kind of celebration, anything to keep light or avoid.',
-  consentLabel: 'I’m okay with my story being woven into the tribute you’ll receive.',
+  consentLabel: 'I’m okay with my story being woven into the toast you’ll receive.',
 };
 
 const INTAKE_SPECS: Record<string, OccasionIntake> = {

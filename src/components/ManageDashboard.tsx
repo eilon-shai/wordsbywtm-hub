@@ -18,6 +18,7 @@ import { OrganizerMemoryForm } from './OrganizerMemoryForm';
 import { InviteBlock } from './InviteBlock';
 import { buildShareLink, buildInviteText } from '@/lib/invite';
 import { getOccasionMeta } from '@/lib/registry';
+import { getIntake } from '@/lib/intake';
 
 // ---------------------------------------------------------------------------
 // S6 + S7 — Organizer review dashboard + finalize.
@@ -159,6 +160,11 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
   const readAloud = getOccasionMeta(occasion)?.readAloudContext ?? 'at the service';
   const successIcon = getOccasionMeta(occasion)?.successIcon ?? '🤍';
+  // Map stored relationship VALUEs ("child") → friendly labels ("Son or Daughter")
+  // for display on the memory cards (E2E finding F-3).
+  const relationshipLabels = Object.fromEntries(
+    getIntake(occasion).relationshipOptions.map((o) => [o.value, o.label]),
+  );
   const [data, setData] = useState<CollectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
@@ -641,6 +647,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                 onEdit={openEdit}
                 error={toggleErrors[c.id] ?? null}
                 deliverableNoun={noun}
+                relationshipLabel={c.relationship ? (relationshipLabels[c.relationship] ?? c.relationship) : undefined}
               />
             ))
         )}
