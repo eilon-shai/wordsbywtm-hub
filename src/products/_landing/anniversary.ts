@@ -2,9 +2,9 @@ import type { LandingPageConfig } from '@eilon-shai/venture-core';
 import { anniversaryConfig } from '@/products/anniversary/config';
 
 // ---------------------------------------------------------------------------
-// Anniversary per-occasion landing (S2). Collaborative MILESTONE tribute:
+// Anniversary per-occasion landing (S2). Collaborative MILESTONE toast:
 // gather memories from the couple's circle (children, grandchildren, friends),
-// then weave them into one tribute read aloud at the anniversary party. Copy
+// then weave them into one toast read aloud at the anniversary party. Copy
 // describes what the product does, never who it is for (portfolio hard rule #7).
 // ---------------------------------------------------------------------------
 
@@ -38,18 +38,18 @@ export const anniversaryLandingConfig: LandingPageConfig = {
   brand: { name: 'Anniversary Collection' },
 
   seo: {
-    metaTitle: 'Anniversary Collection — Gather memories into one tribute for the couple | Words That Matter',
+    metaTitle: 'Anniversary Collection — Gather memories into one toast for the couple | Words That Matter',
     metaDescription:
-      'Start an anniversary collection, invite family and friends to add a memory of the couple, then weave it all into one tribute read aloud at the celebration. Free to create and collect. Pay once when you finalize. No account needed.',
+      'Start an anniversary collection, invite family and friends to add a memory of the couple, then weave it all into one toast read aloud at the celebration. Free to create and collect. Pay once when you finalize. No account needed.',
     canonicalUrl: 'https://wordsbywtm.com/anniversary',
   },
 
   hero: {
     badge: 'Gathered · Woven · Read Aloud',
-    headline: 'A milestone tribute,',
+    headline: 'A milestone toast,',
     headlineEmphasis: 'in everyone’s voice.',
     subheading:
-      'A long marriage touches everyone around it. Start a collection, invite family and friends to each add a memory of the couple, and we weave them into one tribute — ready to read aloud at the celebration.',
+      'A long marriage touches everyone around it. Start a collection, invite family and friends to each add a memory of the couple, and we weave them into one toast — ready to read aloud at the celebration.',
     backgroundImageUrl:
       'https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_FAMILY,
@@ -60,7 +60,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
 
   howItWorks: {
     eyebrow: 'How it works',
-    heading: 'Four steps, one tribute',
+    heading: 'Four steps, one toast',
     steps: [
       {
         step: '01',
@@ -79,8 +79,8 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       },
       {
         step: '04',
-        title: 'Weave them into one tribute',
-        body: 'When you’re ready, pay once and we weave the memories into one tribute — then it’s yours to read at the celebration, keep as a printable page, and hear in a warm voice.',
+        title: 'Weave them into one toast',
+        body: 'When you’re ready, pay once and we weave the memories into one toast — then it’s yours to read at the celebration, keep as a printable page, and hear in a warm voice.',
       },
     ],
   },
@@ -109,14 +109,14 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       {
         aspect: 'What it leaves behind',
         them: 'A speech.',
-        us: 'A tribute woven from the whole family — a page to print and keep, a spoken version to play at the party, plus the memories themselves, gathered in one place.',
+        us: 'A toast woven from the whole family — a page to print and keep, a spoken version to play at the party, plus the memories themselves, gathered in one place.',
       },
     ],
     closingLine: 'A marriage this long was never just about two people.',
   },
 
   samples: {
-    eyebrow: 'Sample tributes',
+    eyebrow: 'Sample toasts',
     heading: 'Woven from many voices',
     subheading: 'Each of these was synthesized from real memories shared by a different group of people.',
     tabs: [
@@ -133,11 +133,11 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       'Creating the collection and inviting people is free. You only pay when you finalize — one time, no subscription, no account.',
     full: {
       price: FINALIZE_PRICE,
-      label: 'Anniversary Tribute',
+      label: 'Anniversary Toast',
       badge: 'Pay only at the end',
-      description: 'One finished tribute, woven from the memories you choose — to read at the celebration, to keep as a page, and to hear in a warm voice.',
+      description: 'One finished toast, woven from the memories you choose — to read at the celebration, to keep as a page, and to hear in a warm voice.',
       features: [
-        'One tribute, woven from up to 10 people’s memories, in one collective voice',
+        'One toast, woven from up to 10 people’s memories, in one collective voice',
         'A keepsake PDF to download, print, and keep',
         'A spoken version in a warm voice, to play at the party',
         'Emailed to you — free to create and collect, you pay once when you finalize',
@@ -168,23 +168,23 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       },
       {
         q: 'Can I see the memories before I pay?',
-        a: 'Yes. Reading and reviewing every memory is completely free. You only pay when you decide to finalize and have the tribute woven together. Nothing is generated before you pay.',
+        a: 'Yes. Reading and reviewing every memory is completely free. You only pay when you decide to finalize and have the toast woven together. Nothing is generated before you pay.',
       },
       {
         q: 'Who can see what others wrote?',
         a: 'Only you. Memories are not published anywhere public. Each contributor sees only their own submission; you’re the one who reads them all and decides what to include.',
       },
       {
-        q: 'What if someone shares something I don’t want in the tribute?',
+        q: 'What if someone shares something I don’t want in the toast?',
         a: 'You’re in control. Every memory is included by default, but you can leave any of them out with one tap before you finalize.',
       },
       {
-        q: 'What if only a few people contribute?',
-        a: 'That’s fine. The tribute can be woven from even a single heartfelt memory — we never hold your collection hostage to a quota. More voices make a richer tribute, but a small, close circle is enough.',
+        q: 'What if only a few people contoast?',
+        a: 'That’s fine. The toast can be woven from even a single heartfelt memory — we never hold your collection hostage to a quota. More voices make a richer toast, but a small, close circle is enough.',
       },
       {
         q: 'Can I set the tone?',
-        a: 'Yes. When you finalize you choose the tone — heartfelt, celebratory, or reflective — and the length, so the tribute fits the celebration.',
+        a: 'Yes. When you finalize you choose the tone — heartfelt, celebratory, or reflective — and the length, so the toast fits the celebration.',
       },
       {
         q: 'How is this different from writing it with ChatGPT?',
@@ -192,11 +192,11 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       },
       {
         q: 'How long does it take?',
-        a: 'Creating a collection takes under a minute. Collecting memories happens over hours or days as people respond. Once you finalize, the tribute is woven and emailed to you within a minute or two.',
+        a: 'Creating a collection takes under a minute. Collecting memories happens over hours or days as people respond. Once you finalize, the toast is woven and emailed to you within a minute or two.',
       },
       {
         q: 'What if it’s not right?',
-        a: 'If the finished tribute doesn’t feel right, email anniversary@wordsbywtm.com and we’ll make it right. The memories you gathered are always yours.',
+        a: 'If the finished toast doesn’t feel right, email anniversary@wordsbywtm.com and we’ll make it right. The memories you gathered are always yours.',
       },
     ],
   },
@@ -204,7 +204,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
   finalCta: {
     heading: 'Gather the memories before the celebration.',
     subheading:
-      'Start a collection now — it’s free. Invite family and friends, and weave their memories into one tribute when you’re ready.',
+      'Start a collection now — it’s free. Invite family and friends, and weave their memories into one toast when you’re ready.',
     ctaLabel: 'Start an Anniversary Collection →',
     backgroundImageUrl:
       'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1600&q=80&auto=format&fit=crop',
