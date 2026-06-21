@@ -193,6 +193,8 @@ The adversarial pass found **no HIGH/CRITICAL finding to refute** — every HIGH
 Status legend: ✅ done · 🔵 verified N/A (no action needed) · ⬜ open (engineering) · 👤 founder-owned · ⏳ deferred / track-only.
 Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 
+**Status snapshot (2026-06-21): all engineering complete.** Every CRITICAL/HIGH/MEDIUM finding is shipped, verified N/A, or deferred-with-rationale; the schema CRITICAL was verified not to affect prod. Shipped across hub PRs **#42–#49** + venture-core **1.24.1/1.24.2**. The revenue-journey CI gate is **live + green**. **Only founder-owned launch items remain** (LC-03 attorney, real-money smoke on both pay paths, ad-ops no-remarketing-off-memorial, verify GA4/Ads/Clarity prod env ids, ElevenLabs paid plan) plus the explicitly-deferred LOWs. Founder-done 2026-06-21: prod Paddle price ids verified, `CONTRIBUTION_HASH_SECRET` set, CI-gate Neon branch + secrets provisioned.
+
 ### Resolved in PR #42
 - [x] ✅ **[HIGH][Security] `isOrganizer` trusted without admin-token proof** — server now honors it only on a constant-time `adminToken` match; unproven claims degraded to a normal capped/email contribution. `contribute/route.ts` (+clients) — *PR #42, +tests*
 - [x] ✅ **[CRITICAL/HIGH][Backend/Architect/Legal] `db/schema.sql` stale vs runtime** — reconciled: all runtime columns + the 2 partial unique indexes + deadline idx, predicates matched **exactly** to prod `pg_indexes`. `db/schema.sql` — *PR #42*
