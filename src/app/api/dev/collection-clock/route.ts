@@ -25,8 +25,12 @@ export const dynamic = 'force-dynamic';
 const DAY_MS = 86_400_000;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Never in production.
-  const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  // Never in production. Key off VERCEL_ENV ONLY (matches the purge cron, SES-047
+  // §7): NODE_ENV is always 'production' on Vercel for every deploy — preview
+  // included — so an OR on NODE_ENV would 404 this helper on previews too, which
+  // is exactly where it's meant to run. Preview safety comes from the CRON_SECRET
+  // gate below, not from disabling the route.
+  const isProd = process.env.VERCEL_ENV === 'production';
   if (isProd) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
