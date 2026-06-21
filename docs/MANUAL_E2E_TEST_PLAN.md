@@ -20,9 +20,9 @@ For each occasion, swap `<occ>` (memorial / retirement / wedding / anniversary):
 
 | Check | memorial | retirement | wedding | anniversary |
 |---|---|---|---|---|
-| `/<occ>` landing renders, occasion-correct copy (no "tribute/service" on toast/send-off) | ☐ | ☐ | ☐ | ☐ |
-| Card on `/` (and `/?focus=<occ>` featured) routes to `/<occ>` | ☐ | ☐ | ☐ | ☐ |
-| `/<occ>/start` create form uses the right relationship taxonomy + labels | ☐ | ☐ | ☐ | ☐ |
+| `/<occ>` landing renders, occasion-correct copy (no "tribute/service" on toast/send-off) | ✅ | ✅ | ✅ | ✅ |
+| Card on `/` (and `/?focus=<occ>` featured) routes to `/<occ>` | ✅ | ✅ | ✅ | ✅ |
+| `/<occ>/start` create form uses the right relationship taxonomy + labels | ✅ | ✅ | ✅ | ✅ |
 | Contributor add → organizer review → finalize → generate | ☐ | ☐ | ☐ | ☐ |
 | Result + email use the right deliverable noun (tribute/send-off/toast) + read-aloud context | ☐ | ☐ | ☐ | ☐ |
 | Checkout opens the **live** Paddle product for THIS occasion (right price) | ☐ | ☐ | ☐ | ☐ |
@@ -160,15 +160,15 @@ For each occasion, swap `<occ>` (memorial / retirement / wedding / anniversary):
 ---
 
 ## 9. Lifecycle: delete, deadline, purge
-- [ ] **Delete unpaid/open** collection → removed; links 404 afterward.
+- [x] **Delete unpaid/open** collection → removed; links 404 afterward.
 - [ ] **Delete paid/generated** → guarded: requires explicit confirmation (409 unless confirm flag); paid work isn't lost by accident.
 - [ ] "What happens if I don't delete?" matches reality: explain + verify against the sweep below.
 - [ ] **Deadline sweep cron** (validate in preview):
-  - [ ] ~3 days before deadline, unpaid collection gets a reminder (sent once).
-  - [ ] At deadline, **unpaid/open** collection is deleted after the grace window (`DELETE_GRACE_MS`, ~6h).
+  - [x] ~3 days before deadline, unpaid collection gets a reminder (sent once).
+  - [x] At deadline, **unpaid/open** collection is deleted after the grace window (`DELETE_GRACE_MS`, ~6h).
   - [ ] **Paid** collection is NOT deleted at deadline (auto-finalize / preserved).
   - [ ] **Paid-but-empty** gets the once-only nudge, not deletion.
-  - [ ] Generated content is purged on the `purge_after` schedule (post-generation retention), not left forever.
+  - [x] Generated content is purged on the `purge_after` schedule (post-generation retention), not left forever.
 
 ---
 
