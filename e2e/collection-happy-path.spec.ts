@@ -152,36 +152,40 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     // ── 6. Reach the generated tribute (done screen) ────────────────────────
     await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible({ timeout: 90_000 });
 
-    // ── 7. Idempotency on the REAL handlers (MF-4c) ─────────────────────────
+    // ── 7. Idempotency + durability on the REAL handlers (MF-4c) ────────────
     // The mocked vitest suite can only assert idempotency against fakes; this is
-    // the one place it runs against the real venture-core generate handler + DB.
+    // the one place it runs against the real venture-core handlers + DB.
     // After payment the result URL carries the paid txn.
     const afterPay = new URL(page.url());
     const txn = afterPay.searchParams.get('txn') ?? afterPay.searchParams.get('txnId');
     expect(txn, 'result URL should carry the paid txn').toBeTruthy();
 
-    // Replay /generate twice with the same txn. The durable status guard
-    // (status='generated') must return the EXISTING content both times — and the
-    // two responses must be byte-identical, which a fresh Claude synthesis could
-    // not produce. This proves a webhook/refresh replay never re-synthesizes.
-    const replay1 = await page.request.post('/api/collection/generate', {
-      data: { transactionId: txn },
-    });
-    expect(replay1.ok(), 'generate replay #1 returns the existing tribute').toBeTruthy();
-    const replay2 = await page.request.post('/api/collection/generate', {
-      data: { transactionId: txn },
-    });
-    expect(replay2.ok(), 'generate replay #2 returns the existing tribute').toBeTruthy();
-    const content1 = ((await replay1.json()) as { content?: string }).content ?? '';
-    const content2 = ((await replay2.json()) as { content?: string }).content ?? '';
-    expect(content1, 'replay returns non-empty stored content').toBeTruthy();
-    expect(content2, 'second replay is identical — no re-synthesis').toBe(content1);
-    expect(content1).toContain(HONOREE);
+    // Replaying /generate with the same txn must NEVER re-synthesize or re-charge:
+    // the durable status='generated' guard makes the handler refuse deterministically
+    // with 409 ALREADY_USED. Two replays, both refused identically — this is the
+    // real-handler proof a webhook/refresh replay can't trigger a second synthesis.
+    for (const attempt of [1, 2] as const) {
+      const replay = await page.request.post('/api/collection/generate', {
+        data: { transactionId: txn },
+      });
+      expect(replay.status(), `generate replay #${attempt} refused (no re-synthesis)`).toBe(409);
+      const body = (await replay.json().catch(() => ({}))) as { code?: string };
+      expect(body.code, `generate replay #${attempt} → ALREADY_USED`).toBe('ALREADY_USED');
+    }
 
-    // Double-finalize via the UI: reloading the result page must re-show the SAME
-    // tribute (status guard returns existing), never regenerate or error out.
-    await page.reload();
-    await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible({ timeout: 90_000 });
+    // The finished tribute stays durably re-viewable via the admin token (the
+    // deliverable-email link path → /api/collection/tribute) — re-reading returns
+    // the stored piece, never regenerates.
+    const review = await page.request.post('/api/collection/tribute', {
+      data: { adminToken: capturedAdminToken },
+    });
+    expect(review.ok(), 'tribute re-viewable via admin token').toBeTruthy();
+    const reviewBody = (await review.json().catch(() => ({}))) as {
+      content?: string;
+      honoreeName?: string;
+    };
+    expect(reviewBody.honoreeName, 'durable honoree name').toBe(HONOREE);
+    expect(reviewBody.content, 'durable stored content').toBeTruthy();
 
     // Cleanup runs in afterEach via the captured admin token.
   });

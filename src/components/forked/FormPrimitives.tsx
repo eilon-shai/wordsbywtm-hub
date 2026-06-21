@@ -199,7 +199,8 @@ export function TextFieldRenderer({
   /** For date fields: min/max ISO date strings. */
   min?: string;
   max?: string;
-  /** e.g. 'off' to block autofill on a confirm-email field. */
+  /** Autofill hint. Use 'new-password' (not 'off' — Chrome ignores it on email
+   *  inputs) to block autofill on a confirm-email field. */
   autoComplete?: string;
   /** Override the native input type (e.g. 'email' for the confirm-email field). */
   inputType?: 'text' | 'email';
