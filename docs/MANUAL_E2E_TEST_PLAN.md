@@ -189,6 +189,11 @@ For each occasion, swap `<occ>` (memorial / retirement / wedding / anniversary):
 - [ ] Support console (`/support`) requires Basic-Auth (`SUPPORT_PASSWORD`); wrong/no creds rejected; constant-time compare.
 - [ ] No admin/share token leaks in URLs shared in emails beyond what's intended; tokens are unguessable.
 
+### 11a. Abuse guards (SES-047)
+- [ ] **Create rate-limit:** rapid-fire `/<occ>/start` create with the same organizer email → 429 (`RATE_LIMIT`) after the per-email cap (3/hr); a different IP/email is not blocked by another's quota; the limit is **bypassed when `ENABLE_MOCK_PAYMENT=true`** (local happy-path sweep never throttles).
+- [ ] **Organizer-as-contributor:** on the public share link, a contributor entering the **organizer's own email** is rejected (the organizer can't invite or contribute as themselves).
+- [ ] **Bogus/deleted token:** opening a deleted or made-up collection token shows the **calm not-found** screen (no crash / no stack trace) on **both** the contributor share link **and** the `/tribute` (admin) link.
+
 ---
 
 ## 12. Data-loss / "lost my result after paying" (must be ❌-free to launch)

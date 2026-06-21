@@ -10,8 +10,13 @@ export const dynamic = 'force-dynamic';
 // sends Authorization: Bearer $CRON_SECRET).
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // Fail-closed (BE-N4/SEC-06): require CRON_SECRET in production; header-only match.
+  // Prod detection keys off VERCEL_ENV only (SES-047 §7 [LOW]): NODE_ENV is always
+  // 'production' on Vercel for every deploy (preview included), so an isProd guard
+  // keyed off NODE_ENV is true even on previews. VERCEL_ENV is the real
+  // production/preview/development discriminator — consistent with the registry
+  // checkout guard and every config's resolveAppUrl().
   const secret = process.env.CRON_SECRET;
-  const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  const isProd = process.env.VERCEL_ENV === 'production';
   if (!secret) {
     if (isProd) {
       console.error('[cron/purge] CRON_SECRET not set — refusing to run in production');
