@@ -630,6 +630,16 @@ function ResultFlowInner(props: ResultFlowProps) {
     const paid = !!props.paidInAdvance;
     return (
       <main className="mx-auto w-full max-w-2xl px-4 py-12">
+        {backToken ? (
+          <div className="mb-6">
+            <a
+              href={`/collect/manage?t=${encodeURIComponent(backToken)}`}
+              className="text-sm text-primary underline hover:text-foreground"
+            >
+              ← Back to your collection
+            </a>
+          </div>
+        ) : null}
         <header className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{props.occasionTitle} {noun}</p>
           <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">How should the {noun} read?</h1>
