@@ -668,7 +668,12 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               value={confirmEmail}
               error={fieldError.confirmEmail}
               inputType="email"
-              autoComplete="off"
+              // Block browser autofill on the CONFIRM field — the user must retype,
+              // otherwise the confirm check is pointless. Chrome ignores
+              // autoComplete="off" on email-type inputs and fills it anyway; only
+              // "new-password" reliably suppresses autofill (and on type=email it
+              // shows no password key / save prompt).
+              autoComplete="new-password"
               onChange={(v) => {
                 setConfirmEmail(v);
                 clearError('confirmEmail');
