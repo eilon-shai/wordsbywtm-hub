@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
@@ -115,8 +116,12 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
     <>
       <SiteHeader />
       {/* Fires GA4 purchase + Google Ads conversion once on the post-Paddle
-          return (?txn=), deduped per transaction. No-op until analytics ids set. */}
-      <PurchaseTracker occasion={occasion} value={config.tiers.full.displayPrice} />
+          return (?txn=), deduped per transaction. No-op until analytics ids set.
+          PurchaseTracker reads useSearchParams, so it owns its own Suspense
+          boundary rather than relying on the dynamic route to cover it. */}
+      <Suspense fallback={null}>
+        <PurchaseTracker occasion={occasion} value={config.tiers.full.displayPrice} />
+      </Suspense>
       <ResultFlow
         occasion={occasion}
         occasionTitle={meta.title}

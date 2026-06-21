@@ -24,6 +24,7 @@ import {
 } from '@eilon-shai/venture-core/components';
 import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitives';
 import { trackBeginCheckout } from '@/lib/analytics';
+import { WITHDRAWAL_WAIVER_SENTENCE } from '@/lib/terms';
 
 // sessionStorage key for the chosen synthesis prefs — persisted right before we
 // open Paddle on the unpaid path so they survive the redirect back with ?txn=.
@@ -137,6 +138,8 @@ function ResultFlowInner(props: ResultFlowProps) {
   // Occasion-specific copy (defaults keep memorial wording if unset).
   const noun = props.deliverableNoun ?? 'tribute';
   const readAloud = props.readAloudContext ?? 'at the service';
+  // Occasion's real finalize price (falls back to the historical $49 if unset).
+  const priceLabel = typeof props.priceValue === 'number' ? `$${props.priceValue}` : '$49';
   // Occasion-aware AVOID field — the placeholder names the occasion's deliverable.
   const avoidField: FormFieldConfig = {
     ...AVOID_FIELD,
@@ -685,7 +688,7 @@ function ResultFlowInner(props: ResultFlowProps) {
                 <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
                   Privacy Policy
                 </a>
-                . By paying, I agree to start delivery immediately and understand this waives my EU 14-day withdrawal right.
+                . {WITHDRAWAL_WAIVER_SENTENCE}
               </span>
             </label>
           ) : null}
@@ -728,7 +731,7 @@ function ResultFlowInner(props: ResultFlowProps) {
               </Button>
               {!paid ? (
                 <p className="text-center text-xs leading-relaxed text-muted-foreground">
-                  One time, $49. No subscription, no account. The memories you gathered are always yours to keep.
+                  One time, {priceLabel}. No subscription, no account. The memories you gathered are always yours to keep.
                 </p>
               ) : null}
             </>
@@ -803,7 +806,7 @@ function ResultFlowInner(props: ResultFlowProps) {
       </header>
 
       {/* The tribute itself — generous serif typography, like a printed page. */}
-      <article className="rounded-2xl border border-border bg-card px-6 py-10 shadow-sm sm:px-12 sm:py-14">
+      <article id="tribute-text" className="rounded-2xl border border-border bg-card px-6 py-10 shadow-sm sm:px-12 sm:py-14">
         <div className="speech-text mx-auto max-w-prose whitespace-pre-wrap font-serif text-[1.15rem] leading-[1.85] text-foreground/90">
           {content}
         </div>
@@ -856,7 +859,14 @@ function ResultFlowInner(props: ResultFlowProps) {
           {audioState === 'ready' ? (
             <>
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <audio controls preload="none" className="w-full max-w-md" src={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}`} />
+              <audio
+                controls
+                preload="none"
+                className="w-full max-w-md"
+                aria-label={`Spoken ${noun} for ${honoree}`}
+                aria-describedby="tribute-text"
+                src={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}`}
+              />
               <a
                 href={`/api/collection/audio?t=${encodeURIComponent(backToken)}&voice=${audioVoice}&download=1`}
                 className="text-xs text-primary underline hover:text-foreground"

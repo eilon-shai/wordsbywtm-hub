@@ -116,8 +116,15 @@ function addDays(n: number): Date {
   d.setDate(d.getDate() + n);
   return d;
 }
+// Local-day ISO (yyyy-mm-dd) — NOT toISOString(), which is UTC and would make the
+// server (UTC) and client (local TZ) disagree on "today", causing a hydration
+// mismatch on the deadline field. Using local getters keeps both renders equal
+// (the value is only ever read on the client after the deadline useEffect runs).
 function isoDay(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields, intake }: CreateFormProps) {
@@ -188,9 +195,21 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   // When
   // Deadline defaults to (and maxes out at) one month — the organizer can always
   // finalize early or pick a sooner date; bounded today … +1 month.
-  const [deadline, setDeadline] = React.useState(() => isoDay(addDays(30)));
-  const DEADLINE_MIN = isoDay(addDays(0));
-  const DEADLINE_MAX = isoDay(addDays(30));
+  //
+  // Computed client-only (in the effect below) so the server's UTC "today" never
+  // disagrees with the client's local "today" at hydration. Initial render leaves
+  // them empty; the effect fills the default + bounds once mounted.
+  const [deadline, setDeadline] = React.useState('');
+  const [deadlineMin, setDeadlineMin] = React.useState('');
+  const [deadlineMax, setDeadlineMax] = React.useState('');
+  React.useEffect(() => {
+    setDeadlineMin(isoDay(addDays(0)));
+    setDeadlineMax(isoDay(addDays(30)));
+    // Only seed the default if the organizer hasn't already picked/cleared a date.
+    setDeadline((cur) => (cur ? cur : isoDay(addDays(30))));
+  }, []);
+  const DEADLINE_MIN = deadlineMin;
+  const DEADLINE_MAX = deadlineMax;
   const [dupChecking, setDupChecking] = React.useState(false);
 
   // Consent.
@@ -648,7 +667,8 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               field={CONFIRM_EMAIL_FIELD}
               value={confirmEmail}
               error={fieldError.confirmEmail}
-              autoComplete="new-password"
+              inputType="email"
+              autoComplete="off"
               onChange={(v) => {
                 setConfirmEmail(v);
                 clearError('confirmEmail');
@@ -771,8 +791,8 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               // value can exceed them. Clamp into [MIN, MAX] (ISO day strings
               // compare lexicographically). Empty clears (deadline is optional).
               if (!v) return setDeadline('');
-              if (v > DEADLINE_MAX) return setDeadline(DEADLINE_MAX);
-              if (v < DEADLINE_MIN) return setDeadline(DEADLINE_MIN);
+              if (DEADLINE_MAX && v > DEADLINE_MAX) return setDeadline(DEADLINE_MAX);
+              if (DEADLINE_MIN && v < DEADLINE_MIN) return setDeadline(DEADLINE_MIN);
               setDeadline(v);
             }}
             dateMin={DEADLINE_MIN}
@@ -843,14 +863,24 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           )}
         </Button>
 
-        <button
-          type="button"
-          onClick={() => void runSubmit(true)}
-          disabled={submitting}
-          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-        >
-          I’ll write my own memory later
-        </button>
+        {/* Secondary path — promoted from a quiet text link to a clearly tappable
+            outline button so the lower-friction "create now, write later" option
+            is visible at the most expensive point of the funnel. Same action. */}
+        <div className="flex flex-col items-center gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => void runSubmit(true)}
+            disabled={submitting}
+            className="h-11 w-full text-base"
+          >
+            Create the collection now — I’ll write my memory later
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            You can add your own memory any time from your manage link.
+          </p>
+        </div>
 
         <p className="text-center text-xs text-muted-foreground pb-2">
           {memoryWc > 0 && memoryWc < 20

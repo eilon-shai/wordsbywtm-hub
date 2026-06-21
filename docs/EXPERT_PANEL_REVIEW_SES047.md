@@ -213,14 +213,15 @@ Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 - [ ] ⬜ **[MEDIUM][QA] Signed-invite HMAC has no round-trip/tamper test** (venture-core unit tests). 
 - [ ] ⬜ **[MEDIUM][QA] 3 new abuse guards missing from the manual E2E checklist** (rate-limit 429, organizer-own-address rejection, deleted-token not-found). `docs/MANUAL_E2E_TEST_PLAN.md`
 - [ ] ⬜ **[MEDIUM][Architect] Startup guard doesn't assert prod-vs-sandbox** Paddle ids/prices. `src/lib/registry.ts`
-- [ ] ⬜ **[MEDIUM][UX] Create form front-loads 8 required fields** — make "write later" prominent; consider deferring `relationshipDescription`. `CreateForm.tsx`
-- [ ] ⬜ **[MEDIUM][UX] Hardcoded "$49"** on prefs/pay + upsell — pass `config.tiers.full.displayPrice`. `ResultFlow.tsx`, `InviteBlock.tsx`
-- [ ] ⬜ **[MEDIUM][UX/Frontend] Required fields signalled by visual-only asterisk** — add `aria-required` + sr-only "(required)". `forked/FormPrimitives.tsx`
-- [ ] ⬜ **[MEDIUM][Marketing] `metadataBase` (www) contradicts non-www canonical** — align + 301. `layout.tsx`
-- [ ] ⬜ **[MEDIUM][Frontend] Create-form deadline date hydration-mismatch risk** (server UTC vs client local). `CreateForm.tsx`
-- [ ] ⬜ **[MEDIUM][Frontend] Edit-memory modal doesn't inert/scroll-lock the background.** `ManageDashboard.tsx`
-- [ ] ⬜ **[MEDIUM][Architect] venture-core source/dist divergence** (working tree 1.5.0 vs deployed 1.24.0) — portfolio continuity. 
-- [ ] ⬜ **[LOW] batch** — `PurchaseTracker` Suspense wrap; audio player a11y name; confirm-email `autoComplete`; moderate-toggle error visibility; `isProd`→`VERCEL_ENV`; audio POST rate-limit; webhook `event_id` dedup (hygiene); `setCollectionGenerated` conditional write; `resend-link` hash email key; `check-existing` oracle note; invite-token nonce/TTL; encryption-key naming; organizer-email-at-rest parity; render-test for the noun; `rate-limit.ts` unit tests; mobile share-link wrap; canonical waiver string; "done"-screen tone labels; Twitter card meta. *(see §7 LOW — pick up opportunistically)*
+- [x] ✅ **[MEDIUM][UX] Create form front-loads 8 required fields** — promoted "write my memory later" to a prominent secondary button (relationshipDescription kept required — woven into the organizer's memory). `CreateForm.tsx` — *PR-A*
+- [x] ✅ **[MEDIUM][UX] Hardcoded "$49"** — real `displayPrice` threaded into ResultFlow + InviteBlock/InviteScreen. — *PR-A*
+- [x] ✅ **[MEDIUM][UX/Frontend] Required fields visual-only asterisk** — `aria-required` + sr-only "(required)" in the field renderer. `forked/FormPrimitives.tsx` — *PR-A*
+- [x] ✅ **[MEDIUM][Marketing] `metadataBase` vs non-www canonical** — aligned to non-www + added Twitter card meta. `layout.tsx` — *PR-A*
+- [x] ✅ **[MEDIUM][Frontend] Create-form deadline hydration mismatch** — local-day getters + client-only effect. `CreateForm.tsx` — *PR-A*
+- [x] ✅ **[MEDIUM][Frontend] Edit-memory modal inert/scroll-lock** — background `inert`+`aria-hidden` + body scroll-lock while open. `ManageDashboard.tsx` — *PR-A*
+- [ ] ⬜ **[MEDIUM][Architect] venture-core source/dist divergence** (working tree 1.5.0 vs deployed 1.24.0) — portfolio continuity (monorepo hygiene; flagged, not a hub fix).
+- [x] ✅ **[LOW][PR-A] done:** `PurchaseTracker` Suspense wrap; audio player a11y name; confirm-email `type=email`/`autoComplete=off`; moderate-toggle error surfaced page-level + finalize-blocked; mobile share-link wrap; canonical waiver string; Twitter card meta.
+- [ ] ⬜ **[LOW] remaining (PR-B / venture-core):** `isProd`→`VERCEL_ENV`; audio POST rate-limit; `resend-link` hash email key; `check-existing` oracle note *(PR-B)* · webhook `event_id` dedup; `setCollectionGenerated` conditional write; invite-token nonce/TTL; encryption-key naming; organizer-email-at-rest parity *(venture-core)* · render-test for the noun; `rate-limit.ts` unit tests *(PR-B)*; "done"-screen tone labels.
 
 ### Founder-owned (not engineering defects)
 - [ ] 👤 **LC-03** — attorney ratification of the legal pages (must cover the interim Google/Microsoft sub-processors, consent-version, GDPR Art. 9 special-category, AI Act Art. 50 marking plan).
