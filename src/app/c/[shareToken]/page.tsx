@@ -18,15 +18,17 @@ export const dynamic = 'force-dynamic';
 // Token-bearing private link — keep it out of search indexes (token hygiene).
 export const metadata: Metadata = { title: 'Add a memory — Words That Matter', robots: { index: false, follow: false } };
 
-// SES-048 LOW fix: terminal "closed"/"not active" screens are NOT celebratory, so
-// they use a calm, occasion-agnostic glyph — never the occasion successIcon (🎉/🥂
-// over "This collection has closed" read wrong on retirement/wedding/anniversary).
-function ClosedScreen({ kind }: { kind: 'closed' | 'notfound' }) {
+// Terminal "closed"/"not active" screens. The closed screen shows the occasion's
+// calm terminalIcon (memorial 🕯️; celebratory occasions a calm fallback — NEVER
+// their celebratory success icon, which reads wrong over "this collection has
+// closed"). Defaults to 🤍 when the occasion is unknown (e.g. DB-unavailable
+// not-found). The not-found screen always shows 🔗.
+function ClosedScreen({ kind, closedIcon = '🤍' }: { kind: 'closed' | 'notfound'; closedIcon?: string }) {
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
       <div className="max-w-md w-full text-center">
         <div className="text-5xl mb-6" aria-hidden="true">
-          {kind === 'closed' ? '🤍' : '🔗'}
+          {kind === 'closed' ? closedIcon : '🔗'}
         </div>
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           {kind === 'closed' ? 'This collection has closed' : 'This link isn’t active'}
@@ -75,7 +77,7 @@ export default async function ContributorSharePage({
 
   if (!collection) return <ClosedScreen kind="notfound" />;
   if (collection.status !== 'open')
-    return <ClosedScreen kind="closed" />;
+    return <ClosedScreen kind="closed" closedIcon={getOccasionMeta(collection.occasion)?.terminalIcon} />;
 
   const config = getConfig(collection.occasion);
   const meta = getOccasionMeta(collection.occasion);
@@ -127,8 +129,8 @@ export default async function ContributorSharePage({
     return (
       <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
         <div className="max-w-md w-full text-center">
-          {/* "Full" is a neutral terminal state — calm glyph, not the celebratory successIcon. */}
-          <div className="text-5xl mb-6" aria-hidden="true">🤍</div>
+          {/* "Full" is a neutral terminal state — occasion's calm terminalIcon, not the celebratory successIcon. */}
+          <div className="text-5xl mb-6" aria-hidden="true">{meta.terminalIcon}</div>
           <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">This collection is full</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Thank you for wanting to share a memory of {collection.honoreeName}. This collection has reached the
