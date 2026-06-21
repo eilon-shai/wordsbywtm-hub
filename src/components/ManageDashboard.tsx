@@ -69,6 +69,8 @@ interface ManageDashboardProps {
 
 const isIncluded = (c: Contribution) => c.status !== 'removed';
 
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 function formatDeadline(iso?: string | null): string | null {
   if (!iso) return null;
   const d = new Date(iso);
@@ -83,10 +85,10 @@ function daysUntil(iso?: string | null): number | null {
   return Math.ceil((d.getTime() - Date.now()) / 86_400_000);
 }
 
-function statusBadge(status: string): { label: string; variant: 'default' | 'secondary' | 'outline' } {
+function statusBadge(status: string, noun: string): { label: string; variant: 'default' | 'secondary' | 'outline' } {
   switch (status) {
     case 'generated':
-      return { label: 'Tribute created', variant: 'secondary' };
+      return { label: `${cap(noun)} created`, variant: 'secondary' };
     case 'closed':
       return { label: 'Closed', variant: 'outline' };
     default:
@@ -386,7 +388,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const generated = data.status === 'generated';
   // The organizer's own memory exists once any contribution is flagged isOrganizer.
   const hasOrganizerMemory = data.contributions.some((c) => c.isOrganizer);
-  const badge = statusBadge(data.status);
+  const badge = statusBadge(data.status, noun);
   const deadline = formatDeadline(data.deadline);
   const deadlineDaysLeft = daysUntil(data.deadline);
   const price = data.priceShown ? `$${data.priceShown}` : null;
@@ -398,7 +400,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const shareLink = buildShareLink(origin, data.shareToken, data.occasion);
-  const inviteText = buildInviteText(data.honoreeName, shareLink);
+  const inviteText = buildInviteText(data.honoreeName, shareLink, noun);
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteText)}`;
   const emailUrl = `mailto:?subject=${encodeURIComponent(
     `Add a memory for ${data.honoreeName}`,
@@ -512,14 +514,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                     label="What the deadline means"
                     text={
                       data.paid
-                        ? 'On this date, memories close and we automatically create your tribute from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.'
-                        : 'On this date, memories close. Finalize before then to create your tribute — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.'
+                        ? `On this date, memories close and we automatically create your ${noun} from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.`
+                        : `On this date, memories close. Finalize before then to create your ${noun} — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.`
                     }
                   />
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {data.paid
-                    ? 'Memories close then — we’ll create your tribute automatically with whatever’s gathered.'
+                    ? `Memories close then — we’ll create your ${noun} automatically with whatever’s gathered.`
                     : 'Finalize before then, or the collection and its memories are deleted.'}{' '}
                   We’ll email a reminder 3 days before.
                 </p>
@@ -564,6 +566,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               organizerEmail={organizerEmail}
               paid={!!data.paid}
               price={price}
+              deliverableNoun={noun}
             />
           </CardContent>
         </Card>
@@ -573,12 +576,12 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
       {generated ? (
         <Card className="mt-4">
           <CardContent className="space-y-4 p-6 text-center">
-            <p className="font-serif text-xl text-foreground">Your tribute has been created</p>
+            <p className="font-serif text-xl text-foreground">Your {noun} has been created</p>
             <p className="text-muted-foreground">
               It was woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'} and emailed to you.
             </p>
             <a href={`${resultPath}?t=${encodeURIComponent(adminToken)}`} className={buttonVariants({ size: 'lg' })}>
-              View your tribute
+              View your {noun}
             </a>
           </CardContent>
         </Card>
@@ -608,6 +611,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                 onToggle={handleToggle}
                 onEdit={openEdit}
                 error={toggleErrors[c.id] ?? null}
+                deliverableNoun={noun}
               />
             ))
         )}
@@ -619,14 +623,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
           <Separator className="my-8" />
           <div className="rounded-xl border border-border bg-card p-6">
             <p className="text-center font-serif text-lg text-foreground">
-              Your tribute will be woven from{' '}
+              Your {noun} will be woven from{' '}
               <span className="text-primary">{includedCount}</span>{' '}
               {includedCount === 1 ? 'memory' : 'memories'}
             </p>
 
             <p className="mt-2 text-center text-sm text-muted-foreground">
               {data.paid
-                ? 'On the next step you’ll choose how it reads — and whether to add a spoken version — then create the tribute.'
+                ? `On the next step you’ll choose how it reads — and whether to add a spoken version — then create the ${noun}.`
                 : `Finalizing closes the collection${price ? ` — ${price}, one time` : ''}. You’ll choose how it reads — and whether to add a spoken version — and pay on the next step.`}
             </p>
             <p className="mx-auto mt-2 max-w-prose text-center text-xs leading-relaxed text-muted-foreground">
@@ -645,7 +649,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                     : undefined
                 }
               >
-                {finalizing ? 'Opening…' : 'Review & create the tribute'}
+                {finalizing ? 'Opening…' : `Review & create the ${noun}`}
               </Button>
               {belowMin ? (
                 <p className="text-sm text-muted-foreground">
@@ -676,7 +680,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               Delete this collection
             </button>
             <p className="mt-3 max-w-prose text-xs leading-relaxed text-muted-foreground">
-              If you do nothing, this collection and all its memories are automatically deleted about 30 days after the tribute is created (or at the deadline if you never finalize). Download or copy your tribute to keep it.
+              If you do nothing, this collection and all its memories are automatically deleted about 30 days after the {noun} is created (or at the deadline if you never finalize). Download or copy your {noun} to keep it.
             </p>
           </div>
         ) : (

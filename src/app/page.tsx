@@ -14,7 +14,7 @@ import FocusScroll from '@/components/FocusScroll';
 // ---------------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: 'Words That Matter — Gather memories into one tribute',
+  title: 'Words That Matter — Gather memories into one piece',
   description:
     'No one person holds the whole story. Start a collection for a memorial, wedding, retirement, or anniversary, invite the people who were there to each add a memory, and we weave them into one piece to read aloud. Free to create and collect; pay once when you’re ready.',
   alternates: { canonical: 'https://wordsbywtm.com' },
@@ -24,7 +24,7 @@ const STEPS = [
   { n: '01', t: 'Start a collection', b: 'Free. Tell us who you’re honoring; we email you a private link to manage it.' },
   { n: '02', t: 'Invite the circle', b: 'Share one link. Each person adds a memory in two minutes — no account, no payment.' },
   { n: '03', t: 'Review what came in', b: 'Read every memory. Everything’s included by default; leave out anything that doesn’t belong.' },
-  { n: '04', t: 'Weave it together', b: 'When you’re ready, pay once and we synthesize it all into one tribute.' },
+  { n: '04', t: 'Weave it together', b: 'When you’re ready, pay once and we synthesize it all into one piece.' },
 ];
 
 export default async function HubPage({
@@ -178,7 +178,7 @@ export default async function HubPage({
           <div className="mx-auto max-w-4xl">
             <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-primary">How it works</p>
             <h2 className="mb-16 text-center font-serif text-3xl text-foreground md:text-4xl">
-              Four steps, one tribute
+              Four steps, one piece
             </h2>
             <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-6">
               {STEPS.map((s) => (

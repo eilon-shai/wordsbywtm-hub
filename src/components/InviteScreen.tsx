@@ -21,6 +21,7 @@ import { Button } from '@eilon-shai/venture-core/ui';
 import { Separator } from '@eilon-shai/venture-core/ui';
 import { InviteBlock } from './InviteBlock';
 import { buildShareLink, buildInviteText } from '@/lib/invite';
+import { getOccasionMeta } from '@/lib/registry';
 
 interface InviteScreenProps {
   occasion: string;
@@ -62,7 +63,10 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
     }
   }, [shareUrl, occasion]);
 
-  const inviteText = buildInviteText(honoreeName, shareLink);
+  // Occasion-specific deliverable noun (defaults to memorial wording if unknown).
+  const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
+
+  const inviteText = buildInviteText(honoreeName, shareLink, noun);
 
   const dashboardLink = withParam(adminUrl, 'occasion', occasion);
 
@@ -84,7 +88,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
       <CardHeader>
         <CardTitle className="font-serif text-2xl">Your collection is ready</CardTitle>
         <CardDescription>
-          Get started now — invite the people who knew {honoreeName}. The more voices, the richer the tribute.
+          Get started now — invite the people who knew {honoreeName}. The more voices, the richer the {noun}.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-8">
@@ -98,6 +102,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
           surface="create"
           honoreeName={honoreeName}
           organizerName={organizerName}
+          deliverableNoun={noun}
         />
 
         {deadline && (
@@ -123,7 +128,7 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
           </a>
 
           <p className="text-center text-xs text-muted-foreground">
-            Tributes read best with a few voices — share the link widely.
+            A {noun} reads best with a few voices — share the link widely.
           </p>
         </div>
       </CardContent>

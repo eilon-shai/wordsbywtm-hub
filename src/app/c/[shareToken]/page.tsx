@@ -23,7 +23,7 @@ function ClosedScreen({ kind }: { kind: 'closed' | 'notfound' }) {
     <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
       <div className="max-w-md w-full text-center">
         <div className="text-5xl mb-6" aria-hidden="true">
-          {kind === 'closed' ? '🕯️' : '🔗'}
+          {kind === 'closed' ? '🤍' : '🔗'}
         </div>
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           {kind === 'closed' ? 'This collection has closed' : 'This link isn’t active'}
@@ -100,7 +100,7 @@ export default async function ContributorSharePage({
           <h1 className="mb-3 font-serif text-3xl text-foreground md:text-4xl">Add your own memory</h1>
           <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
             Your memory of {collection.honoreeName} is pinned to the top of your collection and is
-            always part of the final tribute.
+            always part of the final {meta.deliverableNoun}.
           </p>
         </header>
         <OrganizerMemoryForm

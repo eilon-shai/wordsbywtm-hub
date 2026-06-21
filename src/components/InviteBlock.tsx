@@ -49,6 +49,8 @@ export interface InviteBlockProps {
   paid?: boolean;
   /** Price label for the advance-pay CTA (e.g. "$49"). */
   price?: string | null;
+  /** What the finished piece is called for this occasion ("tribute" | "toast" | …). */
+  deliverableNoun?: string;
   /**
    * When the collection has hit the real 12-person email backstop, render the
    * single disabled "coming soon" pack line. Defaults to false; the dashboard
@@ -71,7 +73,9 @@ export function InviteBlock({
   paid = false,
   price = null,
   atCap = false,
+  deliverableNoun,
 }: InviteBlockProps) {
+  const noun = (deliverableNoun ?? '').trim() || 'tribute';
   const [copied, setCopied] = React.useState(false);
   const [canNativeShare, setCanNativeShare] = React.useState(false);
 
@@ -168,6 +172,7 @@ export function InviteBlock({
         honoreeName={honoreeName}
         paid={paid}
         atCap={atCap}
+        deliverableNoun={noun}
       />
     </div>
   );
@@ -350,6 +355,7 @@ function DirectEmailCard({
   organizerName,
   honoreeName,
   paid,
+  deliverableNoun,
 }: {
   adminToken: string;
   inviteText: string;
@@ -357,7 +363,9 @@ function DirectEmailCard({
   honoreeName?: string;
   paid: boolean;
   atCap?: boolean;
+  deliverableNoun?: string;
 }) {
+  const noun = (deliverableNoun ?? '').trim() || 'tribute';
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [phone, setPhone] = React.useState('');
@@ -487,7 +495,7 @@ function DirectEmailCard({
           <hr className="my-3 border-border" />
           <p>Hi,</p>
           <p className="mt-2">
-            {from ? <><strong>{from}</strong> is</> : <>Family and friends are</>} putting together a tribute for{' '}
+            {from ? <><strong>{from}</strong> is</> : <>Family and friends are</>} putting together a {noun} for{' '}
             <strong>{who}</strong>, woven from memories shared by the people who knew them — and you’re invited to add yours.
           </p>
           <p className="mt-2">It takes about two minutes. No account, nothing to pay.</p>

@@ -13,6 +13,7 @@ import {
 import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { validateMemoriesField } from '@eilon-shai/venture-core/validation';
 import type { OccasionIntake } from '@/lib/intake';
+import { getOccasionMeta } from '@/lib/registry';
 import { InviteScreen } from './InviteScreen';
 import { composeMemory } from './ContributorForm';
 import {
@@ -120,6 +121,9 @@ function isoDay(d: Date): string {
 
 export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields, intake }: CreateFormProps) {
   void contributorFields; // organizer memory now lives inline in this merged form
+
+  // Occasion-specific deliverable noun (defaults to memorial wording if unknown).
+  const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
 
   // Per-occasion field defs, built from the intake spec (relationship taxonomy,
   // labels, placeholders) so each occasion uses its own vocabulary.
@@ -760,7 +764,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           >
             <p className="text-xs text-muted-foreground">
               Memories close on this date (up to a month out). If you’ve paid, we’ll create your
-              tribute then with whatever’s been gathered. If you haven’t, the collection is deleted —
+              {' '}{noun} then with whatever’s been gathered. If you haven’t, the collection is deleted —
               we’ll email a reminder 3 days before either way.
             </p>
           </FieldRow>

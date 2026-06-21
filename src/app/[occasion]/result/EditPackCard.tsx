@@ -27,9 +27,12 @@ interface EditPackCardProps {
   priceId: string;
   /** brand.resultPath of the resolved occasion, e.g. '/memorial/result'. */
   resultPath: string;
+  /** What the finished piece is called for this occasion ("tribute" | "toast" | …). */
+  deliverableNoun?: string;
 }
 
-export function EditPackCard({ priceId, resultPath }: EditPackCardProps) {
+export function EditPackCard({ priceId, resultPath, deliverableNoun }: EditPackCardProps) {
+  const noun = (deliverableNoun ?? '').trim() || 'tribute';
   const [opening, setOpening] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,10 +61,10 @@ export function EditPackCard({ priceId, resultPath }: EditPackCardProps) {
     <div className="mx-auto mt-10 max-w-2xl px-4 pb-16">
       <Card className="border-accent/50 bg-accent/20">
         <CardHeader>
-          <CardTitle className="font-serif text-xl">Adjust this tribute</CardTitle>
+          <CardTitle className="font-serif text-xl">Adjust this {noun}</CardTitle>
           <CardDescription className="text-sm leading-relaxed">
             Want a different feel? The one-time Edit &amp; Refine pack lets you
-            regenerate this tribute with a different tone or length, or fold in a
+            regenerate this {noun} with a different tone or length, or fold in a
             memory that arrived late. One payment, no subscription.
           </CardDescription>
         </CardHeader>
@@ -81,7 +84,7 @@ export function EditPackCard({ priceId, resultPath }: EditPackCardProps) {
             {opening ? 'Opening checkout…' : 'Get the Edit & Refine pack'}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Refinements are applied after purchase. The original tribute above
+            Refinements are applied after purchase. The original {noun} above
             stays available.
           </p>
         </CardContent>

@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 
 // Default social card for the hub root (replaces the 404 /og-*.png references).
 // Generated at the edge — no binary asset needed.
-export const alt = 'Words That Matter — gather memories into one tribute';
+export const alt = 'Words That Matter — gather memories into one piece';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
