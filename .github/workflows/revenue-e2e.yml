@@ -1,0 +1,116 @@
+name: Revenue journey (Tier B e2e)
+
+# Full mutating happy-path: create → invite → contribute → moderate → pay (mock)
+# → real Claude synthesis → finalized tribute, against a DISPOSABLE Neon test
+# branch. This is the gate the mocked Vitest suite can't be — it catches
+# venture-core contract drift on a bump (e.g. a column/handler change) before any
+# ad spend. The spec self-cleans (deletes its tagged row in afterEach).
+#
+# ── ONE-TIME SETUP (founder) ──────────────────────────────────────────────────
+# 1. Create a DISPOSABLE Neon *test branch* (Neon console → Branches → New). Copy
+#    its pooled connection string. It MUST NOT be the production branch.
+# 2. (Recommended) Create a throwaway Upstash Redis DB for tests. Reusing the
+#    prod one works (keys are occasion-prefixed + the spec's global-setup clears
+#    its txn keys), but a separate DB is cleaner.
+# 3. Add repo SECRETS (Settings → Secrets and variables → Actions → Secrets):
+#       E2E_DATABASE_URL              = the Neon TEST-branch connection string
+#       E2E_UPSTASH_REDIS_REST_URL    = test (or prod) Upstash REST URL
+#       E2E_UPSTASH_REDIS_REST_TOKEN  = test (or prod) Upstash REST token
+#       E2E_ANTHROPIC_API_KEY         = an Anthropic key (synthesis is REAL;
+#                                       SYNTHESIS_MODEL below is the cheap Haiku)
+#    (NPM_TOKEN already exists for @eilon-shai installs.)
+# 4. Add a repo VARIABLE (Settings → … → Variables):
+#       RUN_REVENUE_E2E = true        ← flips the gate ON. Until then this job is
+#                                       skipped, so the workflow never fails for
+#                                       missing setup.
+# 5. (Optional safety) Add a VARIABLE PROD_DB_HOST = <your prod Neon host> and the
+#    guard below aborts if E2E_DATABASE_URL points at it.
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # nightly 06:00 UTC — pre-spend signal
+  workflow_dispatch: {} # run on demand (e.g. right after a venture-core bump)
+
+concurrency:
+  group: revenue-e2e
+  cancel-in-progress: true
+
+jobs:
+  revenue-e2e:
+    name: Revenue journey (Tier B)
+    # Skipped entirely until the founder sets RUN_REVENUE_E2E=true (after the
+    # one-time setup above), so this never red-X's for lack of provisioning.
+    if: ${{ vars.RUN_REVENUE_E2E == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      E2E_ALLOW_DB_WRITES: '1'
+      DATABASE_URL: ${{ secrets.E2E_DATABASE_URL }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.E2E_UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.E2E_UPSTASH_REDIS_REST_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.E2E_ANTHROPIC_API_KEY }}
+      # Cheapest model — the gate proves the wiring, not output quality.
+      SYNTHESIS_MODEL: 'claude-haiku-4-5'
+      # Test-only encryption key (NOT a secret; the test branch is disposable).
+      REDIS_FORM_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      PROD_DB_HOST: ${{ vars.PROD_DB_HOST }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Safety: never run against an empty or production DATABASE_URL.
+      - name: Guard — non-prod test DB required
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::E2E_DATABASE_URL secret is empty — set it to a disposable Neon test branch."; exit 1
+          fi
+          if [ -n "$PROD_DB_HOST" ] && printf '%s' "$DATABASE_URL" | grep -qF "$PROD_DB_HOST"; then
+            echo "::error::E2E_DATABASE_URL points at the production host ($PROD_DB_HOST). Refusing to run."; exit 1
+          fi
+          # Visibility without leaking creds: print only the host.
+          echo "Using DB host: $(printf '%s' "$DATABASE_URL" | sed -E 's#^[^@]*@([^/?]+).*#\1#')"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "@eilon-shai:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+
+      - run: npm ci
+
+      - name: Get Playwright version for cache key
+        id: pw-version
+        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.pw-version.outputs.version }}-chromium
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Apply schema to the test branch (idempotent)
+        run: psql "$DATABASE_URL" -f db/schema.sql
+
+      - name: Run revenue-journey happy-path (Tier B)
+        run: npx playwright test --project=mock e2e/collection-happy-path.spec.ts
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-revenue-report
+          path: playwright-report/
+          retention-days: 7
