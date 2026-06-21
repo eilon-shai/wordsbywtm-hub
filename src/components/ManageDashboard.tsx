@@ -439,13 +439,13 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
           className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4 py-10"
           role="dialog"
           aria-modal="true"
-          aria-label="Edit your memory"
+          aria-labelledby="edit-memory-title"
           onKeyDown={trapTab}
           onClick={(e) => { if (e.target === e.currentTarget) setEditing(null); }}
         >
           <Card className="w-full max-w-lg">
             <CardContent className="p-6">
-              <h3 className="mb-4 font-serif text-xl text-foreground">Edit your memory</h3>
+              <h3 id="edit-memory-title" className="mb-4 font-serif text-xl text-foreground">Edit your memory</h3>
               <OrganizerMemoryForm
                 mode="edit"
                 adminToken={adminToken}

@@ -93,3 +93,16 @@ create table if not exists collection_feedback (
   created_at     timestamptz not null default now()
 );
 create index if not exists collection_feedback_product_idx on collection_feedback (product);
+
+-- Optional ElevenLabs audio narration: one row per (collection, voice), cascade-
+-- deleted with the collection. Also auto-created on demand by src/lib/audio.ts
+-- (ensureAudioTable); mirrored here so a fresh/DR/preview DB built from this file
+-- — and the revenue-e2e gate that applies it — is a complete store-of-record.
+create table if not exists collection_audio (
+  collection_id uuid        not null references collections (id) on delete cascade,
+  voice         text        not null default 'female',
+  mp3_base64    text        not null,
+  content_type  text        not null default 'audio/mpeg',
+  created_at    timestamptz not null default now(),
+  primary key (collection_id, voice)
+);
