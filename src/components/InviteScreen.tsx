@@ -21,7 +21,7 @@ import { Button } from '@eilon-shai/venture-core/ui';
 import { Separator } from '@eilon-shai/venture-core/ui';
 import { InviteBlock } from './InviteBlock';
 import { buildShareLink, buildInviteText } from '@/lib/invite';
-import { getOccasionMeta } from '@/lib/registry';
+import { getOccasionMeta, getConfig } from '@/lib/registry';
 
 interface InviteScreenProps {
   occasion: string;
@@ -66,6 +66,11 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
   // Occasion-specific deliverable noun (defaults to memorial wording if unknown).
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
 
+  // Occasion's real finalize price — threaded into the advance-pay upsell so the
+  // displayed "$49" tracks the config, not a hardcoded literal.
+  const priceValue = getConfig(occasion)?.tiers.full.displayPrice;
+  const price = typeof priceValue === 'number' ? `$${priceValue}` : null;
+
   const inviteText = buildInviteText(honoreeName, shareLink, noun);
 
   const dashboardLink = withParam(adminUrl, 'occasion', occasion);
@@ -103,6 +108,9 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
           honoreeName={honoreeName}
           organizerName={organizerName}
           deliverableNoun={noun}
+          occasion={occasion}
+          price={price}
+          priceValue={priceValue}
         />
 
         {deadline && (

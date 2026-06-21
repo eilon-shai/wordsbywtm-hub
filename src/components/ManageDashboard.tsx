@@ -179,6 +179,25 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   // trigger on close, and trap Tab within the dialog while it's open.
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const editTriggerRef = useRef<HTMLElement | null>(null);
+  // The dashboard content behind the modal — made `inert` while the modal is open
+  // so it's unreachable by keyboard / assistive tech, not just visually covered.
+  const backgroundRef = useRef<HTMLDivElement | null>(null);
+  // While the edit-memory modal is open: lock body scroll AND make the background
+  // inert (so AT can't reach it and the page behind doesn't scroll). Both restore
+  // on close. `inert` is a standard attribute; set imperatively for broad typing.
+  useEffect(() => {
+    if (!editing) return;
+    const bg = backgroundRef.current;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    bg?.setAttribute('inert', '');
+    bg?.setAttribute('aria-hidden', 'true');
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      bg?.removeAttribute('inert');
+      bg?.removeAttribute('aria-hidden');
+    };
+  }, [editing]);
   useEffect(() => {
     if (!editing) return;
     editTriggerRef.current = (document.activeElement as HTMLElement) ?? null;
@@ -386,6 +405,10 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const includedCount = data.contributions.filter(isIncluded).length;
   const remaining = Math.max(0, data.minContributions - includedCount);
   const belowMin = includedCount < data.minContributions;
+  // An include/exclude toggle failed to save and rolled back — the on-screen list
+  // no longer matches the server, so finalizing now would synthesize from the
+  // wrong set. Surface it page-level AND block finalize until it's retried.
+  const hasToggleError = Object.keys(toggleErrors).length > 0;
   const generated = data.status === 'generated';
   // The organizer's own memory exists once any contribution is flagged isOrganizer.
   const hasOrganizerMemory = data.contributions.some((c) => c.isOrganizer);
@@ -449,6 +472,9 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         </div>
       ) : null}
 
+      {/* Everything below is the dashboard content behind the modal — wrapped so
+          it can be marked inert while the edit-memory modal is open. */}
+      <div ref={backgroundRef}>
       {/* Just-created banner — replaces the old standalone invite page: leads with
           "invite people" + the emailed-link reassurance. */}
       {justCreated && !generated ? (
@@ -640,16 +666,24 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               When you finalize, these memories become one {noun} — in a collective voice, a keepsake PDF to print, and a spoken version to play {readAloud}.
             </p>
 
+            {hasToggleError ? (
+              <p className="mx-auto mt-3 max-w-prose rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-center text-sm text-destructive" role="alert">
+                A change to which memories are included didn’t save. Retry it in the list above before finalizing, so your {noun} is woven from the right memories.
+              </p>
+            ) : null}
+
             <div className="mt-5 flex flex-col items-center gap-2">
               <Button
                 size="lg"
                 className="w-full sm:w-auto"
-                disabled={belowMin || finalizing}
+                disabled={belowMin || finalizing || hasToggleError}
                 onClick={() => handleFinalize()}
                 title={
                   belowMin
                     ? `Add ${remaining} more ${remaining === 1 ? 'memory' : 'memories'} to finalize`
-                    : undefined
+                    : hasToggleError
+                      ? 'Retry the unsaved change above before finalizing'
+                      : undefined
                 }
               >
                 {finalizing ? 'Opening…' : `Review & create the ${noun}`}
@@ -711,6 +745,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

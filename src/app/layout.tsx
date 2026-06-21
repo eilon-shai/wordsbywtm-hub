@@ -14,7 +14,8 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.wordsbywtm.com'),
+  // Align with the non-www canonical so OG/SEO host signals don't split.
+  metadataBase: new URL('https://wordsbywtm.com'),
   title: 'Words That Matter — Gather memories into one piece',
   description:
     'Start a collection, invite the people who matter to share their memories, and weave them into one heartfelt piece. For memorials, weddings, retirements, and the moments that matter.',
@@ -23,6 +24,11 @@ export const metadata: Metadata = {
     title: 'Words That Matter',
     description: 'Gather memories from everyone who matters into one piece.',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Words That Matter',
+    description: 'Gather memories from everyone who matters into one piece.',
   },
 };
 

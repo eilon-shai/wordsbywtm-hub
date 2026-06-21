@@ -189,6 +189,7 @@ export function TextFieldRenderer({
   min,
   max,
   autoComplete,
+  inputType: inputTypeOverride,
 }: {
   field: FormFieldConfig;
   value: string;
@@ -200,9 +201,12 @@ export function TextFieldRenderer({
   max?: string;
   /** e.g. 'off' to block autofill on a confirm-email field. */
   autoComplete?: string;
+  /** Override the native input type (e.g. 'email' for the confirm-email field). */
+  inputType?: 'text' | 'email';
 }) {
-  // Honor the date type so the deadline gets a native date picker.
-  const inputType = field.type === 'date' ? 'date' : 'text';
+  // Honor the date type so the deadline gets a native date picker; otherwise allow
+  // an explicit override (e.g. 'email'), defaulting to a plain text input.
+  const inputType = field.type === 'date' ? 'date' : inputTypeOverride ?? 'text';
   return (
     <Input
       id={field.name}
@@ -215,6 +219,7 @@ export function TextFieldRenderer({
       min={inputType === 'date' ? min : undefined}
       max={inputType === 'date' ? max : undefined}
       autoComplete={autoComplete}
+      aria-required={field.required || undefined}
       aria-invalid={!!error || undefined}
       aria-describedby={error ? `${field.name}-error` : undefined}
       className={error ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -243,6 +248,7 @@ export function TextareaFieldRenderer({
       placeholder={field.placeholder}
       rows={rows}
       maxLength={field.maxLength}
+      aria-required={field.required || undefined}
       aria-invalid={!!error || undefined}
       aria-describedby={error ? `${field.name}-error` : undefined}
       className={`resize-none${error ? ' border-destructive focus-visible:ring-destructive' : ''}`}
@@ -266,6 +272,7 @@ export function SelectFieldRenderer({
       <SelectTrigger
         id={field.name}
         className="w-full"
+        aria-required={field.required || undefined}
         aria-invalid={!!error || undefined}
         aria-describedby={error ? `${field.name}-error` : undefined}
       >
@@ -295,6 +302,7 @@ export function FieldRow({
   dateMin,
   dateMax,
   autoComplete,
+  inputType,
 }: {
   field: FormFieldConfig;
   value: string;
@@ -309,12 +317,18 @@ export function FieldRow({
   dateMax?: string;
   /** e.g. 'off' to block autofill (confirm-email). */
   autoComplete?: string;
+  /** Override the text input type (e.g. 'email' for the confirm-email field). */
+  inputType?: 'text' | 'email';
 }) {
   return (
     <div className="space-y-1.5">
       <label htmlFor={field.name} className="text-sm font-medium text-foreground">
         {field.label}
         {field.required ? (
+          // Decorative asterisk only — "required" is announced to screen readers
+          // via aria-required on the control itself, so we DON'T add label text
+          // (that would change the field's accessible name, e.g. break exact-name
+          // queries and read "Your email required" to AT redundantly).
           <span className="text-destructive ml-1" aria-hidden="true">
             *
           </span>
@@ -336,6 +350,7 @@ export function FieldRow({
           min={dateMin}
           max={dateMax}
           autoComplete={autoComplete}
+          inputType={inputType}
         />
       )}
       {children}

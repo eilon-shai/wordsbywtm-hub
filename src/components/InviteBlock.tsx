@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { Button, Card, Input, Separator, Badge } from '@eilon-shai/venture-core/ui';
 import { initSharedPaddle, getSharedPaddle, setActiveTransaction } from '@eilon-shai/venture-core/components';
-import { TERMS_VERSION } from '@/lib/terms';
+import { TERMS_VERSION, WITHDRAWAL_WAIVER_SENTENCE } from '@/lib/terms';
 import { trackBeginCheckout } from '@/lib/analytics';
 
 // Where Paddle returns after an ADVANCE payment. A clean path (no query) so the
@@ -130,7 +130,7 @@ export function InviteBlock({
       <div className="flex flex-col gap-3">
         <label className="block text-sm font-medium text-foreground">Your invite link</label>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="min-w-0 flex-1 truncate rounded-lg border border-input bg-muted/40 px-3 py-2.5 font-mono text-sm">
+          <div className="min-w-0 flex-1 break-all rounded-lg border border-input bg-muted/40 px-3 py-2.5 font-mono text-sm">
             {shareLink}
           </div>
           <div className="flex shrink-0 gap-2">
@@ -353,8 +353,7 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price, occasion, pr
           <a href="/privacy" className="underline hover:text-foreground" target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </a>
-          . My one-time fee is charged now. Creating the finished piece is a digital service I’m asking to begin when I
-          finalize, and I understand that once it’s created I lose my EU/UK 14-day right to withdraw.
+          . My one-time fee is charged now. {WITHDRAWAL_WAIVER_SENTENCE}
         </span>
       </label>
       {termsError ? (
