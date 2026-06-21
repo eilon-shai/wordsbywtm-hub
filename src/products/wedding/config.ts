@@ -189,6 +189,7 @@ export const weddingConfig: ProductConfig = {
   termsVersion: TERMS_VERSION,
 
   collectionConfig: {
+    deliverableNoun: 'toast',
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       {
