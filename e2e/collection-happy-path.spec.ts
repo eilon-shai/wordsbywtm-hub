@@ -121,9 +121,12 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     // Contributors must supply an email (required; one-per-person key). Distinct
     // from the organizer's so it isn't rejected as the organizer address.
     await contributor.getByRole('textbox', { name: 'Your email', exact: true }).fill(CONTRIBUTOR_EMAIL);
+    // Must clear the memory guard (≥20 words AND ≥2 sentences) or submit is
+    // blocked behind the override panel instead of reaching the thank-you.
     await contributor.getByLabel(/share a memory/i).fill(
-      'I will always remember the way the kitchen smelled on Sundays, and how he slipped a few ' +
-        'dollars into your pocket on the way out without ever saying a word about it.',
+      'I will always remember the way the kitchen smelled on Sundays. He slipped a few dollars ' +
+        'into your pocket on the way out without ever saying a word about it. He made every ' +
+        'single person who came by feel completely looked after.',
     );
     await contributor.getByRole('checkbox').first().check();
     await contributor.getByRole('button', { name: /add (my )?memory|submit/i }).click();
