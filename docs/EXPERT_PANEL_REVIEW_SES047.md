@@ -193,6 +193,8 @@ The adversarial pass found **no HIGH/CRITICAL finding to refute** — every HIGH
 Status legend: ✅ done · 🔵 verified N/A (no action needed) · ⬜ open (engineering) · 👤 founder-owned · ⏳ deferred / track-only.
 Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 
+**Status snapshot (2026-06-21): all engineering complete.** Every CRITICAL/HIGH/MEDIUM finding is shipped, verified N/A, or deferred-with-rationale; the schema CRITICAL was verified not to affect prod. Shipped across hub PRs **#42–#49** + venture-core **1.24.1/1.24.2**. The revenue-journey CI gate is **live + green**. **Only founder-owned launch items remain** (LC-03 attorney, real-money smoke on both pay paths, ad-ops no-remarketing-off-memorial, verify GA4/Ads/Clarity prod env ids, ElevenLabs paid plan) plus the explicitly-deferred LOWs. Founder-done 2026-06-21: prod Paddle price ids verified, `CONTRIBUTION_HASH_SECRET` set, CI-gate Neon branch + secrets provisioned.
+
 ### Resolved in PR #42
 - [x] ✅ **[HIGH][Security] `isOrganizer` trusted without admin-token proof** — server now honors it only on a constant-time `adminToken` match; unproven claims degraded to a normal capped/email contribution. `contribute/route.ts` (+clients) — *PR #42, +tests*
 - [x] ✅ **[CRITICAL/HIGH][Backend/Architect/Legal] `db/schema.sql` stale vs runtime** — reconciled: all runtime columns + the 2 partial unique indexes + deadline idx, predicates matched **exactly** to prod `pg_indexes`. `db/schema.sql` — *PR #42*
@@ -208,7 +210,7 @@ Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 - [x] 🔵 **[MEDIUM][Backend] one-per-email / one-organizer backstop lost (TOCTOU)** — the unique indexes exist in prod.
 
 ### Open — engineering (not yet done)
-- [~] 🔜 **[HIGH][QA] Revenue-journey CI gate** — workflow **scaffolded** (`.github/workflows/revenue-e2e.yml` + `docs/REVENUE_E2E_SETUP.md`): nightly + on-demand happy-path against a disposable Neon branch, applies schema, real Haiku synthesis, self-cleans. **Skipped until founder provisions** the Neon test branch + secrets (`E2E_DATABASE_URL`, `E2E_UPSTASH_*`, `E2E_ANTHROPIC_API_KEY`) and sets var `RUN_REVENUE_E2E=true`. `e2e/collection-happy-path.spec.ts`
+- [x] ✅ **[HIGH][QA] Revenue-journey CI gate** — LIVE and GREEN (2026-06-21). `.github/workflows/revenue-e2e.yml` (nightly + on-demand) runs the full happy-path against a disposable Neon branch (applies schema, mock pay, **real Haiku synthesis**, self-cleans). Founder provisioned the Neon test branch + secrets + `RUN_REVENUE_E2E=true`; the first runs immediately caught the Tier-B spec being stale (asterisk-breaking selectors, missing contributor email, stale finalize button + incomplete finalize) — fixed in `e2e/collection-happy-path.spec.ts`, now passing end-to-end. Run it on demand after any venture-core bump.
 - [x] ✅ **[MEDIUM][QA] Double-usage idempotency tests** — webhook replay → paid once; double mark-paid idempotent; second finalize after 'generated' returns existing. `test/integration/double-usage-idempotency.test.ts` — *PR-B (#44)*
 - [x] ✅ **[MEDIUM][QA] Signed-invite HMAC round-trip/tamper test** — already present in venture-core (`packages/core/src/db/collections.test.ts`: round-trip+normalize, tampered sig, tampered payload, rotated secret, malformed). The panel only saw the hub's mocks; no new work needed.
 - [x] ✅ **[MEDIUM][QA] 3 abuse guards added to the manual E2E checklist** (rate-limit 429, organizer-own-address rejection, deleted-token not-found). `docs/MANUAL_E2E_TEST_PLAN.md` — *PR-B (#44)*

@@ -32,6 +32,10 @@ test.skip(process.env.E2E_ALLOW_DB_WRITES !== '1', GATE_REASON);
 const STAMP = Date.now();
 const HONOREE = `E2E Test Honoree ${STAMP}`;
 const ORGANIZER_EMAIL = `wtm-e2e+e2e-${STAMP}@example.com`;
+// A DIFFERENT address for the contributor — must not equal the organizer's (the
+// contribute route rejects the organizer email on the public link) and is the
+// one-per-person dedup key.
+const CONTRIBUTOR_EMAIL = `wtm-e2e+c-${STAMP}@example.com`;
 
 // Captured during the run so afterEach can clean up even on failure.
 let capturedAdminToken: string | null = null;
@@ -62,16 +66,20 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     // ── 1. Create the collection + organizer's first memory ─────────────────
     await page.goto('/memorial/start');
 
-    await page.getByLabel('Your email', { exact: true }).fill(ORGANIZER_EMAIL);
-    await page.getByLabel('Confirm your email', { exact: true }).fill(ORGANIZER_EMAIL);
-    await page.getByLabel('Your name', { exact: true }).fill('E2E Organizer');
+    // Target by role+accessible-name (NOT getByLabel exact): required-field labels
+    // carry a decorative aria-hidden "*", so the accessible name is e.g. "Your
+    // email" but the label TEXT is "Your email*". getByRole(name) uses the
+    // accessible name (asterisk excluded); getByLabel(exact) would never match.
+    await page.getByRole('textbox', { name: 'Your email', exact: true }).fill(ORGANIZER_EMAIL);
+    await page.getByRole('textbox', { name: 'Confirm your email', exact: true }).fill(ORGANIZER_EMAIL);
+    await page.getByRole('textbox', { name: 'Your name', exact: true }).fill('E2E Organizer');
 
     // Relationship select (venture-core Select — open then pick an option).
     await page.getByLabel(/your relationship to/i).click();
     await page.getByRole('option', { name: /son or daughter/i }).click();
 
     await page.getByLabel(/describe your relationship/i).fill('their eldest child');
-    await page.getByLabel('Their name', { exact: true }).fill(HONOREE);
+    await page.getByRole('textbox', { name: 'Their name', exact: true }).fill(HONOREE);
     await page
       .getByLabel(/specific memories or stories/i)
       .fill(
@@ -97,27 +105,28 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible();
 
     // ── 2. A contributor adds a memory via the share link ───────────────────
-    // Derive the share token from the dashboard's invite link (buildShareLink).
-    const shareHref = await page
-      .getByRole('link', { name: /\/c\// })
+    // The dashboard (InviteBlock hero) renders the full share URL as TEXT, not an
+    // <a>, so read the visible URL and pull the token out. (Bounded timeout — a
+    // missing element should fail fast, not eat the whole test budget.)
+    const shareText = await page
+      .getByText(/\/c\/[A-Za-z0-9_-]+/)
       .first()
-      .getAttribute('href')
-      .catch(() => null);
-    // Fallback: read any visible /c/<token> text on the page.
-    const shareToken =
-      (shareHref && shareHref.match(/\/c\/([^/?#]+)/)?.[1]) ||
-      (await page.locator('text=/\\/c\\/[A-Za-z0-9_-]+/').first().textContent())?.match(
-        /\/c\/([A-Za-z0-9_-]+)/,
-      )?.[1] ||
-      null;
+      .textContent({ timeout: 15_000 });
+    const shareToken = shareText?.match(/\/c\/([A-Za-z0-9_-]+)/)?.[1] ?? null;
     expect(shareToken, 'should resolve a contributor share token').toBeTruthy();
 
     const contributor = await page.context().newPage();
     await contributor.goto(`/c/${shareToken}`);
     await contributor.getByLabel(/your name/i).fill('E2E Contributor');
+    // Contributors must supply an email (required; one-per-person key). Distinct
+    // from the organizer's so it isn't rejected as the organizer address.
+    await contributor.getByRole('textbox', { name: 'Your email', exact: true }).fill(CONTRIBUTOR_EMAIL);
+    // Must clear the memory guard (≥20 words AND ≥2 sentences) or submit is
+    // blocked behind the override panel instead of reaching the thank-you.
     await contributor.getByLabel(/share a memory/i).fill(
-      'I will always remember the way the kitchen smelled on Sundays, and how he slipped a few ' +
-        'dollars into your pocket on the way out without ever saying a word about it.',
+      'I will always remember the way the kitchen smelled on Sundays. He slipped a few dollars ' +
+        'into your pocket on the way out without ever saying a word about it. He made every ' +
+        'single person who came by feel completely looked after.',
     );
     await contributor.getByRole('checkbox').first().check();
     await contributor.getByRole('button', { name: /add (my )?memory|submit/i }).click();
@@ -128,14 +137,19 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     await page.reload();
     await expect(page.getByText('E2E Contributor', { exact: false }).first()).toBeVisible();
 
-    // ── 4. Mock-pay & finalize ──────────────────────────────────────────────
-    // The finalize button reads "Pay & finalize — $49" (unpaid). In mock mode the
-    // checkout handler returns a mock_ txnId and the dashboard redirects to the
-    // result page in paid-finalize mode without opening Paddle.
-    await page.getByRole('button', { name: /pay & finalize|finalize & create the tribute/i }).click();
+    // ── 4. Finalize → prefs/pay page ────────────────────────────────────────
+    // The dashboard "Review & create the {noun}" button navigates to the result
+    // page (resultPath?t=adminToken) in the unpaid pay-at-finalize flow.
+    await page.getByRole('button', { name: /review & create the/i }).click();
+    await page.waitForURL(/\/memorial\/result/, { timeout: 30_000 });
 
-    // ── 5. Reach the tribute ────────────────────────────────────────────────
-    await page.waitForURL(/\/(memorial\/result|collect\/paid)/, { timeout: 90_000 });
+    // ── 5. Pay (mock) + create on the prefs page ────────────────────────────
+    // Defaults for tone/length are fine. Accept the pay-time terms, then "Create
+    // my {noun}" runs the MOCK checkout (no Paddle) → REAL synthesis (Haiku).
+    await page.getByRole('checkbox').first().check();
+    await page.getByRole('button', { name: /create my /i }).click();
+
+    // ── 6. Reach the generated tribute (done screen) ────────────────────────
     await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible({ timeout: 90_000 });
 
     // Cleanup runs in afterEach via the captured admin token.
