@@ -210,7 +210,7 @@ Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 ### Open — engineering (not yet done)
 - [ ] ⬜ **[HIGH][QA] Revenue journey has no automated CI gate** — stand up a disposable Neon test branch + scheduled (pre-spend) happy-path run with `E2E_ALLOW_DB_WRITES=1`. `e2e/collection-happy-path.spec.ts` — *needs founder: Neon test branch + CI secret; I'll scaffold the workflow.*
 - [x] ✅ **[MEDIUM][QA] Double-usage idempotency tests** — webhook replay → paid once; double mark-paid idempotent; second finalize after 'generated' returns existing. `test/integration/double-usage-idempotency.test.ts` — *PR-B (#44)*
-- [ ] 🔜 **[MEDIUM][QA] Signed-invite HMAC round-trip/tamper test** (venture-core unit tests) — *PR-C (venture-core, in progress)*
+- [x] ✅ **[MEDIUM][QA] Signed-invite HMAC round-trip/tamper test** — already present in venture-core (`packages/core/src/db/collections.test.ts`: round-trip+normalize, tampered sig, tampered payload, rotated secret, malformed). The panel only saw the hub's mocks; no new work needed.
 - [x] ✅ **[MEDIUM][QA] 3 abuse guards added to the manual E2E checklist** (rate-limit 429, organizer-own-address rejection, deleted-token not-found). `docs/MANUAL_E2E_TEST_PLAN.md` — *PR-B (#44)*
 - [x] ✅ **[MEDIUM][Architect] Prod-vs-sandbox startup guard** — boot fails closed in `VERCEL_ENV=production` if a live occasion's live price id is empty/sandbox. `src/lib/registry.ts` — *PR-B (#44)*
 - [x] ✅ **[MEDIUM][UX] Create form front-loads 8 required fields** — promoted "write my memory later" to a prominent secondary button (relationshipDescription kept required — woven into the organizer's memory). `CreateForm.tsx` — *PR-A*
@@ -222,8 +222,11 @@ Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 - [ ] ⬜ **[MEDIUM][Architect] venture-core source/dist divergence** (working tree 1.5.0 vs deployed 1.24.0) — portfolio continuity (monorepo hygiene; flagged, not a hub fix).
 - [x] ✅ **[LOW][PR-A] done:** `PurchaseTracker` Suspense wrap; audio player a11y name; confirm-email `type=email`/`autoComplete=off`; moderate-toggle error surfaced page-level + finalize-blocked; mobile share-link wrap; canonical waiver string; Twitter card meta.
 - [x] ✅ **[LOW][PR-B (#44)] done:** `isProd`→`VERCEL_ENV` (purge cron); audio POST rate-limit; `resend-link` hashes email key; `check-existing` oracle note; `rate-limit.ts` unit tests; per-occasion `deliverableNoun` test assertions.
-- [ ] 🔜 **[LOW] venture-core (PR-C, in progress):** `setCollectionGenerated` conditional/atomic write + signed-invite HMAC tests.
+- [x] ✅ **[LOW] venture-core (PR-C):** `setCollectionGenerated` conditional/atomic write shipped in **venture-core 1.24.1** (venture-monorepo #321). Signed-invite HMAC tests already existed (above).
 - [ ] ⏳ **[LOW] deferred (risky/low-value — left as notes):** invite-token nonce/TTL/collection-binding (would change the deterministic-per-email token format + break live links); `CONTRIBUTION_ENCRYPTION_KEY` rename (key migration); organizer-email-at-rest encryption (needs HMAC lookup column + migration); webhook `event_id` dedup (current effects already idempotent); "done"-screen tone labels.
+
+### Follow-ups beyond the panel (founder-requested)
+- [x] ✅ **4-step "how it works" consistency** — hub root was 4 steps, product landings 3 (drift; products folded "Review" into the invite step). Now **4 everywhere**, with "Review what came in" as its own step. Shipped via venture-core's step-count-aware landing grid (**1.24.2**, venture-monorepo #323) + the hub 4-step copy + repin — *this PR (#47)*.
 
 ### Founder-owned (not engineering defects)
 - [ ] 👤 **LC-03** — attorney ratification of the legal pages (must cover the interim Google/Microsoft sub-processors, consent-version, GDPR Art. 9 special-category, AI Act Art. 50 marking plan).

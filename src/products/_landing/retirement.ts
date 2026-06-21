@@ -64,7 +64,7 @@ export const retirementLandingConfig: LandingPageConfig = {
 
   howItWorks: {
     eyebrow: 'How it works',
-    heading: 'Three steps, one send-off',
+    heading: 'Four steps, one send-off',
     steps: [
       {
         step: '01',
@@ -74,10 +74,15 @@ export const retirementLandingConfig: LandingPageConfig = {
       {
         step: '02',
         title: 'Invite the people who worked with them',
-        body: 'Share one link with colleagues, friends, and family. Each person adds a story in about two minutes — no account, no payment — then you review every one and choose what to include.',
+        body: 'Share one link with colleagues, friends, and family. Each person adds a story in about two minutes — no account, no payment.',
       },
       {
         step: '03',
+        title: 'Review what came in',
+        body: 'Read every story as it arrives. Everything’s included by default — leave out anything that doesn’t fit.',
+      },
+      {
+        step: '04',
         title: 'Weave them into one speech',
         body: 'When you’re ready, pay once and we weave the stories into one send-off speech — then it’s yours to read at the party, keep as a printable page, and hear in a warm voice.',
       },
