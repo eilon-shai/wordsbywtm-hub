@@ -109,6 +109,41 @@ for (const o of OCCASIONS) {
   }
 }
 
+// PROD CHECKOUT GUARD (SES-047 §7 [Architect]): in PRODUCTION ONLY, fail closed
+// at boot if any LIVE occasion would open a broken or sandbox checkout. We serve
+// paid ad traffic — a live occasion whose `full` tier has no live Paddle price id
+// (or still carries the known sandbox placeholder) means the customer hits a dead
+// or sandbox checkout after we've already paid for the click. A thrown guard fails
+// the whole app boot on purpose (fail-closed: don't serve traffic to broken
+// checkout). It is OFF outside production so dev/preview/sandbox still run on the
+// sandbox price ids.
+//
+// How live vs sandbox ids differ in the configs: each tier carries a live
+// `priceId` (from NEXT_PUBLIC_PADDLE_PRICE_ID_<OCC>, default '') AND a
+// `priceIdSandbox` fallback (a hard-coded `pri_...` sandbox id). In production the
+// live `priceId` MUST be a non-empty real id and MUST NOT equal the sandbox
+// placeholder. (Live and sandbox Paddle ids share the `pri_` prefix, so prefix
+// alone can't distinguish them — we compare against the occasion's own known
+// sandbox id and require non-empty.)
+if (process.env.VERCEL_ENV === 'production') {
+  for (const o of OCCASIONS) {
+    if (!o.live) continue;
+    const cfg = CONFIGS[o.slug];
+    const full = cfg?.tiers?.full;
+    if (!full) {
+      throw new Error(`[registry] PROD: live occasion "${o.slug}" has no "full" tier — cannot open checkout`);
+    }
+    const livePriceId = (full.priceId ?? '').trim();
+    if (!livePriceId) {
+      throw new Error(`[registry] PROD: live occasion "${o.slug}" has an empty live tiers.full.priceId — set NEXT_PUBLIC_PADDLE_PRICE_ID_${o.slug.toUpperCase()} to the LIVE Paddle price id (refusing to serve a broken checkout)`);
+    }
+    const sandboxPriceId = (full.priceIdSandbox ?? '').trim();
+    if (sandboxPriceId && livePriceId === sandboxPriceId) {
+      throw new Error(`[registry] PROD: live occasion "${o.slug}" tiers.full.priceId "${livePriceId}" matches its SANDBOX price id — a sandbox checkout would open for real customers (refusing to boot)`);
+    }
+  }
+}
+
 /** Returns the ProductConfig for an occasion slug, or undefined if unknown. */
 export const getConfig = (slug: string): ProductConfig | undefined => CONFIGS[slug];
 

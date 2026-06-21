@@ -57,6 +57,17 @@ describe('registry', () => {
     }
   });
 
+  // Per-occasion deliverable noun (SES-047 §7 [QA]). Render tests aren't possible
+  // in the node-only runner, so this guards the config values that drive the
+  // shared UI/email copy ("your tribute" vs "your toast"). A future config edit
+  // that breaks a noun is caught here instead of shipping wrong copy.
+  it('each live occasion uses its expected deliverableNoun', () => {
+    expect(getOccasionMeta('memorial')?.deliverableNoun).toBe('tribute');
+    expect(getOccasionMeta('wedding')?.deliverableNoun).toBe('toast');
+    expect(getOccasionMeta('retirement')?.deliverableNoun).toBe('send-off');
+    expect(getOccasionMeta('anniversary')?.deliverableNoun).toBe('tribute');
+  });
+
   it('memorial keeps the white heart; celebratory occasions use a distinct icon', () => {
     expect(getOccasionMeta('memorial')?.successIcon).toBe('🤍');
     for (const slug of ['wedding', 'retirement', 'anniversary']) {

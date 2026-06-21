@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDbClient, getCollectionByAdminToken, getGeneratedContentByAdminToken } from '@eilon-shai/venture-core/db';
 import { audioEnabled, ensureAudioTable, getStoredAudio, generateAndStoreAudio, listAudioVoices, normalizeVoice, AUDIO_CONTENT_TYPE } from '@/lib/audio';
 import { getOccasionMeta } from '@/lib/registry';
+import { checkRateLimits, hashForKey, clientIp, type RateRule } from '@/lib/rate-limit';
+
+// Anti-abuse caps on audio GENERATION (SES-047 §7 [LOW]). Each POST that misses
+// the cache calls ElevenLabs and spends credits, so a leaked admin token must not
+// be replayable into unbounded spend. Per-admin-token (hashed) and per-IP fixed
+// windows; the GET (info/playback) path is NOT limited. Fail-open like the create
+// route — a Redis hiccup never blocks a legitimate organizer's narration.
+const HOUR = 3600;
+const AUDIO_LIMITS = {
+  tokenHour: 5, // generations per admin token per hour
+  ipHour: 10, // generations per IP per hour
+} as const;
 
 // Tribute audio narration (ElevenLabs → Postgres). Admin-token scoped.
 //   POST { adminToken }      → generate (if missing) + store; returns { ok }.
@@ -23,6 +35,24 @@ export async function POST(req: NextRequest) {
   const adminToken = (body.adminToken ?? '').trim();
   const voice = normalizeVoice(body.voice);
   if (!adminToken) return NextResponse.json({ error: 'Missing token' }, { status: 400 });
+
+  // Bound ElevenLabs spend per admin token + per IP. Bypassed under mock payment
+  // so E2E happy paths are never throttled (matches the create route). Fail-open.
+  if (process.env.ENABLE_MOCK_PAYMENT !== 'true') {
+    const ip = clientIp(req.headers);
+    const tokenKey = hashForKey(adminToken);
+    const rules: Array<{ key: string } & RateRule> = [
+      { key: `wtm:audio:1h:token:${tokenKey}`, limit: AUDIO_LIMITS.tokenHour, windowSec: HOUR },
+      { key: `wtm:audio:1h:ip:${ip}`, limit: AUDIO_LIMITS.ipHour, windowSec: HOUR },
+    ];
+    const { ok } = await checkRateLimits(rules);
+    if (!ok) {
+      return NextResponse.json(
+        { error: 'Too many narration requests. Please wait a little while before trying again.', code: 'RATE_LIMIT', retryable: true },
+        { status: 429 },
+      );
+    }
+  }
 
   const db = getDbClient();
   if (!db) return NextResponse.json({ error: 'Service unavailable', retryable: true }, { status: 503 });

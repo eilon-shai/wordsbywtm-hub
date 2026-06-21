@@ -126,6 +126,10 @@ export function createCollectionCheckoutHandler(config: Cfg) {
 }
 
 // mark-paid: sets paid_at on the collection, 202-retry contract on a pending txn.
+// Idempotent (mirrors the core handler): once a collection is paid, re-delivering
+// the same (or any) txn is a no-op — paid_at + paidTxnId are written ONCE. This
+// models the double-pay / double-webhook guard so tests can assert "paid exactly
+// once". `alreadyPaid:true` flags the no-op path for assertions.
 export function createCollectionMarkPaidHandler(_config: Cfg) {
   return async (req: NextRequest) => {
     const body = await readBody(req);
@@ -136,6 +140,10 @@ export function createCollectionMarkPaidHandler(_config: Cfg) {
     if (body.pending === true) {
       return NextResponse.json({ status: 'pending', retryable: true }, { status: 202 });
     }
+    if (meta.paidAt) {
+      // Already paid — idempotent no-op. Do NOT overwrite paid_at/paidTxnId.
+      return NextResponse.json({ ok: true, paid: true, alreadyPaid: true });
+    }
     meta.paidAt = new Date().toISOString();
     meta.paidTxnId = txn;
     return NextResponse.json({ ok: true, paid: true });
@@ -144,6 +152,12 @@ export function createCollectionMarkPaidHandler(_config: Cfg) {
 
 // finalize-paid: REQUIRES paid_at (pay-before-generate), no new charge, returns
 // a canned synthesis and attempts a tribute email.
+//
+// Idempotent generation (mirrors the core handler's one-time-use contract): the
+// FIRST successful finalize synthesizes, flips status→'generated', stores the
+// content, and sends ONE tribute email. A SECOND finalize after status is
+// 'generated' returns the EXISTING content (reused:true) — no second synthesis,
+// no second email. This lets tests assert the "no double-generation" guard.
 export function createCollectionFinalizePaidHandler(config: Cfg) {
   return async (req: NextRequest) => {
     const body = await readBody(req);
@@ -155,9 +169,17 @@ export function createCollectionFinalizePaidHandler(config: Cfg) {
         { status: 402 },
       );
     }
+    // Already generated → return the stored result, no second synthesis/email.
+    if (meta.status === 'generated' && meta.generatedContent) {
+      return NextResponse.json({ ok: true, tribute: meta.generatedContent, reused: true });
+    }
+    const tribute = 'A canned synthesized memorial tribute.';
+    meta.status = 'generated';
+    meta.generatedAt = new Date().toISOString();
+    meta.generatedContent = tribute;
     const { sentEmails } = await import('./mocks');
     sentEmails.push({ kind: 'tribute', to: meta.organizerEmail, product: config.brand.paddleProductId });
-    return NextResponse.json({ ok: true, tribute: 'A canned synthesized memorial tribute.' });
+    return NextResponse.json({ ok: true, tribute });
   };
 }
 

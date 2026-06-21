@@ -4,6 +4,7 @@ import { getDbClient, findOpenCollectionByOrganizer } from '@eilon-shai/venture-
 import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
 import { getRedisClient } from '@eilon-shai/venture-core/redis';
 import { getConfig } from '@/lib/registry';
+import { hashForKey } from '@/lib/rate-limit';
 
 // POST /api/collection/resend-link { email, occasion }
 // Re-sends the private manage link to the organizer's email (the secure way back
@@ -39,7 +40,9 @@ export async function POST(req: NextRequest) {
   try {
     const redis = getRedisClient();
     if (redis) {
-      const key = `${config.brand.redisKeyPrefix}:resend:${occasion}:${email}`;
+      // Hash the email portion so no raw PII lands in Redis (SES-047 §7 [LOW]).
+      // Same per-email+occasion/hour limit semantics — only the key changes.
+      const key = `${config.brand.redisKeyPrefix}:resend:${occasion}:${hashForKey(email)}`;
       const n = await redis.incr(key);
       if (n === 1) await redis.expire(key, 3600);
       if (n > 1) return NextResponse.json({ ok: true }); // already sent within the hour

@@ -10,6 +10,19 @@ import { getConfig } from '@/lib/registry';
 // boolean (no tokens) — the secure path back in is the emailed manage link.
 //
 // Rate-limited per IP so it can't be abused as an email-existence oracle.
+//
+// THREAT MODEL (SES-047 §7 [LOW]) — accepted trade-off:
+// This endpoint IS an email-membership oracle: a caller who knows an email +
+// occasion learns whether an OPEN collection exists for it. We accept this
+// because (a) the answer reveals only "has an open collection for occasion X",
+// never the honoree, contents, or any token; (b) it's gated by the per-IP
+// fixed-window limit above (20/hr), which bounds bulk enumeration; and (c) the
+// UX win (warn the organizer before they re-create a duplicate) outweighs the
+// thin leak. NOTE: the per-IP limiter FAILS OPEN under a Redis outage — if Redis
+// is down the oracle is briefly unthrottled. This is deliberate (a cache hiccup
+// must never block the legitimate pre-create check); the residual exposure during
+// an outage is acceptable given (a)/(b). A future hardening (a per-email
+// dimension) is deliberately left out here to keep the hot path simple.
 
 export const maxDuration = 15;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

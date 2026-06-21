@@ -20,17 +20,40 @@ beforeEach(() => {
 });
 
 describe('cron/purge auth + failure modes', () => {
-  it('503 in production when CRON_SECRET is unset', async () => {
+  it('503 in production (VERCEL_ENV) when CRON_SECRET is unset', async () => {
     const prevSecret = process.env.CRON_SECRET;
-    const prevEnv = process.env.NODE_ENV;
+    const prevEnv = process.env.VERCEL_ENV;
     delete process.env.CRON_SECRET;
-    (process.env as Record<string, string>).NODE_ENV = 'production';
+    process.env.VERCEL_ENV = 'production';
     try {
       const res = await purge(cronReq());
       expect(res.status).toBe(503);
     } finally {
       process.env.CRON_SECRET = prevSecret;
-      (process.env as Record<string, string | undefined>).NODE_ENV = prevEnv;
+      if (prevEnv === undefined) delete process.env.VERCEL_ENV;
+      else process.env.VERCEL_ENV = prevEnv;
+    }
+  });
+
+  // SES-047 §7 [LOW]: prod detection keys off VERCEL_ENV, not NODE_ENV. On Vercel
+  // NODE_ENV is 'production' for previews too — keying off it would wrongly fail
+  // closed on previews where CRON_SECRET may be unset. With VERCEL_ENV='preview'
+  // and no secret, the unauthenticated call must NOT 503 (it falls through).
+  it('does NOT 503 on a preview deploy (NODE_ENV=production but VERCEL_ENV=preview) with no secret', async () => {
+    const prevSecret = process.env.CRON_SECRET;
+    const prevNode = process.env.NODE_ENV;
+    const prevVercel = process.env.VERCEL_ENV;
+    delete process.env.CRON_SECRET;
+    (process.env as Record<string, string>).NODE_ENV = 'production';
+    process.env.VERCEL_ENV = 'preview';
+    try {
+      const res = await purge(cronReq());
+      expect(res.status).toBe(200); // secret unset + not prod → runs (db sentinel → purge ok)
+    } finally {
+      process.env.CRON_SECRET = prevSecret;
+      (process.env as Record<string, string | undefined>).NODE_ENV = prevNode;
+      if (prevVercel === undefined) delete process.env.VERCEL_ENV;
+      else process.env.VERCEL_ENV = prevVercel;
     }
   });
 
