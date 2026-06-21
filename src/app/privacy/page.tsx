@@ -128,7 +128,35 @@ export default function PrivacyPage() {
           <li style={{ marginTop: '0.4rem' }}><strong>Upstash</strong> — Redis cache used for rate limiting and abuse prevention.</li>
           <li style={{ marginTop: '0.4rem' }}><strong>Resend</strong> — transactional email delivery (magic links, reminders, deliverables).</li>
           <li style={{ marginTop: '0.4rem' }}><strong>Vercel</strong> — web application hosting.</li>
+          <li style={{ marginTop: '0.4rem' }}>
+            <strong>Google LLC</strong> — Google Analytics (to understand how the Service is used) and Google Ads
+            (to measure the effectiveness of our advertising). These set analytics and advertising cookies, which
+            load only after you accept them via our consent banner (see “Cookies &amp; Analytics” below).
+          </li>
+          <li style={{ marginTop: '0.4rem' }}>
+            <strong>Microsoft Corporation</strong> — Microsoft Clarity, a product-analytics tool that records
+            aggregate usage and interaction data to help us improve the Service. Clarity loads only after you accept
+            analytics cookies via our consent banner.
+          </li>
         </ul>
+      </Section>
+      <Section n="4A. Cookies & Analytics">
+        <p>
+          We use a small number of analytics and advertising cookies to understand how the Service is used and to
+          measure our advertising. We do not load these cookies, and Google Analytics, Google Ads, and Microsoft
+          Clarity do not run, until you accept them. When you first visit, a consent banner lets you accept or
+          decline; your choice is remembered on your device and you can change it by clearing your browser storage.
+        </p>
+        <p style={{ marginTop: '1rem' }}>
+          For visitors in the EU, EEA, and UK, we implement Google Consent Mode v2: analytics and advertising
+          storage, ad user-data, and ad personalization all default to <em>denied</em> until you grant consent, so
+          no analytics or advertising cookies are set unless you accept. Strictly necessary functionality (such as
+          processing your payment and operating your collection) does not depend on these cookies.
+        </p>
+        <p style={{ marginTop: '1rem', fontStyle: 'italic' }}>
+          This “Cookies &amp; Analytics” section is provisional interim copy added to reflect our current analytics
+          and advertising tooling and is PENDING formal review by a licensed attorney (LC-03).
+        </p>
       </Section>
       <Section n="5. Data Retention, Automatic Purge, and Encryption">
         <p>

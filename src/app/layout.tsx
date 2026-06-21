@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import { Instrument_Serif } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SiteAnalytics } from '@/components/SiteAnalytics';
+import { ConsentBanner } from '@/components/ConsentBanner';
 import './globals.css';
 
 const instrumentSerif = Instrument_Serif({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Analytics />
         <SiteAnalytics />
+        <ConsentBanner />
       </body>
     </html>
   );

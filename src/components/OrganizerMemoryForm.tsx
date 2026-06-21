@@ -138,7 +138,7 @@ export function OrganizerMemoryForm({
       const res = mode === 'create'
         ? await fetch('/api/collection/contribute', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ shareToken, contributorName: name.trim(), ...(organizerEmail ? { contributorEmail: organizerEmail } : {}), relationship, memory: composed, consent: true, idempotencyKey: idem.current, isOrganizer: true, fields, ...(useOverride ? { overrideValidation: true } : {}) }),
+            body: JSON.stringify({ shareToken, contributorName: name.trim(), ...(organizerEmail ? { contributorEmail: organizerEmail } : {}), relationship, memory: composed, consent: true, idempotencyKey: idem.current, isOrganizer: true, ...(adminToken ? { adminToken } : {}), fields, ...(useOverride ? { overrideValidation: true } : {}) }),
           })
         : await fetch('/api/collection/edit', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },

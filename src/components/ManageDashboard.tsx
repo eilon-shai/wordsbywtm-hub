@@ -158,6 +158,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   // Occasion-specific copy (defaults to memorial wording if the slug is unknown).
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
   const readAloud = getOccasionMeta(occasion)?.readAloudContext ?? 'at the service';
+  const successIcon = getOccasionMeta(occasion)?.successIcon ?? '🤍';
   const [data, setData] = useState<CollectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
@@ -452,7 +453,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
           "invite people" + the emailed-link reassurance. */}
       {justCreated && !generated ? (
         <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-          <p className="font-serif text-lg text-foreground">Your collection is ready 🤍</p>
+          <p className="font-serif text-lg text-foreground">Your collection is ready {successIcon}</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Share your invite link below to gather memories of {data.honoreeName}. We’ve also emailed you
             this private link — it’s how you’ll come back to review and finalize.
@@ -566,6 +567,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               organizerEmail={organizerEmail}
               paid={!!data.paid}
               price={price}
+              occasion={occasion}
+              priceValue={data.priceShown ?? undefined}
               deliverableNoun={noun}
             />
           </CardContent>

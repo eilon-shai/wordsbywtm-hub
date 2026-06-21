@@ -14,6 +14,7 @@ import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import { validateMemoriesField } from '@eilon-shai/venture-core/validation';
 import type { OccasionIntake } from '@/lib/intake';
 import { getOccasionMeta } from '@/lib/registry';
+import { trackLead } from '@/lib/analytics';
 import { InviteScreen } from './InviteScreen';
 import { composeMemory } from './ContributorForm';
 import {
@@ -332,6 +333,17 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     })();
     if (!shareToken) return true; // nothing we can do; proceed to invite
 
+    // The admin token proves this is genuinely the organizer's own first memory,
+    // so the server honors isOrganizer (pinned slot, cap-exempt). Derived from the
+    // create response's admin URL (?t=<adminToken>).
+    const adminToken = (() => {
+      try {
+        return new URL(created.adminUrl).searchParams.get('t') ?? '';
+      } catch {
+        return '';
+      }
+    })();
+
     const composed = composeMemory(
       memory +
         '\n\nWhat made them who they were: ' +
@@ -354,6 +366,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           consent: true,
           idempotencyKey: idempotencyKeyRef.current,
           isOrganizer: true,
+          ...(adminToken ? { adminToken } : {}),
           // Structured fields so the organizer's memory re-opens in the rich form.
           fields: {
             rawMemory: memory.trim(),
@@ -509,6 +522,9 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
       // retry never re-POSTs create.
       created = createResult;
       setResult(createResult);
+      // Mid-funnel lead event — fire once, on a genuinely new create (not on a
+      // contribute-only retry, which reuses `result` and skips this block).
+      trackLead({ occasion });
     }
 
     if (submittingMemory) {

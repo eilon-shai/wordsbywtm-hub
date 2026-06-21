@@ -20,6 +20,7 @@ import * as React from 'react';
 import { Button, Card, Input, Separator, Badge } from '@eilon-shai/venture-core/ui';
 import { initSharedPaddle, getSharedPaddle, setActiveTransaction } from '@eilon-shai/venture-core/components';
 import { TERMS_VERSION } from '@/lib/terms';
+import { trackBeginCheckout } from '@/lib/analytics';
 
 // Where Paddle returns after an ADVANCE payment. A clean path (no query) so the
 // shared callback's `${path}?txnId=...` redirect stays well-formed; that page
@@ -49,6 +50,10 @@ export interface InviteBlockProps {
   paid?: boolean;
   /** Price label for the advance-pay CTA (e.g. "$49"). */
   price?: string | null;
+  /** Occasion slug — stashed before advance checkout so the return page can fire the purchase conversion. */
+  occasion?: string;
+  /** Numeric price (for the GA4/Ads purchase value on the advance-pay return). */
+  priceValue?: number;
   /** What the finished piece is called for this occasion ("tribute" | "toast" | …). */
   deliverableNoun?: string;
   /**
@@ -72,6 +77,8 @@ export function InviteBlock({
   organizerEmail,
   paid = false,
   price = null,
+  occasion,
+  priceValue,
   atCap = false,
   deliverableNoun,
 }: InviteBlockProps) {
@@ -162,7 +169,7 @@ export function InviteBlock({
       </div>
 
       {/* ============= ZONE 1.5 — PAY-NOW UPSELL (its own card) ================== */}
-      <AdvancePayBlock adminToken={adminToken} organizerEmail={organizerEmail} paid={paid} price={price} />
+      <AdvancePayBlock adminToken={adminToken} organizerEmail={organizerEmail} paid={paid} price={price} occasion={occasion} priceValue={priceValue} />
 
       {/* ====================== ZONE 2 — SECONDARY EMAIL CARD ==================== */}
       <DirectEmailCard
@@ -180,7 +187,7 @@ export function InviteBlock({
 
 // Advance-pay: pay the one fee now to email up to 10 people a day (vs 3) and make
 // finalizing free later. Same Paddle price as finalize — just paid up front.
-function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminToken: string; organizerEmail?: string; paid: boolean; price: string | null }) {
+function AdvancePayBlock({ adminToken, organizerEmail, paid, price, occasion, priceValue }: { adminToken: string; organizerEmail?: string; paid: boolean; price: string | null; occasion?: string; priceValue?: number }) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = React.useState(false);
@@ -230,6 +237,20 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price }: { adminTok
         setBusy(false);
         return;
       }
+
+      // Stash the purchase context (occasion + value) so the advance-pay return
+      // page (/collect/paid) can fire the GA4/Ads purchase conversion — the only
+      // place it can, since that path returns to the dashboard (no result-page
+      // PurchaseTracker). Keyed nothing extra; the txn id lives in the return URL.
+      try {
+        if (occasion) sessionStorage.setItem('wtm:advance-occasion', occasion);
+        if (typeof priceValue === 'number') sessionStorage.setItem('wtm:advance-value', String(priceValue));
+      } catch {
+        /* sessionStorage unavailable — purchase event just won't fire */
+      }
+
+      // Mid-funnel: advance checkout is starting.
+      trackBeginCheckout({ value: priceValue ?? 0, occasion: occasion ?? '' });
 
       // Mock mode: no overlay — record payment directly, then refresh.
       if (json.transactionId.startsWith('mock_')) {

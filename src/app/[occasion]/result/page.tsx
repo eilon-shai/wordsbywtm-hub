@@ -89,7 +89,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         <SiteHeader />
         <main className="min-h-[60vh] bg-background flex items-center justify-center px-4 py-16">
           <div className="max-w-md w-full text-center">
-            <div className="text-5xl mb-6" aria-hidden="true">🤍</div>
+            <div className="text-5xl mb-6" aria-hidden="true">{meta.successIcon}</div>
             <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
               This collection is no longer available
             </h1>
@@ -131,6 +131,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         audioEnabled={audioEnabled()}
         deliverableNoun={meta.deliverableNoun}
         readAloudContext={meta.readAloudContext}
+        priceValue={config.tiers.full.displayPrice}
       />
     </>
   );

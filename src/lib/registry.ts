@@ -32,6 +32,8 @@ export interface OccasionMeta {
   deliverableNoun: string;
   /** Where it's read aloud (e.g. "at the service", "at the reception"). Replaces the memorial-only "at the service". */
   readAloudContext: string;
+  /** Tasteful emoji for success/terminal screens. Memorial keeps the white heart; celebratory occasions get their own so 🤍 doesn't read as mourning. */
+  successIcon: string;
 }
 
 export const OCCASIONS: OccasionMeta[] = [
@@ -44,6 +46,7 @@ export const OCCASIONS: OccasionMeta[] = [
     live: true,
     deliverableNoun: 'tribute',
     readAloudContext: 'at the service',
+    successIcon: '🤍',
   },
   {
     slug: 'wedding',
@@ -54,6 +57,7 @@ export const OCCASIONS: OccasionMeta[] = [
     live: true,
     deliverableNoun: 'toast',
     readAloudContext: 'at the reception',
+    successIcon: '🥂',
   },
   {
     slug: 'retirement',
@@ -64,6 +68,7 @@ export const OCCASIONS: OccasionMeta[] = [
     live: true,
     deliverableNoun: 'send-off',
     readAloudContext: 'at the party',
+    successIcon: '🎉',
   },
   {
     slug: 'anniversary',
@@ -74,6 +79,7 @@ export const OCCASIONS: OccasionMeta[] = [
     live: true,
     deliverableNoun: 'tribute',
     readAloudContext: 'at the celebration',
+    successIcon: '💞',
   },
 ];
 

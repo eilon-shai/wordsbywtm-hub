@@ -18,12 +18,12 @@ export const dynamic = 'force-dynamic';
 // Token-bearing private link — keep it out of search indexes (token hygiene).
 export const metadata: Metadata = { title: 'Add a memory — Words That Matter', robots: { index: false, follow: false } };
 
-function ClosedScreen({ kind }: { kind: 'closed' | 'notfound' }) {
+function ClosedScreen({ kind, closedIcon = '🤍' }: { kind: 'closed' | 'notfound'; closedIcon?: string }) {
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
       <div className="max-w-md w-full text-center">
         <div className="text-5xl mb-6" aria-hidden="true">
-          {kind === 'closed' ? '🤍' : '🔗'}
+          {kind === 'closed' ? closedIcon : '🔗'}
         </div>
         <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
           {kind === 'closed' ? 'This collection has closed' : 'This link isn’t active'}
@@ -71,7 +71,8 @@ export default async function ContributorSharePage({
   }
 
   if (!collection) return <ClosedScreen kind="notfound" />;
-  if (collection.status !== 'open') return <ClosedScreen kind="closed" />;
+  if (collection.status !== 'open')
+    return <ClosedScreen kind="closed" closedIcon={getOccasionMeta(collection.occasion)?.successIcon} />;
 
   const config = getConfig(collection.occasion);
   const meta = getOccasionMeta(collection.occasion);
@@ -107,6 +108,7 @@ export default async function ContributorSharePage({
           mode="create"
           shareToken={shareToken}
           organizerEmail={collection.organizerEmail}
+          adminToken={collection.adminToken}
           honoreeLabel={collection.honoreeName}
           returnHref={`/collect/manage?t=${encodeURIComponent(collection.adminToken)}`}
         />
@@ -122,7 +124,7 @@ export default async function ContributorSharePage({
     return (
       <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
         <div className="max-w-md w-full text-center">
-          <div className="text-5xl mb-6" aria-hidden="true">🤍</div>
+          <div className="text-5xl mb-6" aria-hidden="true">{meta.successIcon}</div>
           <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">This collection is full</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Thank you for wanting to share a memory of {collection.honoreeName}. This collection has reached the
@@ -140,6 +142,7 @@ export default async function ContributorSharePage({
       honoreeLabel={meta.honoreeLabel}
       honoreeName={collection.honoreeName}
       deliverableNoun={meta.deliverableNoun}
+      successIcon={meta.successIcon}
       organizerName={collection.organizerName ?? undefined}
       lockedEmail={lockedEmail ?? undefined}
       inviteToken={lockedEmail ? invToken : undefined}
