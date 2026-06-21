@@ -63,10 +63,10 @@ export function InviteScreen({ occasion, shareUrl, adminUrl, honoreeName, deadli
     }
   }, [shareUrl, occasion]);
 
-  const inviteText = buildInviteText(honoreeName, shareLink);
-
   // Occasion-specific deliverable noun (defaults to memorial wording if unknown).
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
+
+  const inviteText = buildInviteText(honoreeName, shareLink, noun);
 
   const dashboardLink = withParam(adminUrl, 'occasion', occasion);
 

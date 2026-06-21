@@ -400,7 +400,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const shareLink = buildShareLink(origin, data.shareToken, data.occasion);
-  const inviteText = buildInviteText(data.honoreeName, shareLink);
+  const inviteText = buildInviteText(data.honoreeName, shareLink, noun);
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteText)}`;
   const emailUrl = `mailto:?subject=${encodeURIComponent(
     `Add a memory for ${data.honoreeName}`,

@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getDbClient, getCollectionByAdminToken, getGeneratedContentByAdminToken } from '@eilon-shai/venture-core/db';
 import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
-import { getConfig } from '@/lib/registry';
+import { getConfig, getOccasionMeta } from '@/lib/registry';
 
 // Support console — re-send a customer their collection (manage) link or their
 // tribute link, by admin token. Also returns the URL so the operator can copy it.
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
   const cc = config?.collectionConfig;
   const adminToken = (body.adminToken ?? '').trim();
   const kind = body.kind === 'tribute' ? 'tribute' : 'collection';
+  const noun = getOccasionMeta((body.occasion ?? '').trim())?.deliverableNoun ?? 'tribute';
   if (!config || !cc) return NextResponse.json({ error: 'Unknown product' }, { status: 400 });
   if (!adminToken) return NextResponse.json({ error: 'Missing token' }, { status: 400 });
 
@@ -62,19 +63,19 @@ export async function POST(req: NextRequest) {
     // back to the tribute page (not the whole deliverable).
     const generated = await getGeneratedContentByAdminToken(db, adminToken).catch(() => null);
     if (!generated) {
-      return NextResponse.json({ error: 'No tribute generated for this collection yet.', code: 'NOT_GENERATED' }, { status: 409 });
+      return NextResponse.json({ error: `No ${noun} generated for this collection yet.`, code: 'NOT_GENERATED' }, { status: 409 });
     }
     if (resend) {
       await sendEmail(resend, {
         from: config.email.fromEmail,
         to: collection.organizerEmail,
-        subject: `Your tribute for ${collection.honoreeName}`,
+        subject: `Your ${noun} for ${collection.honoreeName}`,
         html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;line-height:1.6;">
-          <p>Here's the link to view your tribute for <strong>${collection.honoreeName}</strong>:</p>
-          <p style="margin:24px 0;"><a href="${tributeUrl}" style="background:${config.email.brandColor};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">View your tribute</a></p>
+          <p>Here's the link to view your ${noun} for <strong>${collection.honoreeName}</strong>:</p>
+          <p style="margin:24px 0;"><a href="${tributeUrl}" style="background:${config.email.brandColor};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">View your ${noun}</a></p>
           <p style="font-size:13px;color:#8c7c68;">Or paste this into your browser:<br>${tributeUrl}</p>
         </div>`,
-        text: `View your tribute for ${collection.honoreeName}: ${tributeUrl}`,
+        text: `View your ${noun} for ${collection.honoreeName}: ${tributeUrl}`,
       });
       emailed = true;
     }

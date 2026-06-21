@@ -4,6 +4,7 @@ import { createSubmitContributionHandler } from '@eilon-shai/venture-core/api';
 import { getDbClient, getCollectionByShareToken, verifyInviteEmail } from '@eilon-shai/venture-core/db';
 import { getResendClient, sendEmail } from '@eilon-shai/venture-core/email';
 import { resolveForTokenPost } from '@/lib/route-helpers';
+import { getOccasionMeta } from '@/lib/registry';
 
 export const maxDuration = 60;
 
@@ -43,6 +44,7 @@ async function notifyOrganizer(
   const manageUrl = `${appBase(config.brand.domain)}/collect/manage?t=${collection.adminToken}`;
   const who = contributorName.trim() || 'Someone';
   const accent = config.email.brandColor;
+  const noun = getOccasionMeta(collection.occasion)?.deliverableNoun ?? 'tribute';
   try {
     await sendEmail(resend, {
       from: config.email.fromEmail,
@@ -51,7 +53,7 @@ async function notifyOrganizer(
       html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;line-height:1.6;">
         <p><strong>${esc(who)}</strong> just added a memory to your collection for <strong>${esc(collection.honoreeName)}</strong>.</p>
         <p style="margin:24px 0;"><a href="${manageUrl}" style="background:${accent};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Review the memories</a></p>
-        <p style="font-size:13px;color:#8c7c68;">When you're ready, you can review everything and create the tribute from your collection.</p>
+        <p style="font-size:13px;color:#8c7c68;">When you're ready, you can review everything and create the ${noun} from your collection.</p>
       </div>`,
       text: `${who} added a memory to your collection for ${collection.honoreeName}. Review: ${manageUrl}`,
     });

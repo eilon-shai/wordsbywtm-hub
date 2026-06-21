@@ -28,7 +28,9 @@ export function buildShareLink(origin: string, shareToken: string, occasion: str
 /**
  * The paste-ready invite message. Same copy used everywhere we surface a
  * shareable text (hero text links, WhatsApp/Email composers, direct emails).
+ * `deliverableNoun` is the occasion's word for the finished piece
+ * ("tribute" | "toast" | "send-off"); defaults to "tribute".
  */
-export function buildInviteText(honoreeName: string, shareLink: string): string {
-  return `I'm putting together a tribute for ${honoreeName} — add a memory here, takes 2 minutes: ${shareLink}`;
+export function buildInviteText(honoreeName: string, shareLink: string, deliverableNoun = 'tribute'): string {
+  return `I'm putting together a ${deliverableNoun} for ${honoreeName} — add a memory here, takes 2 minutes: ${shareLink}`;
 }

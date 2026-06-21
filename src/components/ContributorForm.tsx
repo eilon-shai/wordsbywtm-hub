@@ -463,7 +463,7 @@ export function ContributorForm({
         {/* Soft cross-sell — only after submitting (§7). */}
         <div className="border-t border-border pt-8 mt-2">
           <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            Putting together a tribute for someone yourself? You can start your own collection — it’s
+            Gathering memories for someone yourself? You can start your own collection — it’s
             free to create and gather, and you only pay once at the end.
           </p>
           <Link

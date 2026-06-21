@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbClient, getCollectionByAdminToken, getGeneratedContentByAdminToken } from '@eilon-shai/venture-core/db';
 import { audioEnabled, ensureAudioTable, getStoredAudio, generateAndStoreAudio, listAudioVoices, normalizeVoice, AUDIO_CONTENT_TYPE } from '@/lib/audio';
+import { getOccasionMeta } from '@/lib/registry';
 
 // Tribute audio narration (ElevenLabs → Postgres). Admin-token scoped.
 //   POST { adminToken }      → generate (if missing) + store; returns { ok }.
@@ -29,10 +30,11 @@ export async function POST(req: NextRequest) {
   const collection = await getCollectionByAdminToken(db, adminToken).catch(() => null);
   if (!collection) return NextResponse.json({ error: 'Not found', code: 'NOT_FOUND' }, { status: 404 });
 
-  // Only a generated tribute has content to read — also the pay-before-generate gate.
+  // Only a generated deliverable has content to read — also the pay-before-generate gate.
   const gen = await getGeneratedContentByAdminToken(db, adminToken).catch(() => null);
   if (!gen?.content) {
-    return NextResponse.json({ error: 'No tribute generated yet.', code: 'NOT_GENERATED', retryable: false }, { status: 409 });
+    const noun = getOccasionMeta(collection.occasion)?.deliverableNoun ?? 'tribute';
+    return NextResponse.json({ error: `No ${noun} generated yet.`, code: 'NOT_GENERATED', retryable: false }, { status: 409 });
   }
 
   try {
