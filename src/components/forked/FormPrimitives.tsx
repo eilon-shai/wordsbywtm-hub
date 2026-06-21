@@ -325,12 +325,13 @@ export function FieldRow({
       <label htmlFor={field.name} className="text-sm font-medium text-foreground">
         {field.label}
         {field.required ? (
-          <>
-            <span className="text-destructive ml-1" aria-hidden="true">
-              *
-            </span>
-            <span className="sr-only"> (required)</span>
-          </>
+          // Decorative asterisk only — "required" is announced to screen readers
+          // via aria-required on the control itself, so we DON'T add label text
+          // (that would change the field's accessible name, e.g. break exact-name
+          // queries and read "Your email required" to AT redundantly).
+          <span className="text-destructive ml-1" aria-hidden="true">
+            *
+          </span>
         ) : (
           <span className="ml-2 text-xs font-normal text-muted-foreground">(optional)</span>
         )}
