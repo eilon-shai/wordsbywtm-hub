@@ -208,7 +208,7 @@ Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 - [x] 🔵 **[MEDIUM][Backend] one-per-email / one-organizer backstop lost (TOCTOU)** — the unique indexes exist in prod.
 
 ### Open — engineering (not yet done)
-- [ ] ⬜ **[HIGH][QA] Revenue journey has no automated CI gate** — stand up a disposable Neon test branch + scheduled (pre-spend) happy-path run with `E2E_ALLOW_DB_WRITES=1`. `e2e/collection-happy-path.spec.ts` — *needs founder: Neon test branch + CI secret; I'll scaffold the workflow.*
+- [~] 🔜 **[HIGH][QA] Revenue-journey CI gate** — workflow **scaffolded** (`.github/workflows/revenue-e2e.yml` + `docs/REVENUE_E2E_SETUP.md`): nightly + on-demand happy-path against a disposable Neon branch, applies schema, real Haiku synthesis, self-cleans. **Skipped until founder provisions** the Neon test branch + secrets (`E2E_DATABASE_URL`, `E2E_UPSTASH_*`, `E2E_ANTHROPIC_API_KEY`) and sets var `RUN_REVENUE_E2E=true`. `e2e/collection-happy-path.spec.ts`
 - [x] ✅ **[MEDIUM][QA] Double-usage idempotency tests** — webhook replay → paid once; double mark-paid idempotent; second finalize after 'generated' returns existing. `test/integration/double-usage-idempotency.test.ts` — *PR-B (#44)*
 - [x] ✅ **[MEDIUM][QA] Signed-invite HMAC round-trip/tamper test** — already present in venture-core (`packages/core/src/db/collections.test.ts`: round-trip+normalize, tampered sig, tampered payload, rotated secret, malformed). The panel only saw the hub's mocks; no new work needed.
 - [x] ✅ **[MEDIUM][QA] 3 abuse guards added to the manual E2E checklist** (rate-limit 429, organizer-own-address rejection, deleted-token not-found). `docs/MANUAL_E2E_TEST_PLAN.md` — *PR-B (#44)*
@@ -230,8 +230,8 @@ Updated 2026-06-21. "PR #42" = `fix/ses047-campaign-readiness`.
 
 ### Founder-owned (not engineering defects)
 - [ ] 👤 **LC-03** — attorney ratification of the legal pages (must cover the interim Google/Microsoft sub-processors, consent-version, GDPR Art. 9 special-category, AI Act Art. 50 marking plan).
-- [ ] 👤 **Production live Paddle PRICE ids** for every live occasion (verify non-sandbox in prod).
-- [ ] 👤 **Set `CONTRIBUTION_HASH_SECRET`** (+ ideally a dedicated encryption key) in Vercel prod.
+- [x] 👤 ✅ **Production live Paddle PRICE ids** for every live occasion — verified non-sandbox in prod (2026-06-21). (Also now enforced at boot by the PR #44 startup guard.)
+- [x] 👤 ✅ **Set `CONTRIBUTION_HASH_SECRET`** in Vercel prod — done 2026-06-21 (activated by the #47 deploy).
 - [ ] 👤 **Real-money smoke** on BOTH pay paths after analytics fixes (GA4 DebugView + Ads tag assistant).
 - [ ] 👤 **Ad-ops guardrail** (policy): memorial = keyword search only; no remarketing / Customer Match off memorial traffic.
 
