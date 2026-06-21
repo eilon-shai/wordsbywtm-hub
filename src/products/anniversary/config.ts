@@ -190,6 +190,7 @@ export const anniversaryConfig: ProductConfig = {
   termsVersion: TERMS_VERSION,
 
   collectionConfig: {
+    deliverableNoun: 'tribute',
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       {

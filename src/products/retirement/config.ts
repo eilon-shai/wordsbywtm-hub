@@ -207,6 +207,7 @@ export const retirementConfig: ProductConfig = {
   termsVersion: TERMS_VERSION,
 
   collectionConfig: {
+    deliverableNoun: 'send-off',
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       {

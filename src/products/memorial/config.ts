@@ -194,6 +194,7 @@ export const memorialConfig: ProductConfig = {
   termsVersion: TERMS_VERSION,
 
   collectionConfig: {
+    deliverableNoun: 'tribute',
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       { name: 'relationship', label: 'How did you know them?', type: 'text', required: false, maxLength: 100, placeholder: 'e.g. daughter, college roommate, neighbor' },
