@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import { GA4_ID, ADS_TAG_ID, CLARITY_ID } from '@/lib/analytics';
 
 // ---------------------------------------------------------------------------
@@ -29,12 +30,25 @@ function gtag(): GtagFn | null {
   return typeof w.gtag === 'function' ? w.gtag : null;
 }
 
-function grantConsent(): void {
+// Memorial is a sensitive-category (grief) context. Google's policies forbid
+// building personalized remarketing / Customer Match audiences from sensitive-
+// category traffic, so on memorial routes we never enable ad_personalization /
+// ad_user_data — even after the visitor accepts. Conversion measurement still
+// works (ad_storage + analytics_storage are granted); only the personalization
+// signals stay denied. Note: this is path-based on /memorial (the ad-landing
+// surface). Contributor share links (/c/[shareToken]) don't carry the occasion
+// in the URL and aren't ad-driven, so they're out of scope here.
+function isSensitivePath(pathname: string | null): boolean {
+  return pathname === '/memorial' || (pathname?.startsWith('/memorial/') ?? false);
+}
+
+function grantConsent(pathname: string | null): void {
+  const sensitive = isSensitivePath(pathname);
   gtag()?.('consent', 'update', {
     ad_storage: 'granted',
     analytics_storage: 'granted',
-    ad_user_data: 'granted',
-    ad_personalization: 'granted',
+    ad_user_data: sensitive ? 'denied' : 'granted',
+    ad_personalization: sensitive ? 'denied' : 'granted',
   });
 }
 
@@ -58,8 +72,14 @@ function loadClarity(): void {
 }
 
 export function ConsentBanner() {
+  const pathname = usePathname();
   const [visible, setVisible] = React.useState(false);
 
+  // Runs on first load AND on every route change. A visitor who already accepted
+  // gets their personalization signals re-evaluated as they move between the
+  // memorial (sensitive) flow and the celebratory occasions — denied on memorial,
+  // granted elsewhere — so a client-side navigation can't leak grief traffic into
+  // a personalized remarketing audience.
   React.useEffect(() => {
     if (!ANALYTICS_CONFIGURED) return;
     let choice: string | null = null;
@@ -69,14 +89,18 @@ export function ConsentBanner() {
       /* localStorage unavailable — show the banner (default denied stays in effect) */
     }
     if (choice === 'granted') {
-      // Returning visitor who previously accepted: re-grant + load Clarity.
-      grantConsent();
+      // Returning visitor who previously accepted: re-grant (path-aware) + load Clarity.
+      grantConsent(pathname);
       loadClarity();
+      setVisible(false);
       return;
     }
-    if (choice === 'denied') return; // previously declined — stay denied, no banner
+    if (choice === 'denied') {
+      setVisible(false); // previously declined — stay denied, no banner
+      return;
+    }
     setVisible(true); // no stored choice — ask
-  }, []);
+  }, [pathname]);
 
   const persist = (value: 'granted' | 'denied') => {
     try {
@@ -88,7 +112,7 @@ export function ConsentBanner() {
 
   const onAccept = () => {
     persist('granted');
-    grantConsent();
+    grantConsent(pathname);
     loadClarity();
     setVisible(false);
   };

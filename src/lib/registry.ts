@@ -109,6 +109,29 @@ for (const o of OCCASIONS) {
   }
 }
 
+// MF-2 (SES-048 [Architect]): redisKeyPrefix is an isolation boundary equal to
+// paddleProductId. Every occasion namespaces its Redis keys under its own prefix —
+// most importantly the txn→collection mapping the payment resolver reads
+// (`<prefix>:txn-collection:<txnId>` in resolver.ts), plus rate-limit, resend, and
+// feedback-once keys. A duplicate prefix would let one occasion's mapping resolve a
+// payment to the WRONG occasion's config. Fail fast at startup if two live
+// occasions collide (or a live occasion has no prefix).
+{
+  const seen = new Map<string, string>();
+  for (const o of OCCASIONS) {
+    if (!o.live) continue;
+    const prefix = CONFIGS[o.slug]?.brand?.redisKeyPrefix;
+    if (!prefix) {
+      throw new Error(`[registry] live occasion "${o.slug}" must have a non-empty brand.redisKeyPrefix`);
+    }
+    const prior = seen.get(prefix);
+    if (prior) {
+      throw new Error(`[registry] live occasions "${prior}" and "${o.slug}" share redisKeyPrefix "${prefix}" — prefixes must be unique for cross-occasion isolation`);
+    }
+    seen.set(prefix, o.slug);
+  }
+}
+
 // PROD CHECKOUT GUARD (SES-047 §7 [Architect]): in PRODUCTION ONLY, fail closed
 // at boot if any LIVE occasion would open a broken or sandbox checkout. We serve
 // paid ad traffic — a live occasion whose `full` tier has no live Paddle price id

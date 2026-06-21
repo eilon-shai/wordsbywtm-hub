@@ -145,6 +145,29 @@ function ResultFlowInner(props: ResultFlowProps) {
     ...AVOID_FIELD,
     placeholder: `Topics, details, or names you’d rather the ${noun} not mention.`,
   };
+  // MF-3 (SES-048 [UX]): the prefs/pay screen is the last thing the organizer sees
+  // before paying — its tone options and context placeholder must not read
+  // memorial-flavored on a celebratory occasion. Memorial keeps solemn-first wording
+  // and the grief-sensitive context prompt; wedding/retirement/anniversary lead with
+  // warm and get a neutral prompt. The stored values (solemn|balanced|warm) stay
+  // identical so synthesis is unaffected — only labels/order/placeholder change.
+  const isMemorial = props.occasion === 'memorial';
+  const toneField: FormFieldConfig = isMemorial
+    ? TONE_FIELD
+    : {
+        ...TONE_FIELD,
+        options: [
+          { value: 'warm', label: 'Warm & celebratory' },
+          { value: 'balanced', label: 'Balanced' },
+          { value: 'solemn', label: 'Heartfelt & reflective' },
+        ],
+      };
+  const contextField: FormFieldConfig = isMemorial
+    ? CONTEXT_FIELD
+    : {
+        ...CONTEXT_FIELD,
+        placeholder: 'Any context, shared history, or details you’d like woven in.',
+      };
   const params = useSearchParams();
   const txnId = params.get('txn') ?? params.get('txnId') ?? '';
   // The dashboard sends ?t={adminToken} (no txn) to the prefs step. Both the
@@ -631,11 +654,11 @@ function ResultFlowInner(props: ResultFlowProps) {
         >
           <SectionCard heading={`How the ${noun} should read`}>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <FieldRow field={TONE_FIELD} value={tone} onChange={setTone} />
+              <FieldRow field={toneField} value={tone} onChange={setTone} />
               <FieldRow field={LENGTH_FIELD} value={length} onChange={setLength} />
             </div>
             <FieldRow field={avoidField} value={thingsToAvoid} rows={2} onChange={setThingsToAvoid} />
-            <FieldRow field={CONTEXT_FIELD} value={additionalContext} rows={2} onChange={setAdditionalContext} />
+            <FieldRow field={contextField} value={additionalContext} rows={2} onChange={setAdditionalContext} />
             {props.audioEnabled ? (
               <div className="flex flex-col gap-1.5 rounded-xl border border-primary/20 bg-primary/5 p-4">
                 <label htmlFor="audio-voice" className="text-sm font-medium text-foreground">
