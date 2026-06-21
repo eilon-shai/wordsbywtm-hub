@@ -33,7 +33,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ occ
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ width: 22, height: 22, borderRadius: 22, backgroundColor: accent }} />
           <div style={{ fontSize: 30, letterSpacing: 6, textTransform: 'uppercase', color: '#6b5a45' }}>
-            Words That Matter · {title}
+            {`Words That Matter · ${title}`}
           </div>
         </div>
         <div style={{ fontSize: 70, lineHeight: 1.12, marginTop: 30, maxWidth: 980 }}>{blurb}</div>

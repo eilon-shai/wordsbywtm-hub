@@ -33,6 +33,9 @@ interface MemoryCardProps {
   canEdit?: boolean;
   /** What the finished piece is called for this occasion ("tribute" | "toast" | …). */
   deliverableNoun?: string;
+  /** Friendly relationship label for display (e.g. "Son or Daughter"); the raw
+   *  `contribution.relationship` stays the value ("child") for the edit form. */
+  relationshipLabel?: string;
 }
 
 function formatDate(iso?: string | null): string {
@@ -47,7 +50,7 @@ function formatDate(iso?: string | null): string {
  * default; the toggle removes/restores. No "approve" language, no editing of the
  * contributor's words (v1 — moderate-contribution-handler exposes remove/restore only).
  */
-export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit, canEdit = true, deliverableNoun }: MemoryCardProps) {
+export function MemoryCard({ contribution, included, disabled, onToggle, error, onEdit, canEdit = true, deliverableNoun, relationshipLabel }: MemoryCardProps) {
   const { id, contributorName, relationship, memory, createdAt, isOrganizer } = contribution;
   const date = formatDate(createdAt);
   const noun = (deliverableNoun ?? '').trim() || 'tribute';
@@ -64,7 +67,7 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
               ) : null}
             </p>
             {relationship ? (
-              <p className="text-sm text-muted-foreground">{relationship}</p>
+              <p className="text-sm text-muted-foreground">{relationshipLabel ?? relationship}</p>
             ) : null}
           </div>
           <div className="flex shrink-0 flex-col items-end gap-2">
