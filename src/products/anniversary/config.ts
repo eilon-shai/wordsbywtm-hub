@@ -174,14 +174,14 @@ export const anniversaryConfig: ProductConfig = {
     buildFormLinkEmail: (_txnId, _tier, appUrl, to) => ({
       from: FROM_EMAIL,
       to,
-      subject: 'Your anniversary tribute',
+      subject: 'Your anniversary toast',
       html: `<p>Continue at ${appUrl}</p>`,
     }),
     buildContentEmail: (_result, customerEmail) => ({
       from: FROM_EMAIL,
       to: customerEmail,
-      subject: 'Your anniversary tribute',
-      html: `<p>Your tribute is ready.</p>`,
+      subject: 'Your anniversary toast',
+      html: `<p>Your toast is ready.</p>`,
     }),
     ownerEmailSubjectTemplate: (info) => `New anniversary collection — ${info.customerEmail}`,
   },
@@ -190,7 +190,7 @@ export const anniversaryConfig: ProductConfig = {
   termsVersion: TERMS_VERSION,
 
   collectionConfig: {
-    deliverableNoun: 'tribute',
+    deliverableNoun: 'toast',
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       {
@@ -231,7 +231,7 @@ export const anniversaryConfig: ProductConfig = {
       subject: `Your anniversary collection for ${honoreeName}`,
       html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2a2118;">
         <h1 style="font-size:22px;color:${BRAND_COLOR};">Your collection for ${honoreeName} is ready</h1>
-        <p>Share the contributor link with family and friends so they can add their memories of the couple. When enough have come in, return here to review them and create the tribute.</p>
+        <p>Share the contributor link with family and friends so they can add their memories of the couple. When enough have come in, return here to review them and create the toast.</p>
         <p style="margin:28px 0;"><a href="${adminUrl}" style="background:${BRAND_COLOR};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">Manage your collection</a></p>
         <p style="font-size:13px;color:#8c7c68;">Keep this link private — anyone with it can manage the collection.</p>
       </div>`,
@@ -241,18 +241,18 @@ export const anniversaryConfig: ProductConfig = {
     buildDeliverableEmail: ({ to, honoreeName, content, contributorCount, tributeUrl }) => ({
       from: FROM_EMAIL,
       to,
-      subject: `The tribute for ${honoreeName}`,
+      subject: `The toast for ${honoreeName}`,
       html: `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#2a2118;">
-        <h1 style="font-size:22px;color:${BRAND_COLOR};">A tribute for ${honoreeName}</h1>
+        <h1 style="font-size:22px;color:${BRAND_COLOR};">A toast for ${honoreeName}</h1>
         <p style="color:#5c4f3d;">Woven from ${contributorCount} ${contributorCount === 1 ? 'memory' : 'memories'} shared by the family and friends who know the couple.</p>
-        <p style="margin:24px 0;"><a href="${tributeUrl}" style="background:${BRAND_COLOR};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">View the tribute</a></p>
+        <p style="margin:24px 0;"><a href="${tributeUrl}" style="background:${BRAND_COLOR};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;">View the toast</a></p>
         <div style="white-space:pre-wrap;line-height:1.7;font-size:16px;margin-top:24px;">${content
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')}</div>
-        <p style="color:#8c7c68;font-size:13px;margin-top:28px;">Keep a copy: download or copy your tribute from the page above. This collection and its content are automatically deleted about 30 days after creation.</p>
+        <p style="color:#8c7c68;font-size:13px;margin-top:28px;">Keep a copy: download or copy your toast from the page above. This collection and its content are automatically deleted about 30 days after creation.</p>
       </div>`,
-      text: `View the tribute: ${tributeUrl}\n\n${content}`,
+      text: `View the toast: ${tributeUrl}\n\n${content}`,
     }),
   },
 };

@@ -73,11 +73,11 @@ export const OCCASIONS: OccasionMeta[] = [
   {
     slug: 'anniversary',
     title: 'Anniversary',
-    blurb: 'Gather memories from family and friends into one tribute for the couple’s milestone.',
+    blurb: 'Gather memories from family and friends into one toast for the couple’s milestone.',
     honoreeLabel: 'the couple',
     accent: '#a8768f',
     live: true,
-    deliverableNoun: 'tribute',
+    deliverableNoun: 'toast',
     readAloudContext: 'at the celebration',
     successIcon: '💞',
   },

@@ -65,7 +65,7 @@ describe('registry', () => {
     expect(getOccasionMeta('memorial')?.deliverableNoun).toBe('tribute');
     expect(getOccasionMeta('wedding')?.deliverableNoun).toBe('toast');
     expect(getOccasionMeta('retirement')?.deliverableNoun).toBe('send-off');
-    expect(getOccasionMeta('anniversary')?.deliverableNoun).toBe('tribute');
+    expect(getOccasionMeta('anniversary')?.deliverableNoun).toBe('toast');
   });
 
   it('memorial keeps the white heart; celebratory occasions use a distinct icon', () => {
