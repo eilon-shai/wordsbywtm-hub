@@ -994,8 +994,27 @@ function ResultFlowInner(props: ResultFlowProps) {
         Your collection and this {noun} are automatically deleted about 30 days after creation, so please download or copy the text to keep a permanent copy.
       </p>
 
+      {/* Edit & Refine pack intentionally NOT rendered: the regeneration backend
+          isn't built yet, so charging for it would be a paid no-op (FE-002/UX-02/
+          MKT-006). Re-enable EditPackCard once regen ships. */}
+
+      {/* Feedback — eases in a few seconds after the tribute is shown. The feedback
+          handler only accepts a Paddle/mock txn id, so use the finalize txn when we
+          have it, else the collection's paid txn (paid-in-advance). The admin token
+          would be rejected (400), so never send it as the id. */}
+      {showFeedback && (txnId || props.paidTxnId) ? (
+        <div className="mt-12">
+          <FeedbackWidget
+            transactionId={txnId || props.paidTxnId || ''}
+            productSlug={props.occasion}
+            feedbackEndpoint={`/api/${props.occasion}/feedback`}
+          />
+        </div>
+      ) : null}
+
       {/* Delete now — the collection is generated, so this is allowed (with confirm).
-          A paid-but-ungenerated collection is still protected server-side. */}
+          A paid-but-ungenerated collection is still protected server-side. Placed
+          last, after feedback, so it never competes with the keepsake actions. */}
       {backToken ? (
         <div className="mt-8 border-t border-border pt-6">
           {!confirmDelete ? (
@@ -1053,24 +1072,6 @@ function ResultFlowInner(props: ResultFlowProps) {
               </div>
             </div>
           )}
-        </div>
-      ) : null}
-
-      {/* Edit & Refine pack intentionally NOT rendered: the regeneration backend
-          isn't built yet, so charging for it would be a paid no-op (FE-002/UX-02/
-          MKT-006). Re-enable EditPackCard once regen ships. */}
-
-      {/* Feedback — eases in a few seconds after the tribute is shown. The feedback
-          handler only accepts a Paddle/mock txn id, so use the finalize txn when we
-          have it, else the collection's paid txn (paid-in-advance). The admin token
-          would be rejected (400), so never send it as the id. */}
-      {showFeedback && (txnId || props.paidTxnId) ? (
-        <div className="mt-12">
-          <FeedbackWidget
-            transactionId={txnId || props.paidTxnId || ''}
-            productSlug={props.occasion}
-            feedbackEndpoint={`/api/${props.occasion}/feedback`}
-          />
         </div>
       ) : null}
     </main>
