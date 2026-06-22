@@ -132,7 +132,7 @@ interface ResultFlowProps {
   priceValue?: number;
 }
 
-type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error';
+type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error' | 'deleted';
 
 function ResultFlowInner(props: ResultFlowProps) {
   // Occasion-specific copy (defaults keep memorial wording if unset).
@@ -226,6 +226,11 @@ function ResultFlowInner(props: ResultFlowProps) {
   const termsRef = React.useRef<HTMLLabelElement | null>(null);
   // Paid-in-advance one-way confirmation.
   const [confirmingPaid, setConfirmingPaid] = React.useState(false);
+  // Delete-this-collection from the final results page (generated → allowed with
+  // confirm; the server still forbids deleting a paid-but-ungenerated collection).
+  const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
   // The feedback prompt eases in a few seconds after the tribute appears, so it
   // never competes with the first read. But if it was ALREADY submitted (the
   // widget stores the rating under `${slug}_feedback_${txn}` in localStorage),
@@ -615,6 +620,63 @@ function ResultFlowInner(props: ResultFlowProps) {
       : '') ||
     '';
 
+  // Permanently delete the collection + the generated tribute (cascades to the
+  // keepsake source, audio, and every memory). Offered only on the done view, so
+  // the collection is already generated; the server still refuses to delete a
+  // paid-but-ungenerated collection even with this confirm flag.
+  async function handleDelete() {
+    if (!backToken || deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch('/api/collection/delete', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ adminToken: backToken, confirmPaidDeletion: true }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        setDeleteError(data?.error || 'Could not delete the collection. Please try again.');
+        setDeleting(false);
+        return;
+      }
+      try {
+        sessionStorage.removeItem(ADMIN_KEY);
+        localStorage.removeItem(ADMIN_KEY);
+      } catch {
+        /* storage unavailable */
+      }
+      setPhase('deleted');
+    } catch {
+      setDeleteError('Could not delete the collection. Please try again.');
+      setDeleting(false);
+    }
+  }
+
+  // ---- deleted (collection + tribute removed from the results page) ----
+  if (phase === 'deleted') {
+    return (
+      <main className="mx-auto w-full max-w-xl px-4 py-20 text-center">
+        <h1 className="font-serif text-2xl text-foreground">Deleted</h1>
+        <p className="mx-auto mt-3 max-w-prose text-sm text-muted-foreground">
+          Your collection and its {noun} — the keepsake PDF, the audio, and every memory — have been permanently removed.
+        </p>
+        <div className="mt-6 flex justify-center">
+          <Button
+            type="button"
+            size="lg"
+            className="rounded-full px-6"
+            onClick={() => {
+              window.location.href = props.homeHref;
+            }}
+          >
+            Back to home
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   // ---- checking for an existing tribute (re-view) ----
   if (phase === 'checking') {
     return (
@@ -947,6 +1009,69 @@ function ResultFlowInner(props: ResultFlowProps) {
             productSlug={props.occasion}
             feedbackEndpoint={`/api/${props.occasion}/feedback`}
           />
+        </div>
+      ) : null}
+
+      {/* Delete now — the collection is generated, so this is allowed (with confirm).
+          A paid-but-ungenerated collection is still protected server-side. Placed
+          last, after feedback, so it never competes with the keepsake actions. */}
+      {backToken ? (
+        <div className="mt-8 border-t border-border pt-6">
+          {!confirmDelete ? (
+            <div className="text-center">
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline hover:text-destructive"
+                onClick={() => {
+                  setConfirmDelete(true);
+                  setDeleteError(null);
+                }}
+              >
+                Delete this collection and {noun}
+              </button>
+              <p className="mx-auto mt-2 max-w-prose text-xs leading-relaxed text-muted-foreground">
+                You don’t have to — if you do nothing, this collection and its {noun} are removed
+                automatically about 30 days after creation (and at the deadline either way). Delete now
+                only if you’d like it gone sooner.
+              </p>
+            </div>
+          ) : (
+            <div className="mx-auto max-w-md rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+              <p className="text-sm font-medium text-foreground">Delete this collection and its {noun}?</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                This permanently removes the {noun}, the keepsake PDF, the audio, and every memory. It
+                can’t be undone — download or copy anything you want to keep first.
+              </p>
+              {deleteError ? (
+                <p className="mt-2 text-sm text-destructive" role="alert">
+                  {deleteError}
+                </p>
+              ) : null}
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={deleting}
+                  onClick={() => void handleDelete()}
+                >
+                  {deleting ? 'Deleting…' : 'Yes, delete everything'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={deleting}
+                  onClick={() => {
+                    setConfirmDelete(false);
+                    setDeleteError(null);
+                  }}
+                >
+                  Keep it
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       ) : null}
     </main>
