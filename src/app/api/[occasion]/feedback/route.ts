@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFeedbackHandler } from '@eilon-shai/venture-core/api';
 import { getRedisClient } from '@eilon-shai/venture-core/redis';
+import { getDbClient } from '@eilon-shai/venture-core/db';
 import { getConfig } from '@/lib/registry';
 
 export const maxDuration = 30;
@@ -22,11 +23,17 @@ export async function POST(
     return NextResponse.json({ error: 'Unknown occasion', code: 'NOT_FOUND', retryable: false }, { status: 404 });
   }
 
-  // Read the transactionId via a clone (the handler still reads the original) for
-  // the idempotency reservation below. Persistence of the feedback itself is done
-  // inside venture-core's createFeedbackHandler (collection_feedback table).
-  const body = (await request.clone().json().catch(() => ({}))) as { transactionId?: unknown };
-  const txn = typeof body?.transactionId === 'string' ? body.transactionId.trim() : '';
+  // Parse the body once here. We re-forward an (optionally) augmented body to the
+  // venture-core handler below, so read it via text() rather than letting the
+  // handler consume the stream.
+  const rawBody = await request.text();
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(rawBody) as Record<string, unknown>;
+  } catch {
+    parsed = {};
+  }
+  const txn = typeof parsed.transactionId === 'string' ? parsed.transactionId.trim() : '';
 
   // Idempotency reservation.
   let onceKey: string | null = null;
@@ -47,7 +54,36 @@ export async function POST(
     }
   }
 
-  const res = await createFeedbackHandler(config)(request);
+  // Resolve the organizer (customer) name server-side so the internal feedback
+  // email shows WHO left it — covers both pay paths, since the feedback txn equals
+  // the collection's paid_txn_id whether they paid at finalize or in advance.
+  // Best-effort: a miss just leaves the name "(not provided)" in the email.
+  let customerName: string | undefined;
+  if (txn) {
+    try {
+      const db = getDbClient();
+      if (db) {
+        const rows = (await db.query('select organizer_name from collections where paid_txn_id = $1 limit 1', [
+          txn,
+        ])) as Array<{ organizer_name?: string | null }>;
+        const name = rows?.[0]?.organizer_name;
+        if (typeof name === 'string' && name.trim()) customerName = name.trim();
+      }
+    } catch {
+      /* non-fatal — feedback still records/sends without the name */
+    }
+  }
+
+  // Forward to the venture-core handler with the resolved name folded in (1.25.0+
+  // reads `customerName` from the body and renders it as the email's "From" row).
+  const forwardBody = customerName ? JSON.stringify({ ...parsed, customerName }) : rawBody;
+  const forwarded = new NextRequest(request.url, {
+    method: 'POST',
+    headers: request.headers,
+    body: forwardBody,
+  });
+
+  const res = await createFeedbackHandler(config)(forwarded);
 
   // Roll back the reservation if the submission didn't succeed, so the customer
   // can retry (e.g. validation error or a transient email failure).
