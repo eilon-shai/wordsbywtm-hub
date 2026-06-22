@@ -1007,6 +1007,7 @@ function ResultFlowInner(props: ResultFlowProps) {
           <FeedbackWidget
             transactionId={txnId || props.paidTxnId || ''}
             productSlug={props.occasion}
+            brandName="Words That Matter"
             feedbackEndpoint={`/api/${props.occasion}/feedback`}
           />
         </div>
