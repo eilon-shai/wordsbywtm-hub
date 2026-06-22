@@ -26,7 +26,7 @@ Inventory of every env var configured in **Vercel** for this project, as of **20
 | `NEXT_PUBLIC_GA4_MEASUREMENT_ID` | Prod | `G-GWQSERHEVF` |
 | `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Prod | `xb60yny103` |
 | `NEXT_PUBLIC_GOOGLE_ADS_TAG_ID` | Prod | `AW-18110289262` |
-| `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | Prod | `IJtPCKSm1cMcEO6q1LtD` — ⚠️ **VERIFY**: does not match the action snippet (`DhIcCPjJ1MMcEO6q1LtD`); confirm which label belongs to the "wordsbywtm – Collection purchase" action |
+| `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | Prod | `IJtPCKSm1cMcEO6q1LtD` (label for the "wordsbywtm – Collection purchase" action) |
 | `NEXT_PUBLIC_DISABLE_ANALYTICS` | Preview | flag — turns analytics off on previews |
 
 Ads account: `hello@vocalvow.com`. GA4 property `wordsbywtm` (542738940). See `venture-ops` memory `reference_wordsbywtm_analytics_ids`.
