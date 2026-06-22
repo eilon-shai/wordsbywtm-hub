@@ -7,23 +7,46 @@ and a **purchase conversion** that fires on the post-payment return.
 > Grief sensitivity: memorial keywords are bid on by funeral-adjacent advertisers
 > and visited by people in distress. Keep memorial ad copy plain and respectful —
 > no urgency, no hype, no "limited time". Different rules than wedding/retirement.
+>
+> Copy rule (hard, all occasions): no demographic or identity-group language.
+> Describe what it does (gathering memories, tone, polished result), never who it's for.
 
 ---
 
-## 0. Prerequisites (one-time)
+## Status (2026-06-22) — config done; build paused; waiting on Paddle
 
-1. **Conversion tracking must be live before spend.** Set in Vercel (plain text, Prod):
-   - `NEXT_PUBLIC_GA4_MEASUREMENT_ID` (`G-XXXX`)
-   - `NEXT_PUBLIC_GOOGLE_ADS_TAG_ID` (`AW-XXXX`)
-   - `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` (the **purchase** conversion's label)
-   - (optional) `NEXT_PUBLIC_CLARITY_PROJECT_ID` for session replay
-   Redeploy after setting. Verify with Google Tag Assistant that gtag loads and a
-   test purchase fires `conversion`.
-2. **Create the conversion action** in Google Ads → Goals → Conversions → "Purchase",
-   category *Purchase*, value **49 USD**, count **One** (one-time product), then copy
-   its **conversion label** into the env var above.
-3. Link **Google Ads ↔ GA4** (import GA4 `purchase` as a backup conversion).
-4. Add **Mercury** as the billing method.
+All tracking is configured and live in the app. What remains is the campaign
+itself — which you can **build now in Paused state** and unpause once Paddle prod
+is approved.
+
+- ✅ Conversion tracking wired in-app: `AW-18110289262` / label `IJtPCKSm1cMcEO6q1LtD`
+- ✅ GA4 `G-GWQSERHEVF`, Clarity `xb60yny103` (env vars set plain/prod; full list in docs/ENV.md)
+- ✅ Billing on file (Amex …3569); account `hello@vocalvow.com` in Expert mode
+- ✅ Conversion action "wordsbywtm – Collection purchase" created (Purchase · value USD · count One)
+- ⏳ **Paddle production approval — pending** (blocks real sales)
+- ⏳ **Pass C real $49 purchase** — needed to flip the conversion "unverified" → "recording"
+
+**Build it paused now:** assemble the campaign + ad groups + keywords + RSAs + assets and
+set status **Paused**. Ads are still reviewed while paused, so everything is pre-approved
+and ready. **Do not unpause** until BOTH gates clear: Paddle approved AND the Pass C
+purchase has recorded the conversion — otherwise Smart Bidding has no signal to bid on.
+
+---
+
+## 0. Prerequisites — status
+
+1. **Conversion tracking** — ✅ DONE. Set in Vercel (plain text, Prod) + redeployed:
+   - `NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-GWQSERHEVF`
+   - `NEXT_PUBLIC_GOOGLE_ADS_TAG_ID=AW-18110289262`
+   - `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL=IJtPCKSm1cMcEO6q1LtD`
+   - `NEXT_PUBLIC_CLARITY_PROJECT_ID=xb60yny103`
+   Verify with Google Tag Assistant that gtag loads and a test purchase fires `conversion`.
+2. **Conversion action** — ✅ DONE. "wordsbywtm – Collection purchase", category *Purchase*,
+   value **49 USD**, count **One**. Stays "unverified" until the first real purchase (Pass C).
+3. **Google Ads ↔ GA4 link** — optional. If you import the GA4 `purchase` event, mark it
+   **Secondary** (observation-only) — NOT primary — so it does not double-count against the
+   gtag `purchase` conversion the app already fires.
+4. **Billing** — ✅ DONE (Amex …3569 on file).
 
 ---
 
@@ -112,5 +135,6 @@ many → one) and the **free-to-start, pay-once** model.
 - [ ] Campaign + 4 ad groups, each with its `?focus=` final URL.
 - [ ] Keywords (phrase+exact) + negatives loaded; cross-occasion negatives in place.
 - [ ] 1 RSA per ad group, occasion-appropriate tone (memorial = plain/respectful).
-- [ ] Budget + bidding set; Mercury billing attached.
+- [ ] Budget + bidding set; billing on file (Amex …3569) ✅.
+- [ ] Campaign left **Paused**; unpause only after Paddle approved + Pass C conversion records.
 - [ ] After 1 week: review search terms → add negatives, pause non-converters.
