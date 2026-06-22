@@ -55,19 +55,35 @@ export async function POST(
   }
 
   // Resolve the organizer (customer) name server-side so the internal feedback
-  // email shows WHO left it — covers both pay paths, since the feedback txn equals
-  // the collection's paid_txn_id whether they paid at finalize or in advance.
-  // Best-effort: a miss just leaves the name "(not provided)" in the email.
+  // email shows WHO left it. PRIMARY: the txn→collection Redis mapping written
+  // SYNCHRONOUSLY at checkout (reliable the moment feedback is left). We do NOT key
+  // on collections.paid_txn_id first because that's set only by the async
+  // transaction.completed webhook (markCollectionPaid) — typically not yet present
+  // right after generation, which is exactly when feedback is submitted. FALLBACK:
+  // paid_txn_id, for a late re-view after the mapping's TTL. Best-effort — a miss
+  // just leaves "(not provided)".
   let customerName: string | undefined;
   if (txn) {
     try {
       const db = getDbClient();
       if (db) {
-        const rows = (await db.query('select organizer_name from collections where paid_txn_id = $1 limit 1', [
-          txn,
-        ])) as Array<{ organizer_name?: string | null }>;
-        const name = rows?.[0]?.organizer_name;
-        if (typeof name === 'string' && name.trim()) customerName = name.trim();
+        let organizerName: string | null | undefined;
+        const collId = redis
+          ? await redis.get<string>(`${config.brand.redisKeyPrefix}:txn-collection:${txn}`)
+          : null;
+        if (collId) {
+          const rows = (await db.query('select organizer_name from collections where id = $1 limit 1', [
+            collId,
+          ])) as Array<{ organizer_name?: string | null }>;
+          organizerName = rows?.[0]?.organizer_name;
+        }
+        if (!organizerName) {
+          const rows = (await db.query('select organizer_name from collections where paid_txn_id = $1 limit 1', [
+            txn,
+          ])) as Array<{ organizer_name?: string | null }>;
+          organizerName = rows?.[0]?.organizer_name;
+        }
+        if (typeof organizerName === 'string' && organizerName.trim()) customerName = organizerName.trim();
       }
     } catch {
       /* non-fatal — feedback still records/sends without the name */
