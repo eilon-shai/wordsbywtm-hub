@@ -7,7 +7,8 @@ import { getConfig, OCCASIONS } from '@/lib/registry';
 // ---------------------------------------------------------------------------
 // Support console — look up a customer's collections by email across ALL live
 // occasions (each result carries its occasion so the UI can group them). An
-// optional `occasion` narrows to one.
+// optional `occasion` narrows to one. With NO email, returns the most recent
+// collections across all occasions (a "show all recent" view, capped).
 //
 // SECURITY: this returns admin/share tokens (so support can restore links), so
 // the whole /support surface + /api/support/* MUST be behind the middleware
@@ -16,6 +17,7 @@ import { getConfig, OCCASIONS } from '@/lib/registry';
 
 export const maxDuration = 15;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const ALL_LIMIT = 200; // cap for the no-email "show all recent" view
 
 interface Row {
   id: string;
@@ -42,8 +44,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
+  // Email is optional: empty → "show all recent" across occasions. A non-empty
+  // value must look like an email (typo guard); blank means no filter.
   const email = (body.email ?? '').trim().toLowerCase();
-  if (!EMAIL_RE.test(email)) return NextResponse.json({ error: 'Enter a valid email' }, { status: 400 });
+  const all = email === '';
+  if (!all && !EMAIL_RE.test(email)) {
+    return NextResponse.json({ error: 'Enter a valid email (or leave it blank to show all)' }, { status: 400 });
+  }
 
   // Live occasions with a collection flow. Optional `occasion` narrows to one.
   const wanted = (body.occasion ?? '').trim();
@@ -63,15 +70,16 @@ export async function POST(req: NextRequest) {
   if (!db) return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
 
   try {
-    const rows = await db.query<Row>(
-      `select id, product, honoree_name, status, paid_at, created_at, deadline, admin_token, share_token,
+    const select = `select id, product, honoree_name, status, paid_at, created_at, deadline, admin_token, share_token,
               (generated_content is not null) as has_content
          from collections
-        where product = ANY($1::text[]) and lower(organizer_email) = lower($2)
-        order by created_at desc
-        limit 100`,
-      [productIds, email],
-    );
+        where product = ANY($1::text[])`;
+    const rows = all
+      ? await db.query<Row>(`${select} order by created_at desc limit ${ALL_LIMIT}`, [productIds])
+      : await db.query<Row>(
+          `${select} and lower(organizer_email) = lower($2) order by created_at desc limit 100`,
+          [productIds, email],
+        );
     const collections = rows
       .map((r) => {
         const match = byProduct.get(r.product);

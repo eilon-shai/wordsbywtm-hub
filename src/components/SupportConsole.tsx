@@ -31,18 +31,45 @@ export function SupportConsole() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [rows, setRows] = React.useState<CollectionRow[] | null>(null);
+  const [lastAll, setLastAll] = React.useState(false); // last lookup was the no-email "show all" view
   // Per-row transient status messages, keyed by collection id.
   const [msg, setMsg] = React.useState<Record<string, string>>({});
   const [busy, setBusy] = React.useState<string | null>(null); // `${id}:${action}`
   const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null);
+  const [clearing, setClearing] = React.useState(false);
+  const [clearMsg, setClearMsg] = React.useState<string | null>(null);
+
+  const clearMyRateLimits = React.useCallback(async () => {
+    setClearing(true);
+    setClearMsg(null);
+    try {
+      const res = await fetch('/api/support/clear-rate-limit', { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) {
+        setClearMsg(json.error ?? 'Could not clear rate limits.');
+        return;
+      }
+      setClearMsg(
+        json.cleared > 0
+          ? `Cleared ${json.cleared} rate-limit key${json.cleared === 1 ? '' : 's'} for your IP (${json.ip}). You're unblocked.`
+          : `Nothing to clear — no active rate limits for your IP (${json.ip}).`,
+      );
+    } catch {
+      setClearMsg('Could not clear rate limits — try again.');
+    } finally {
+      setClearing(false);
+    }
+  }, []);
 
   const lookup = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     setRows(null);
     setMsg({});
+    setLastAll(email.trim() === '');
     try {
       // No occasion → search across all live occasions; results carry their own.
+      // Blank email → the API returns the most recent collections across all.
       const res = await fetch('/api/support/lookup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -131,6 +158,22 @@ export function SupportConsole() {
         <a href="/support/metrics" className="underline hover:text-foreground">View metrics →</a>
       </p>
 
+      <div className="mt-5 rounded-xl border border-border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-foreground">Clear my rate limits (this machine)</p>
+            <p className="text-xs text-muted-foreground">
+              Resets the create / check / audio throttles for your current IP only — for demos and preview testing.
+              Customers on other IPs are unaffected.
+            </p>
+          </div>
+          <Button type="button" variant="outline" size="sm" disabled={clearing} onClick={() => void clearMyRateLimits()}>
+            {clearing ? 'Clearing…' : 'Clear my rate limits'}
+          </Button>
+        </div>
+        {clearMsg ? <p className="mt-3 break-all text-xs text-foreground">{clearMsg}</p> : null}
+      </div>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -147,16 +190,26 @@ export function SupportConsole() {
             placeholder="customer@example.com"
             className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
+          <span className="text-xs text-muted-foreground">Leave blank to show all recent collections.</span>
         </label>
-        <Button type="submit" disabled={loading || !email.trim()} className="rounded-lg">
-          {loading ? 'Looking up…' : 'Look up'}
+        <Button type="submit" disabled={loading} className="rounded-lg">
+          {loading ? 'Looking up…' : email.trim() ? 'Look up' : 'Show all recent'}
         </Button>
       </form>
 
       {error ? <p className="mt-4 text-sm text-destructive">{error}</p> : null}
 
       {rows && rows.length === 0 ? (
-        <p className="mt-8 text-sm text-muted-foreground">No collections found for that email.</p>
+        <p className="mt-8 text-sm text-muted-foreground">
+          {lastAll ? 'No collections yet.' : 'No collections found for that email.'}
+        </p>
+      ) : null}
+
+      {rows && rows.length > 0 && lastAll ? (
+        <p className="mt-6 text-xs text-muted-foreground">
+          Showing the {rows.length} most recent collection{rows.length === 1 ? '' : 's'} across all occasions
+          {rows.length >= 200 ? ' (capped — search by email to find older ones)' : ''}.
+        </p>
       ) : null}
 
       {groups.map((group) => (
