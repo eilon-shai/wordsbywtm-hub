@@ -54,7 +54,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       'https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_FAMILY,
     sampleExcerptBadge: 'Woven from 9 memories',
-    fullCtaLabel: 'Start an Anniversary Collection →',
+    fullCtaLabel: 'Start a collection →',
     trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',
   },
 
@@ -120,9 +120,9 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     heading: 'Woven from many voices',
     subheading: 'Each of these was synthesized from real memories shared by a different group of people.',
     tabs: [
-      { value: 'family', label: '50 years, family', content: SAMPLE_FAMILY },
-      { value: 'reflective', label: '25 years, reflective', content: SAMPLE_REFLECTIVE },
-      { value: 'celebratory', label: '40 years, celebratory', content: SAMPLE_CELEBRATORY },
+      { value: 'family', label: 'Family', content: SAMPLE_FAMILY },
+      { value: 'reflective', label: 'Reflective', content: SAMPLE_REFLECTIVE },
+      { value: 'celebratory', label: 'Celebratory', content: SAMPLE_CELEBRATORY },
     ],
   },
 

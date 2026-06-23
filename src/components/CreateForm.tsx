@@ -858,7 +858,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
           </div>
         )}
 
-        <Button type="submit" size="lg" className="h-11 w-full text-base" disabled={submitting}>
+        <Button type="submit" size="lg" className="h-auto min-h-11 w-full whitespace-normal py-2 text-center text-sm leading-snug sm:text-base" disabled={submitting}>
           {submitting ? (
             <span className="inline-flex items-center gap-2">
               <Spinner size={16} /> Creating your collection…
@@ -878,7 +878,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             size="lg"
             onClick={() => void runSubmit(true)}
             disabled={submitting}
-            className="h-11 w-full text-base"
+            className="h-auto min-h-11 w-full whitespace-normal py-2 text-center text-sm leading-snug sm:text-base"
           >
             Create the collection now — I’ll write my memory later
           </Button>

@@ -58,7 +58,7 @@ export const retirementLandingConfig: LandingPageConfig = {
       'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_TEAM,
     sampleExcerptBadge: 'Woven from 8 stories',
-    fullCtaLabel: 'Start a Retirement Collection →',
+    fullCtaLabel: 'Start a collection →',
     trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',
   },
 
@@ -124,9 +124,9 @@ export const retirementLandingConfig: LandingPageConfig = {
     heading: 'Woven from many voices',
     subheading: 'Each of these was synthesized from real stories shared by a different group of people.',
     tabs: [
-      { value: 'team', label: 'Team & colleagues', content: SAMPLE_TEAM },
+      { value: 'team', label: 'Colleagues', content: SAMPLE_TEAM },
       { value: 'manager', label: 'Long career', content: SAMPLE_MANAGER },
-      { value: 'mixed', label: 'Work, friends & family', content: SAMPLE_MIXED },
+      { value: 'mixed', label: 'Friends & family', content: SAMPLE_MIXED },
     ],
   },
 
