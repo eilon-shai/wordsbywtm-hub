@@ -8,6 +8,7 @@ interface CollectionRow {
   occasion: string;
   occasionTitle: string;
   honoreeName: string;
+  organizerEmail: string | null;
   status: string;
   paid: boolean;
   createdAt: string | null;
@@ -223,6 +224,7 @@ export function SupportConsole() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-serif text-lg text-foreground">{row.honoreeName}</p>
+                    <p className="text-xs text-foreground/80">{row.organizerEmail ?? '—'}</p>
                     <p className="text-xs text-muted-foreground">
                       {row.status}
                       {/* A generated collection was necessarily paid (pay-before-generate),
