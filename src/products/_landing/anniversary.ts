@@ -120,9 +120,9 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     heading: 'Woven from many voices',
     subheading: 'Each of these was synthesized from real memories shared by a different group of people.',
     tabs: [
-      { value: 'family', label: '50 years, family', content: SAMPLE_FAMILY },
-      { value: 'reflective', label: '25 years, reflective', content: SAMPLE_REFLECTIVE },
-      { value: 'celebratory', label: '40 years, celebratory', content: SAMPLE_CELEBRATORY },
+      { value: 'family', label: 'Family', content: SAMPLE_FAMILY },
+      { value: 'reflective', label: 'Reflective', content: SAMPLE_REFLECTIVE },
+      { value: 'celebratory', label: 'Celebratory', content: SAMPLE_CELEBRATORY },
     ],
   },
 

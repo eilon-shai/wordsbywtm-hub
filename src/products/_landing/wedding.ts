@@ -122,7 +122,7 @@ export const weddingLandingConfig: LandingPageConfig = {
     tabs: [
       { value: 'both', label: 'Both sides', content: SAMPLE_BOTH_SIDES },
       { value: 'funny', label: 'Funny & warm', content: SAMPLE_FUNNY },
-      { value: 'family', label: 'Two families, now one', content: SAMPLE_FAMILY },
+      { value: 'family', label: 'Two families', content: SAMPLE_FAMILY },
     ],
   },
 

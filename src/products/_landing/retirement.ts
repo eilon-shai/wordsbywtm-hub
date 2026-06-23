@@ -124,9 +124,9 @@ export const retirementLandingConfig: LandingPageConfig = {
     heading: 'Woven from many voices',
     subheading: 'Each of these was synthesized from real stories shared by a different group of people.',
     tabs: [
-      { value: 'team', label: 'Team & colleagues', content: SAMPLE_TEAM },
+      { value: 'team', label: 'Colleagues', content: SAMPLE_TEAM },
       { value: 'manager', label: 'Long career', content: SAMPLE_MANAGER },
-      { value: 'mixed', label: 'Work, friends & family', content: SAMPLE_MIXED },
+      { value: 'mixed', label: 'Friends & family', content: SAMPLE_MIXED },
     ],
   },
 
