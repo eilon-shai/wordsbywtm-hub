@@ -23,6 +23,7 @@ interface Row {
   id: string;
   product: string;
   honoree_name: string;
+  organizer_email: string | null;
   status: string;
   paid_at: string | null;
   created_at: string | null;
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
   if (!db) return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
 
   try {
-    const select = `select id, product, honoree_name, status, paid_at, created_at, deadline, admin_token, share_token,
+    const select = `select id, product, honoree_name, organizer_email, status, paid_at, created_at, deadline, admin_token, share_token,
               (generated_content is not null) as has_content
          from collections
         where product = ANY($1::text[])`;
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
           occasion: match.occasion,
           occasionTitle: match.title,
           honoreeName: r.honoree_name,
+          organizerEmail: r.organizer_email,
           status: r.status,
           paid: !!r.paid_at,
           createdAt: r.created_at,
