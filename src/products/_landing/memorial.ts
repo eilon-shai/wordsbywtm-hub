@@ -76,7 +76,7 @@ export const memorialLandingConfig: LandingPageConfig = {
       'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_MIXED,
     sampleExcerptBadge: 'Woven from 9 memories',
-    fullCtaLabel: 'Start a Memorial Collection →',
+    fullCtaLabel: 'Start a collection →',
     trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',
   },
 

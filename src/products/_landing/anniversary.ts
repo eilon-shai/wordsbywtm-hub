@@ -54,7 +54,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       'https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_FAMILY,
     sampleExcerptBadge: 'Woven from 9 memories',
-    fullCtaLabel: 'Start an Anniversary Collection →',
+    fullCtaLabel: 'Start a collection →',
     trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',
   },
 

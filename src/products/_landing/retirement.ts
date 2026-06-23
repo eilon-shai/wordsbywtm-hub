@@ -58,7 +58,7 @@ export const retirementLandingConfig: LandingPageConfig = {
       'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&q=80&auto=format&fit=crop',
     sampleExcerpt: SAMPLE_TEAM,
     sampleExcerptBadge: 'Woven from 8 stories',
-    fullCtaLabel: 'Start a Retirement Collection →',
+    fullCtaLabel: 'Start a collection →',
     trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',
   },
 
