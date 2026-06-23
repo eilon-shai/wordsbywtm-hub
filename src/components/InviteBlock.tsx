@@ -21,6 +21,7 @@ import { Button, Card, Input, Separator, Badge } from '@eilon-shai/venture-core/
 import { initSharedPaddle, getSharedPaddle, setActiveTransaction } from '@eilon-shai/venture-core/components';
 import { TERMS_VERSION, WITHDRAWAL_WAIVER_SENTENCE } from '@/lib/terms';
 import { trackBeginCheckout } from '@/lib/analytics';
+import { releaseCheckoutLock } from '@/lib/release-checkout-lock';
 
 // Where Paddle returns after an ADVANCE payment. A clean path (no query) so the
 // shared callback's `${path}?txnId=...` redirect stays well-formed; that page
@@ -271,7 +272,11 @@ function AdvancePayBlock({ adminToken, organizerEmail, paid, price, occasion, pr
         /* sessionStorage may be unavailable — return page still records payment */
       }
       await initSharedPaddle(ADVANCE_RETURN_PATH);
-      setActiveTransaction(json.transactionId, 'basic', ADVANCE_RETURN_PATH);
+      // onClose: if the organizer closes the overlay without paying, release the
+      // server-side checkout-lock so they can retry immediately.
+      setActiveTransaction(json.transactionId, 'basic', ADVANCE_RETURN_PATH, () =>
+        releaseCheckoutLock(adminToken),
+      );
       const paddle = await getSharedPaddle();
       // Prefill + lock the organizer's email so the payer can't change it.
       paddle.Checkout.open({

@@ -25,6 +25,7 @@ import {
 import { SectionCard, FieldRow, Spinner } from '@/components/forked/FormPrimitives';
 import { trackBeginCheckout } from '@/lib/analytics';
 import { WITHDRAWAL_WAIVER_SENTENCE } from '@/lib/terms';
+import { releaseCheckoutLock } from '@/lib/release-checkout-lock';
 
 // sessionStorage key for the chosen synthesis prefs — persisted right before we
 // open Paddle on the unpaid path so they survive the redirect back with ?txn=.
@@ -581,7 +582,11 @@ function ResultFlowInner(props: ResultFlowProps) {
       // Real mode: open the Paddle overlay with the organizer's email prefilled +
       // locked. The shared callback redirects to `${resultPath}?txnId=...`.
       await initSharedPaddle(props.resultPath);
-      setActiveTransaction(transactionId, 'basic', props.resultPath);
+      // onClose: if the organizer closes the overlay without paying, release the
+      // server-side checkout-lock so they can retry immediately.
+      setActiveTransaction(transactionId, 'basic', props.resultPath, () =>
+        releaseCheckoutLock(adminToken),
+      );
       const paddle = await getSharedPaddle();
       paddle.Checkout.open({
         transactionId,
