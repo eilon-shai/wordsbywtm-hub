@@ -215,6 +215,10 @@ function ResultFlowInner(props: ResultFlowProps) {
   const [content, setContent] = React.useState('');
   const [honoree, setHonoree] = React.useState('');
   const [count, setCount] = React.useState(0);
+  // Pre-pay contributor/memory count for the paywall anchor (A1). This is
+  // collection metadata only — NOT the synthesized tribute, which is never
+  // fetched before payment (DEC-P-004). Populated on the prefs screen.
+  const [prepayCount, setPrepayCount] = React.useState<number | null>(null);
   const [error, setError] = React.useState<string | null>(
     canStart ? null : `We couldn’t find your ${noun} session. Please reopen the link from your collection.`,
   );
@@ -477,6 +481,28 @@ function ResultFlowInner(props: ResultFlowProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ---- Pre-pay anchor: how many memories are in the collection (A1) ----
+  // Reads the same GET the dashboard uses (collection metadata: count, status —
+  // never the synthesized tribute). Used only to anchor the keepsake value on the
+  // prefs/paywall screen. Pay-before-generate is untouched.
+  React.useEffect(() => {
+    if (phase !== 'prefs' || !adminToken || prepayCount !== null) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/collection?t=${encodeURIComponent(adminToken)}`, { cache: 'no-store' });
+        if (!res.ok || cancelled) return;
+        const d = (await res.json().catch(() => ({}))) as { count?: number };
+        if (!cancelled && typeof d.count === 'number') setPrepayCount(d.count);
+      } catch {
+        /* non-fatal — the anchor line just won't show a count */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, adminToken, prepayCount]);
+
   // ---- Prefs-screen submit ----
   const onPrefsSubmit = React.useCallback(async () => {
     if (submitting) return;
@@ -709,21 +735,31 @@ function ResultFlowInner(props: ResultFlowProps) {
         ) : null}
         <header className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{props.occasionTitle} {noun}</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">How should the {noun} read?</h1>
-          <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+          {/* A1 — keepsake anchor. Leads with what cheap text tools don't give you:
+              a spoken version and a printable keepsake, woven from real people. The
+              count is pre-pay collection metadata; the tribute itself is created only
+              after payment (DEC-P-004). */}
+          {prepayCount != null && prepayCount > 0 ? (
+            <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
+              Your keepsake from {prepayCount} {prepayCount === 1 ? 'person' : 'people'}
+            </h1>
+          ) : (
+            <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">Your keepsake {noun}</h1>
+          )}
+          {props.audioEnabled ? (
+            <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+              A spoken version to play {readAloud}, a printable keepsake PDF, and one {noun} woven from every memory you chose.
+            </p>
+          ) : (
+            <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+              A printable keepsake PDF and one {noun} woven from every memory you chose.
+            </p>
+          )}
+          <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
             {paid
               ? `Choose how you’d like the memories woven together, then we’ll create your ${noun}.`
               : `Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your ${noun}.`}
           </p>
-          {props.audioEnabled ? (
-            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
-              When it’s ready, you’ll have: one {noun} woven from every memory you chose, a keepsake PDF to print, and — if you’d like — a spoken version to play {readAloud}.
-            </p>
-          ) : (
-            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
-              When it’s ready, you’ll have: one {noun} woven from every memory you chose, and a keepsake PDF to print.
-            </p>
-          )}
         </header>
         <form
           onSubmit={(e) => { e.preventDefault(); void onPrefsSubmit(); }}
@@ -831,7 +867,11 @@ function ResultFlowInner(props: ResultFlowProps) {
               </Button>
               {!paid ? (
                 <p className="text-center text-xs leading-relaxed text-muted-foreground">
-                  One time, {priceLabel}. No subscription, no account. The memories you gathered are always yours to keep.
+                  {priceLabel} for the whole group, one time
+                  {prepayCount != null && prepayCount >= 2 && typeof props.priceValue === 'number'
+                    ? ` — about $${Math.round(props.priceValue / prepayCount)} per person`
+                    : ''}
+                  . No subscription, no account. The memories you gathered are always yours to keep.
                 </p>
               ) : null}
             </>

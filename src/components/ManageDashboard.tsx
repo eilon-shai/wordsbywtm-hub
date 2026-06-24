@@ -532,6 +532,13 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
             </div>
           ) : null}
 
+          {/* A2 — seed the price expectation before finalize so it isn't a surprise. */}
+          {!generated && !data.paid && price ? (
+            <p className="text-xs text-muted-foreground">
+              Free to gather memories — pay once ({price}) when you’re ready to finalize.
+            </p>
+          ) : null}
+
           {deadline && !generated ? (
             <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
               <span aria-hidden className="mt-0.5 text-lg">🗓️</span>
@@ -654,23 +661,59 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
       </div>
 
       {/* Live summary + finalize (S7) */}
-      {!generated ? (
+      {!generated ? (() => {
+        // A1/A3 — anchor the keepsake at the price. "People" = everyone whose
+        // included memory will be woven in (each included memory is one person's
+        // contribution). Pre-pay data only — no synthesized content is shown.
+        // "People" = everyone whose included memory will be woven in (one per
+        // contribution). Use the real count — never floor to 1, or an empty
+        // collection reads "from 1 person … woven from 0 memories".
+        const peopleCount = includedCount;
+        const perPerson =
+          price && data.priceShown && peopleCount >= 2
+            ? Math.round(data.priceShown / peopleCount)
+            : null;
+        return (
         <>
           <Separator className="my-8" />
           <div className="rounded-xl border border-border bg-card p-6">
-            <p className="text-center font-serif text-lg text-foreground">
-              Your {noun} will be woven from{' '}
-              <span className="text-primary">{includedCount}</span>{' '}
-              {includedCount === 1 ? 'memory' : 'memories'}
-            </p>
+            {includedCount === 0 ? (
+              <>
+                <p className="text-center font-serif text-lg text-foreground">
+                  Your keepsake takes shape as memories come in
+                </p>
+                <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
+                  As memories arrive, they’re woven into one {noun} — with a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-center font-serif text-lg text-foreground">
+                  Your keepsake from{' '}
+                  <span className="text-primary">{peopleCount}</span>{' '}
+                  {peopleCount === 1 ? 'person' : 'people'}
+                </p>
+                <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
+                  One {noun} woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'}, a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
+                </p>
+              </>
+            )}
 
-            <p className="mt-2 text-center text-sm text-muted-foreground">
+            {/* Price framing is shown only when payment is still due. A pre-paid
+                organizer finalizes at no charge, so the price/split would mislead. */}
+            {price && !data.paid ? (
+              <div className="mx-auto mt-4 max-w-prose text-center">
+                <p className="text-sm text-foreground">
+                  <span className="font-medium">{price} for the whole group</span>, one time
+                  {perPerson != null ? <span className="text-muted-foreground"> — about ${perPerson} per person</span> : null}
+                </p>
+              </div>
+            ) : null}
+
+            <p className="mt-3 text-center text-sm text-muted-foreground">
               {data.paid
-                ? `On the next step you’ll choose how it reads — and whether to add a spoken version — then create the ${noun}.`
-                : `Finalizing closes the collection${price ? ` — ${price}, one time` : ''}. You’ll choose how it reads — and whether to add a spoken version — and pay on the next step.`}
-            </p>
-            <p className="mx-auto mt-2 max-w-prose text-center text-xs leading-relaxed text-muted-foreground">
-              When you finalize, these memories become one {noun} — in a collective voice, a keepsake PDF to print, and a spoken version to play {readAloud}.
+                ? `On the next step you’ll choose how it reads — and the voice for the spoken version — then create the ${noun}.`
+                : `Finalizing closes the collection. You’ll choose how it reads — and the voice for the spoken version — and pay${price ? ` your one-time ${price}` : ''} on the next step.`}
             </p>
 
             {hasToggleError ? (
@@ -703,7 +746,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
             </div>
           </div>
         </>
-      ) : null}
+        );
+      })() : null}
 
       {/* Danger zone — delete the whole collection (cascades to all memories).
           Hidden once the collection is paid or generated: deleting it would
