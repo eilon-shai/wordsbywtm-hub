@@ -665,7 +665,10 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         // A1/A3 — anchor the keepsake at the price. "People" = everyone whose
         // included memory will be woven in (each included memory is one person's
         // contribution). Pre-pay data only — no synthesized content is shown.
-        const peopleCount = Math.max(1, includedCount);
+        // "People" = everyone whose included memory will be woven in (one per
+        // contribution). Use the real count — never floor to 1, or an empty
+        // collection reads "from 1 person … woven from 0 memories".
+        const peopleCount = includedCount;
         const perPerson =
           price && data.priceShown && peopleCount >= 2
             ? Math.round(data.priceShown / peopleCount)
@@ -674,14 +677,27 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         <>
           <Separator className="my-8" />
           <div className="rounded-xl border border-border bg-card p-6">
-            <p className="text-center font-serif text-lg text-foreground">
-              Your keepsake from{' '}
-              <span className="text-primary">{peopleCount}</span>{' '}
-              {peopleCount === 1 ? 'person' : 'people'}
-            </p>
-            <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
-              One {noun} woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'}, a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
-            </p>
+            {includedCount === 0 ? (
+              <>
+                <p className="text-center font-serif text-lg text-foreground">
+                  Your keepsake takes shape as memories come in
+                </p>
+                <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
+                  As memories arrive, they’re woven into one {noun} — with a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-center font-serif text-lg text-foreground">
+                  Your keepsake from{' '}
+                  <span className="text-primary">{peopleCount}</span>{' '}
+                  {peopleCount === 1 ? 'person' : 'people'}
+                </p>
+                <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
+                  One {noun} woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'}, a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
+                </p>
+              </>
+            )}
 
             {/* Price framing is shown only when payment is still due. A pre-paid
                 organizer finalizes at no charge, so the price/split would mislead. */}
