@@ -683,7 +683,9 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               One {noun} woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'}, a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
             </p>
 
-            {price ? (
+            {/* Price framing is shown only when payment is still due. A pre-paid
+                organizer finalizes at no charge, so the price/split would mislead. */}
+            {price && !data.paid ? (
               <div className="mx-auto mt-4 max-w-prose text-center">
                 <p className="text-sm text-foreground">
                   <span className="font-medium">{price} for the whole group</span>, one time
