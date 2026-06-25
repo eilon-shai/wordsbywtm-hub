@@ -63,37 +63,23 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
   });
 
   test('create → contribute → moderate → mock-pay → tribute', async ({ page }) => {
-    // ── 1. Create the collection + organizer's first memory ─────────────────
+    // ── 1. Create the collection (minimal: email, your name, honoree) ────────
     await page.goto('/memorial/start');
 
+    // The create step is deliberately minimal — the organizer's own memory is
+    // deferred to the dashboard — so there is NO confirm-email, relationship,
+    // memory, qualities, or consent here. The collection starts empty and gets
+    // its first (and here only) memory from a contributor below.
+    //
     // Target by role+accessible-name (NOT getByLabel exact): required-field labels
     // carry a decorative aria-hidden "*", so the accessible name is e.g. "Your
     // email" but the label TEXT is "Your email*". getByRole(name) uses the
     // accessible name (asterisk excluded); getByLabel(exact) would never match.
     await page.getByRole('textbox', { name: 'Your email', exact: true }).fill(ORGANIZER_EMAIL);
-    await page.getByRole('textbox', { name: 'Confirm your email', exact: true }).fill(ORGANIZER_EMAIL);
     await page.getByRole('textbox', { name: 'Your name', exact: true }).fill('E2E Organizer');
-
-    // Relationship select (venture-core Select — open then pick an option).
-    await page.getByLabel(/your relationship to/i).click();
-    await page.getByRole('option', { name: /son or daughter/i }).click();
-
-    await page.getByLabel(/describe your relationship/i).fill('their eldest child');
     await page.getByRole('textbox', { name: 'Their name', exact: true }).fill(HONOREE);
-    await page
-      .getByLabel(/specific memories or stories/i)
-      .fill(
-        'She kept a recipe box that was never really about recipes. Tucked between the cards ' +
-          'were birthdays and the names of everyone\'s dogs. She made every person who walked in ' +
-          'feel known, and she always put down whatever she was holding the moment you arrived.',
-      );
-    await page
-      .getByLabel(/what qualities made them/i)
-      .fill('endlessly attentive, quietly generous, the first to show up when anyone needed help');
 
-    // Consent + submit.
-    await page.getByRole('checkbox').check();
-    await page.getByRole('button', { name: /create collection & add my memory/i }).click();
+    await page.getByRole('button', { name: /create your collection/i }).click();
 
     // Lands on the manage dashboard (?t={adminToken}). Capture the token.
     await page.waitForURL(/\/collect\/manage\?t=/, { timeout: 30_000 });
@@ -133,7 +119,9 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     await expect(contributor.getByText(/thank you/i).first()).toBeVisible({ timeout: 30_000 });
     await contributor.close();
 
-    // ── 3. Moderate — confirm both memories are present on the dashboard ─────
+    // ── 3. Moderate — confirm the contributor's memory is present ────────────
+    // (The organizer added no memory at create — it's deferred — so the
+    // contributor's is the single memory the tribute is woven from.)
     await page.reload();
     await expect(page.getByText('E2E Contributor', { exact: false }).first()).toBeVisible();
 
