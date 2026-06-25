@@ -76,6 +76,9 @@ export default async function OccasionLandingPage({
   const resolvePrice = (tier: 'basic' | 'full') =>
     (isSandbox ? config.tiers[tier].priceIdSandbox : config.tiers[tier].priceId) ?? '';
 
+  // The explainer video now renders natively inside LandingPage (between the
+  // hero and "How it works") via the venture-core `config.video` slot — set per
+  // occasion in the _landing configs. No app-level video band here.
   return (
     <LandingPage
       config={landing}

@@ -97,8 +97,18 @@ export default async function ContributorSharePage({
   // Organizer writing their own memory later → the RICH customer form (same
   // fields as create), returning them to their dashboard afterward.
   if (isOrganizer) {
+    const backHref = `/collect/manage?t=${encodeURIComponent(collection.adminToken)}`;
     return (
       <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-14">
+        {/* Always offer a way back to the collection — the organizer may have come
+            here meaning to "write it later" and needs an escape that isn't the
+            browser back button (which would lose the admin token from the URL). */}
+        <a
+          href={backHref}
+          className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-80"
+        >
+          ← Back to your collection
+        </a>
         <header className="mb-8 text-center">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
             {meta.title} collection
@@ -106,7 +116,8 @@ export default async function ContributorSharePage({
           <h1 className="mb-3 font-serif text-3xl text-foreground md:text-4xl">Add your own memory</h1>
           <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
             Your memory of {collection.honoreeName} is pinned to the top of your collection and is
-            always part of the final {meta.deliverableNoun}.
+            always part of the final {meta.deliverableNoun}. You can also do this later — your
+            collection is saved.
           </p>
         </header>
         <OrganizerMemoryForm
@@ -115,7 +126,7 @@ export default async function ContributorSharePage({
           organizerEmail={collection.organizerEmail}
           adminToken={collection.adminToken}
           honoreeLabel={collection.honoreeName}
-          returnHref={`/collect/manage?t=${encodeURIComponent(collection.adminToken)}`}
+          returnHref={backHref}
         />
       </main>
     );
