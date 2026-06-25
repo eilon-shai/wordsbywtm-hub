@@ -43,9 +43,11 @@ test.describe('Tier A — render/hydration smoke (no DB writes)', () => {
     // the landing CTA routes here in formFirst nav mode.
     await page.goto('/memorial/start');
 
-    // Form heading.
+    // Form heading. The create step is deliberately minimal — the organizer's
+    // own memory is deferred to the dashboard — so the heading is "Start your
+    // collection", not the old "set up + write your first memory".
     await expect(
-      page.getByRole('heading', { name: 'Set up the collection and write your first memory' }),
+      page.getByRole('heading', { name: 'Start your collection' }),
     ).toBeVisible();
 
     // Key labeled fields are present AND interactive. FieldRow binds
@@ -58,20 +60,19 @@ test.describe('Tier A — render/hydration smoke (no DB writes)', () => {
     await email.fill('smoke-test@example.com');
     await expect(email).toHaveValue('smoke-test@example.com');
 
+    const yourName = page.getByRole('textbox', { name: 'Your name', exact: true });
+    await expect(yourName).toBeVisible();
+    await yourName.fill('Smoke Tester');
+    await expect(yourName).toHaveValue('Smoke Tester');
+
     const honoreeName = page.getByRole('textbox', { name: 'Their name', exact: true });
     await expect(honoreeName).toBeVisible();
     await honoreeName.fill('Smoke Test Honoree');
     await expect(honoreeName).toHaveValue('Smoke Test Honoree');
 
-    // The memory textarea (label "2–3 specific memories or stories").
-    const memory = page.getByRole('textbox', { name: /specific memories or stories/i });
-    await expect(memory).toBeVisible();
-    await memory.fill('A short hydration probe.');
-    await expect(memory).toHaveValue('A short hydration probe.');
-
     // The submit button exists — but we intentionally do NOT click it.
     await expect(
-      page.getByRole('button', { name: /create collection & add my memory/i }),
+      page.getByRole('button', { name: /create your collection/i }),
     ).toBeVisible();
   });
 
@@ -95,13 +96,14 @@ test.describe('Tier A — render/hydration smoke (no DB writes)', () => {
       // /start → CreateForm. Shared heading proves the per-occasion config resolved.
       await page.goto(`/${slug}/start`);
       await expect(
-        page.getByRole('heading', { name: 'Set up the collection and write your first memory' }),
+        page.getByRole('heading', { name: 'Start your collection' }),
       ).toBeVisible();
 
-      // Occasion-specific copy: the relationship field names this occasion's
-      // honoree label ("the couple" vs "the person retiring" …) — proves the RIGHT
-      // config is wired, not memorial's, on a celebratory occasion.
-      await expect(page.getByText(`Your relationship to ${honoree}`).first()).toBeVisible();
+      // Occasion-specific copy: the honoree field's help text names this
+      // occasion's honoree label ("the couple" vs "the person retiring" …) —
+      // proves the RIGHT config is wired, not memorial's, on a celebratory
+      // occasion. (The relationship field moved off create into the memory form.)
+      await expect(page.getByText(`The name of ${honoree}`).first()).toBeVisible();
 
       // Hydration probe: the email field is interactive. We never submit.
       const email = page.getByRole('textbox', { name: 'Your email', exact: true });
@@ -143,7 +145,7 @@ test.describe('Tier A — render/hydration smoke (no DB writes)', () => {
 
     await page.goto('/memorial/start');
     await expect(
-      page.getByRole('heading', { name: 'Set up the collection and write your first memory' }),
+      page.getByRole('heading', { name: 'Start your collection' }),
     ).toBeVisible();
     // Give client hydration a beat to surface any runtime errors.
     await page.waitForLoadState('networkidle');
