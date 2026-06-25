@@ -7,24 +7,17 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  Progress,
   Button,
 } from '@eilon-shai/venture-core/ui';
 import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
-import { validateMemoriesField } from '@eilon-shai/venture-core/validation';
 import type { OccasionIntake } from '@/lib/intake';
 import { getOccasionMeta } from '@/lib/registry';
 import { trackLead } from '@/lib/analytics';
 import { InviteScreen } from './InviteScreen';
-import { composeMemory } from './ContributorForm';
 import {
   SectionCard,
   FieldRow,
-  WordCounter,
-  MemoriesBlockedPanel,
   Spinner,
-  wordCount,
-  type WordCountBand,
 } from '@/components/forked/FormPrimitives';
 
 interface CreateFormProps {
@@ -37,7 +30,8 @@ interface CreateFormProps {
   tier: string;
   /** Occasion display title, e.g. "Memorial". */
   occasionTitle: string;
-  /** Contributor field defs — reused for the organizer's own first memory. */
+  /** Contributor field defs — unused now the organizer's memory is deferred to the
+   *  dashboard, but kept on the props so /start needs no change. */
   contributorFields: FormFieldConfig[];
   /** Per-occasion intake copy + relationship taxonomy. */
   intake: OccasionIntake;
@@ -52,37 +46,6 @@ interface CreateSuccess {
 
 type Phase = 'form' | 'submitting' | 'invite' | 'existing';
 
-// Live coaching bands under the memory textarea. The hard gate is
-// validateMemoriesField (≥20 words, ≥2 sentences); these are coaching only.
-const MEMORY_BANDS: WordCountBand[] = [
-  { gte: 0, lt: 20, message: 'a little short — please add a few more sentences', colorClass: 'text-destructive' },
-  { gte: 20, lt: 60, message: 'this is good — add a detail if you can', colorClass: 'text-primary' },
-  { gte: 60, message: 'wonderful, thank you', colorClass: 'text-emerald-700' },
-];
-
-// ---------------------------------------------------------------------------
-// Field configs — mirror the TributeWords eulogy intake (labels, placeholders,
-// relationship options). Every control renders through the forked FieldRow.
-// ---------------------------------------------------------------------------
-
-const CONTRIBUTOR_NAME_FIELD: FormFieldConfig = {
-  name: 'contributorName',
-  type: 'text',
-  label: 'Your name',
-  placeholder: 'e.g. Sarah',
-  required: true,
-  maxLength: 100,
-};
-
-const THINGS_TO_AVOID_FIELD: FormFieldConfig = {
-  name: 'thingsToAvoid',
-  type: 'textarea',
-  label: 'Topics or details to avoid',
-  placeholder: "e.g. Please don't mention his illness or the years he was estranged from the family.",
-  required: false,
-  maxLength: 500,
-};
-
 const ORGANIZER_EMAIL_FIELD: FormFieldConfig = {
   name: 'organizerEmail',
   type: 'text',
@@ -92,19 +55,10 @@ const ORGANIZER_EMAIL_FIELD: FormFieldConfig = {
   maxLength: 254,
 };
 
-const CONFIRM_EMAIL_FIELD: FormFieldConfig = {
-  name: 'confirmEmail',
-  type: 'text',
-  label: 'Confirm your email',
-  placeholder: 'you@example.com',
-  required: true,
-  maxLength: 254,
-};
-
 const DEADLINE_FIELD: FormFieldConfig = {
   name: 'deadline',
   type: 'date',
-  label: 'Deadline',
+  label: 'Close the collection on (optional)',
   required: false,
 };
 
@@ -118,8 +72,7 @@ function addDays(n: number): Date {
 }
 // Local-day ISO (yyyy-mm-dd) — NOT toISOString(), which is UTC and would make the
 // server (UTC) and client (local TZ) disagree on "today", causing a hydration
-// mismatch on the deadline field. Using local getters keeps both renders equal
-// (the value is only ever read on the client after the deadline useEffect runs).
+// mismatch on the deadline field.
 function isoDay(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -127,14 +80,23 @@ function isoDay(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+// ---------------------------------------------------------------------------
+// CreateForm — the minimal "start a collection" step.
+//
+// Lightened deliberately: creating a collection asks ONLY for the three things
+// we truly need — the organizer's email (their key back in), their name, and
+// who's being honored. The organizer's own first memory is NOT collected here;
+// it's deferred to the manage dashboard ("Add your own memory"), exactly as the
+// product promises ("free, under a minute · you invite people and they show
+// up"). Every other field (relationship, qualities, tone/avoid prefs, consent)
+// belongs to writing a memory or to finalizing — none of it gates create.
+// ---------------------------------------------------------------------------
 export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionTitle, contributorFields, intake }: CreateFormProps) {
-  void contributorFields; // organizer memory now lives inline in this merged form
+  void contributorFields; // organizer memory now lives on the dashboard, not here
 
   // Occasion-specific deliverable noun (defaults to memorial wording if unknown).
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
 
-  // Per-occasion field defs, built from the intake spec (relationship taxonomy,
-  // labels, placeholders) so each occasion uses its own vocabulary.
   const HONOREE_FIELD: FormFieldConfig = {
     name: 'honoreeName',
     type: 'text',
@@ -143,89 +105,41 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     required: true,
     maxLength: 120,
   };
-  const MEMORY_FIELD: FormFieldConfig = {
-    name: 'memory',
-    type: 'textarea',
-    label: intake.memoryLabel,
-    placeholder: intake.memoryPlaceholder,
-    required: true,
-    maxLength: 4000,
-  };
-  const QUALITIES_FIELD: FormFieldConfig = {
-    name: 'qualities',
-    type: 'textarea',
-    label: intake.qualitiesLabel,
-    placeholder: intake.qualitiesPlaceholder,
-    required: true,
-    maxLength: 1000,
-  };
-  const RELATIONSHIP_DESCRIPTION_FIELD: FormFieldConfig = {
-    name: 'relationshipDescription',
+  const CONTRIBUTOR_NAME_FIELD: FormFieldConfig = {
+    name: 'contributorName',
     type: 'text',
-    label: intake.relationshipDescriptionLabel,
-    placeholder: intake.relationshipDescriptionPlaceholder,
+    label: 'Your name',
+    placeholder: 'e.g. Sarah',
     required: true,
-    maxLength: 200,
-  };
-  const ADDITIONAL_CONTEXT_FIELD: FormFieldConfig = {
-    name: 'additionalContext',
-    type: 'textarea',
-    label: intake.additionalContextLabel,
-    placeholder: intake.additionalContextPlaceholder,
-    required: false,
-    maxLength: 500,
+    maxLength: 100,
   };
 
   const [phase, setPhase] = React.useState<Phase>('form');
 
-  // About you
   const [contributorName, setContributorName] = React.useState('');
-  const [relationship, setRelationship] = React.useState('');
-  const [relationshipDescription, setRelationshipDescription] = React.useState('');
-  // About them
   const [honoreeName, setHonoreeName] = React.useState('');
-  const [memory, setMemory] = React.useState('');
-  const [qualities, setQualities] = React.useState('');
-  // Optional
-  const [thingsToAvoid, setThingsToAvoid] = React.useState('');
-  const [additionalContext, setAdditionalContext] = React.useState('');
-  // Your email
   const [organizerEmail, setOrganizerEmail] = React.useState('');
-  const [confirmEmail, setConfirmEmail] = React.useState('');
-  // When
-  // Deadline defaults to (and maxes out at) one month — the organizer can always
-  // finalize early or pick a sooner date; bounded today … +1 month.
-  //
-  // Computed client-only (in the effect below) so the server's UTC "today" never
-  // disagrees with the client's local "today" at hydration. Initial render leaves
-  // them empty; the effect fills the default + bounds once mounted.
+
+  // Deadline defaults to (and maxes out at) one month — optional; the organizer
+  // can always finalize early. Computed client-only (in the effect below) so the
+  // server's UTC "today" never disagrees with the client's local "today".
   const [deadline, setDeadline] = React.useState('');
   const [deadlineMin, setDeadlineMin] = React.useState('');
   const [deadlineMax, setDeadlineMax] = React.useState('');
   React.useEffect(() => {
     setDeadlineMin(isoDay(addDays(0)));
     setDeadlineMax(isoDay(addDays(30)));
-    // Only seed the default if the organizer hasn't already picked/cleared a date.
     setDeadline((cur) => (cur ? cur : isoDay(addDays(30))));
   }, []);
   const DEADLINE_MIN = deadlineMin;
   const DEADLINE_MAX = deadlineMax;
   const [dupChecking, setDupChecking] = React.useState(false);
 
-  // Consent.
-  const [consent, setConsent] = React.useState(false);
-  const [consentError, setConsentError] = React.useState(false);
-
   const [fieldError, setFieldError] = React.useState<Record<string, string | undefined>>({});
-  const [blockedReason, setBlockedReason] = React.useState<string | null>(null);
-  // Once the contributor opts to override the memory gate, skip the client gate
-  // AND send overrideValidation:true on the contribute POST.
-  const [overridden, setOverridden] = React.useState(false);
   const [formError, setFormError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<CreateSuccess | null>(null);
 
-  // Idempotency key for the contribute POST — held across retries so a partial
-  // failure (create OK, contribute fails) never duplicates the memory.
+  // Idempotency key for the create POST — held across retries.
   const idempotencyKeyRef = React.useRef<string>('');
   if (!idempotencyKeyRef.current) {
     idempotencyKeyRef.current =
@@ -235,82 +149,28 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   }
 
   const price = `$${priceShown}`;
-  const memoryWc = wordCount(memory);
 
   const refs = {
-    contributorName: React.useRef<HTMLDivElement | null>(null),
-    relationship: React.useRef<HTMLDivElement | null>(null),
-    relationshipDescription: React.useRef<HTMLDivElement | null>(null),
-    honoreeName: React.useRef<HTMLDivElement | null>(null),
-    memory: React.useRef<HTMLDivElement | null>(null),
-    qualities: React.useRef<HTMLDivElement | null>(null),
     organizerEmail: React.useRef<HTMLDivElement | null>(null),
-    confirmEmail: React.useRef<HTMLDivElement | null>(null),
+    contributorName: React.useRef<HTMLDivElement | null>(null),
+    honoreeName: React.useRef<HTMLDivElement | null>(null),
   };
-  const blockedPanelRef = React.useRef<HTMLDivElement | null>(null);
-  const consentRef = React.useRef<HTMLLabelElement | null>(null);
 
-  React.useEffect(() => {
-    if (blockedReason && blockedPanelRef.current) {
-      blockedPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [blockedReason]);
-  React.useEffect(() => {
-    if (consentError && consentRef.current) {
-      consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [consentError]);
-
-  // Header progress: the required fields.
-  const progress = (() => {
-    let done = 0;
-    const total = 7;
-    if (contributorName.trim()) done += 1;
-    if (relationship) done += 1;
-    if (relationshipDescription.trim()) done += 1;
-    if (honoreeName.trim()) done += 1;
-    if (memory.trim()) done += 1;
-    if (qualities.trim()) done += 1;
-    if (organizerEmail.trim() && confirmEmail.trim()) done += 1;
-    return Math.round((done / total) * 100);
-  })();
-
-  // Validate every required field except the memory gate (which is handled
-  // separately so the override path can bypass it). Returns the error map.
+  // Required fields for create — the three we actually need.
   function validateRequired(): Record<string, string | undefined> {
     const errs: Record<string, string | undefined> = {};
-    if (!contributorName.trim()) errs.contributorName = 'Please add your name.';
-    if (!relationship) errs.relationship = 'Please choose your relationship.';
-    if (!relationshipDescription.trim()) errs.relationshipDescription = 'Please describe your relationship.';
-    if (!honoreeName.trim()) errs.honoreeName = 'Please add a name.';
-    if (!memory.trim()) errs.memory = 'Please share a memory.';
-    if (!qualities.trim()) errs.qualities = 'Please add a few words about them.';
-
     const email = organizerEmail.trim();
     if (!email) {
       errs.organizerEmail = 'Please enter your email address.';
     } else if (!EMAIL_RE.test(email)) {
       errs.organizerEmail = 'That doesn’t look like a valid email — please check it.';
     }
-    const confirm = confirmEmail.trim();
-    if (!confirm) {
-      errs.confirmEmail = 'Please confirm your email address.';
-    } else if (confirm.toLowerCase() !== email.toLowerCase()) {
-      errs.confirmEmail = "Emails don't match.";
-    }
+    if (!contributorName.trim()) errs.contributorName = 'Please add your name.';
+    if (!honoreeName.trim()) errs.honoreeName = 'Please add a name.';
     return errs;
   }
 
-  const FIELD_ORDER: Array<keyof typeof refs> = [
-    'contributorName',
-    'relationship',
-    'relationshipDescription',
-    'honoreeName',
-    'memory',
-    'qualities',
-    'organizerEmail',
-    'confirmEmail',
-  ];
+  const FIELD_ORDER: Array<keyof typeof refs> = ['organizerEmail', 'contributorName', 'honoreeName'];
 
   function clearError(name: string) {
     setFieldError((p) => (p[name] ? { ...p, [name]: undefined } : p));
@@ -320,9 +180,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   // exists for this occasion — so the organizer isn't told only AFTER submitting.
   async function checkExisting() {
     const email = organizerEmail.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
-    // Don't race an in-flight submit — only the 'form' phase should auto-flip to
-    // 'existing' (FE-006). Once submitting/submitted, the server dedup governs.
+    if (!EMAIL_RE.test(email)) return;
     if (phase !== 'form') return;
     setDupChecking(true);
     try {
@@ -340,99 +198,9 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     }
   }
 
-  // POST #2 — the organizer's own first memory. Returns true on success,
-  // false on a contribute failure (the user can retry the contribution only).
-  async function postContribution(created: CreateSuccess, override = false): Promise<boolean> {
-    const shareToken = (() => {
-      try {
-        return new URL(created.shareUrl).pathname.split('/c/')[1] ?? '';
-      } catch {
-        return '';
-      }
-    })();
-    if (!shareToken) return true; // nothing we can do; proceed to invite
-
-    // The admin token proves this is genuinely the organizer's own first memory,
-    // so the server honors isOrganizer (pinned slot, cap-exempt). Derived from the
-    // create response's admin URL (?t=<adminToken>).
-    const adminToken = (() => {
-      try {
-        return new URL(created.adminUrl).searchParams.get('t') ?? '';
-      } catch {
-        return '';
-      }
-    })();
-
-    const composed = composeMemory(
-      memory +
-        '\n\nWhat made them who they were: ' +
-        qualities +
-        (relationshipDescription ? '\n\nRelationship: ' + relationshipDescription : ''),
-      { quality: '', favoriteMoment: '', avoid: '' },
-      true,
-    );
-
-    try {
-      const res = await fetch('/api/collection/contribute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shareToken,
-          contributorName: contributorName.trim(),
-          contributorEmail: organizerEmail.trim(),
-          relationship,
-          memory: composed,
-          consent: true,
-          idempotencyKey: idempotencyKeyRef.current,
-          isOrganizer: true,
-          ...(adminToken ? { adminToken } : {}),
-          // Structured fields so the organizer's memory re-opens in the rich form.
-          fields: {
-            rawMemory: memory.trim(),
-            relationshipDescription: relationshipDescription.trim(),
-            qualities: qualities.trim(),
-          },
-          // Use the explicit override arg, not `overridden` state: the state set
-          // in handleOverride hasn't re-rendered yet on the first click, so
-          // reading it here would omit the flag and the server would re-reject —
-          // forcing a needless second click.
-          ...(override || overridden ? { overrideValidation: true } : {}),
-        }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        ok?: boolean;
-        code?: string;
-        error?: string;
-      };
-      if (res.ok && data.ok) return true;
-
-      if (data.code === 'INVALID_MEMORY') {
-        setBlockedReason(data.error ?? 'Please add a little more detail.');
-        return false;
-      }
-      if (data.code === 'CONSENT_REQUIRED') {
-        setConsentError(true);
-        return false;
-      }
-      setFormError(
-        'Your collection is created and your words are safe — but we couldn’t add your memory just now. Please try again.',
-      );
-      return false;
-    } catch {
-      setFormError(
-        'Your collection is created and your words are safe — but we couldn’t reach the server to add your memory. Please try again.',
-      );
-      return false;
-    }
-  }
-
-  // POST #1 — create the collection. Returns the created collection, 'existing'
+  // POST — create the collection. Returns the created collection, 'existing'
   // on dedup, or null on failure (formError already set).
   async function postCreate(): Promise<CreateSuccess | 'existing' | null> {
-    const synthesisPrefs: Record<string, string> = {
-      ...(thingsToAvoid.trim() ? { thingsToAvoid: thingsToAvoid.trim() } : {}),
-      ...(additionalContext.trim() ? { additionalContext: additionalContext.trim() } : {}),
-    };
     try {
       const res = await fetch(`/api/${occasion}/collection/create`, {
         method: 'POST',
@@ -440,13 +208,13 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         body: JSON.stringify({
           honoreeName: honoreeName.trim(),
           organizerEmail: organizerEmail.trim(),
-          // The organizer's display name (their "Your name"), persisted so invited
-          // contributors see "{name} is gathering memories…" instead of "Someone".
-          ...(contributorName.trim() ? { organizerName: contributorName.trim() } : {}),
+          // The organizer's display name, persisted so invited contributors see
+          // "{name} is gathering memories…" instead of "Someone".
+          organizerName: contributorName.trim(),
           occasion,
           tier,
           ...(deadline ? { deadline } : {}),
-          synthesisPrefs,
+          synthesisPrefs: {},
         }),
       });
 
@@ -479,23 +247,10 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     }
   }
 
-  // The single perceived action: create the collection AND add the organizer's
-  // own first memory. `skipMemory` follows the quiet "write later" link.
-  // `forceOverride` retries past the client memory gate after the user clicks
-  // the override button in MemoriesBlockedPanel.
-  async function runSubmit(skipMemory: boolean, forceOverride = false) {
+  async function runSubmit() {
     setFormError(null);
-    setBlockedReason(null);
 
     const errs = validateRequired();
-    // When writing the memory later, NONE of the organizer's own-memory fields
-    // are required — only what's needed to create the collection (honoree name +
-    // email). Everything else is part of the deferred contribution.
-    if (skipMemory) {
-      for (const f of ['memory', 'qualities', 'relationship', 'relationshipDescription', 'contributorName'] as const) {
-        delete errs[f];
-      }
-    }
     if (Object.keys(errs).length > 0) {
       setFieldError(errs);
       const first = FIELD_ORDER.find((name) => errs[name]);
@@ -504,63 +259,27 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     }
     setFieldError({});
 
-    const submittingMemory = !skipMemory;
-    if (submittingMemory) {
-      if (!consent) {
-        setConsentError(true);
-        consentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      // Run the client memory gate UNLESS the user has already chosen to override.
-      const useOverride = forceOverride || overridden;
-      if (!useOverride) {
-        const check = validateMemoriesField(memory);
-        if (!check.valid) {
-          setBlockedReason(check.reason);
-          return;
-        }
-      }
-    }
-
     setPhase('submitting');
 
-    // If the collection already exists in state (partial-failure retry), reuse
-    // it: re-POST only the contribution under the same idempotency key.
-    let created = result;
-    if (!created) {
-      const createResult = await postCreate();
-      if (createResult === null) {
-        setPhase('form');
-        return;
-      }
-      if (createResult === 'existing') {
-        setPhase('existing');
-        return;
-      }
-      // Store result/shareToken BEFORE attempting contribute, so a contribute
-      // retry never re-POSTs create.
-      created = createResult;
-      setResult(createResult);
-      // Mid-funnel lead event — fire once, on a genuinely new create (not on a
-      // contribute-only retry, which reuses `result` and skips this block).
-      trackLead({ occasion });
+    const createResult = await postCreate();
+    if (createResult === null) {
+      setPhase('form');
+      return;
     }
-
-    if (submittingMemory) {
-      const ok = await postContribution(created, forceOverride || overridden);
-      if (!ok) {
-        setPhase('form'); // collection is in state; retry posts contribute only
-        return;
-      }
+    if (createResult === 'existing') {
+      setPhase('existing');
+      return;
     }
+    setResult(createResult);
+    // Mid-funnel lead event — fire once, on a genuinely new create.
+    trackLead({ occasion });
 
-    // Go straight to the manage dashboard (it already has the invite link, review,
-    // and finalize) — no separate invite page. We hold the admin token from create,
-    // so redirect via a RELATIVE path (stays on this origin) with ?new=1 so the
-    // dashboard leads with "invite people" + the emailed-link reassurance.
+    // Go straight to the manage dashboard (invite link, review, finalize, and the
+    // "add your own memory" card). Relative path stays on this origin; ?new=1 so
+    // the dashboard leads with "invite people" + the emailed-link reassurance.
     const adminTok = (() => {
       try {
-        return new URL(created.adminUrl).searchParams.get('t') ?? '';
+        return new URL(createResult.adminUrl).searchParams.get('t') ?? '';
       } catch {
         return '';
       }
@@ -574,14 +293,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    void runSubmit(false);
-  }
-
-  // Override button in the blocked panel — remember the choice and retry.
-  function handleOverride() {
-    setOverridden(true);
-    setBlockedReason(null);
-    void runSubmit(false, true);
+    void runSubmit();
   }
 
   // ---- existing dedup card -------------------------------------------------
@@ -611,7 +323,7 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     );
   }
 
-  // ---- post-create invite --------------------------------------------------
+  // ---- post-create invite (fallback if the redirect token couldn't be parsed) --
   if (phase === 'invite' && result) {
     return (
       <InviteScreen
@@ -625,28 +337,27 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
     );
   }
 
-  // ---- the merged full form ------------------------------------------------
+  // ---- the minimal create form ---------------------------------------------
   const submitting = phase === 'submitting';
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto w-full max-w-xl">
       <header className="mb-8 text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
           {occasionTitle} collection
         </p>
         <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
-          Set up the collection and write your first memory
+          Start your collection
         </h1>
         <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
-          Free to create — you only pay once at the end, {price}, shown now so there are no surprises.
+          Takes under a minute. Free to create and collect — you only pay once at the end, {price}, and only
+          when you’re ready. You’ll add your own memory and invite people on the next screen.
         </p>
-        <div className="mt-5 max-w-xs mx-auto">
-          <Progress value={progress} className="h-1.5" />
-        </div>
       </header>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        {/* Section — Your email (first, so the dedup check runs before the rest) */}
+        {/* Your email — first, so the dedup check runs before the rest. No confirm
+            field; instead a clear note that this is the key back in. */}
         <SectionCard heading="Your email">
           <div ref={refs.organizerEmail}>
             <FieldRow
@@ -659,78 +370,35 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
                 clearError('organizerEmail');
               }}
               onBlur={checkExisting}
-            />
-            {dupChecking && <p className="mt-1 text-xs text-muted-foreground">Checking…</p>}
-          </div>
-          <div ref={refs.confirmEmail}>
-            <FieldRow
-              field={CONFIRM_EMAIL_FIELD}
-              value={confirmEmail}
-              error={fieldError.confirmEmail}
-              inputType="email"
-              // Block browser autofill on the CONFIRM field — the user must retype,
-              // otherwise the confirm check is pointless. Chrome ignores
-              // autoComplete="off" on email-type inputs and fills it anyway; only
-              // "new-password" reliably suppresses autofill (and on type=email it
-              // shows no password key / save prompt).
-              autoComplete="new-password"
-              onChange={(v) => {
-                setConfirmEmail(v);
-                clearError('confirmEmail');
-              }}
             >
               <p className="text-xs text-muted-foreground">
-                We email your private manage link here — please double-check it.
+                We email your private link here — please make sure it’s right. It’s how you get back to your
+                collection (there’s no password).
               </p>
             </FieldRow>
+            {dupChecking && <p className="mt-1 text-xs text-muted-foreground">Checking…</p>}
           </div>
         </SectionCard>
 
-        {/* Section — About you */}
-        <SectionCard heading="About you">
+        {/* You and the honoree — the only other things we need to create. */}
+        <SectionCard heading="The basics">
           <div ref={refs.contributorName}>
             <FieldRow
               field={CONTRIBUTOR_NAME_FIELD}
               value={contributorName}
               error={fieldError.contributorName}
+              autoComplete="name"
               onChange={(v) => {
                 setContributorName(v);
                 clearError('contributorName');
               }}
-            />
+            >
+              <p className="text-xs text-muted-foreground">
+                So the people you invite see who’s gathering memories.
+              </p>
+            </FieldRow>
           </div>
 
-          <div ref={refs.relationship}>
-            <FieldRow
-              field={{
-                ...RELATIONSHIP_FIELD_BASE,
-                label: `Your relationship to ${honoreeLabel}`,
-                options: intake.relationshipOptions,
-              }}
-              value={relationship}
-              error={fieldError.relationship}
-              onChange={(v) => {
-                setRelationship(v);
-                clearError('relationship');
-              }}
-            />
-          </div>
-
-          <div ref={refs.relationshipDescription}>
-            <FieldRow
-              field={RELATIONSHIP_DESCRIPTION_FIELD}
-              value={relationshipDescription}
-              error={fieldError.relationshipDescription}
-              onChange={(v) => {
-                setRelationshipDescription(v);
-                clearError('relationshipDescription');
-              }}
-            />
-          </div>
-        </SectionCard>
-
-        {/* Section — About the honoree */}
-        <SectionCard heading={intake.aboutThemHeading}>
           <div ref={refs.honoreeName}>
             <FieldRow
               field={HONOREE_FIELD}
@@ -744,50 +412,10 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               <p className="text-xs text-muted-foreground">The name of {honoreeLabel}.</p>
             </FieldRow>
           </div>
-
-          <div ref={refs.memory}>
-            <FieldRow
-              field={MEMORY_FIELD}
-              value={memory}
-              error={fieldError.memory}
-              rows={8}
-              onChange={(v) => {
-                setMemory(v);
-                setBlockedReason(null);
-                clearError('memory');
-              }}
-            >
-              <WordCounter value={memory} bands={MEMORY_BANDS} />
-            </FieldRow>
-          </div>
-
-          <div ref={refs.qualities}>
-            <FieldRow
-              field={QUALITIES_FIELD}
-              value={qualities}
-              error={fieldError.qualities}
-              rows={4}
-              onChange={(v) => {
-                setQualities(v);
-                clearError('qualities');
-              }}
-            />
-          </div>
         </SectionCard>
 
-        {/* Section — Optional */}
-        <SectionCard heading="Optional">
-          <FieldRow field={THINGS_TO_AVOID_FIELD} value={thingsToAvoid} rows={3} onChange={setThingsToAvoid} />
-          <FieldRow
-            field={ADDITIONAL_CONTEXT_FIELD}
-            value={additionalContext}
-            rows={3}
-            onChange={setAdditionalContext}
-          />
-        </SectionCard>
-
-        {/* Section — When */}
-        <SectionCard heading="When">
+        {/* Deadline — optional, auto-defaults to a month out. */}
+        <SectionCard heading="When (optional)">
           <FieldRow
             field={DEADLINE_FIELD}
             value={deadline}
@@ -806,48 +434,10 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
             <p className="text-xs text-muted-foreground">
               Memories close on this date (up to a month out). If you’ve paid, we’ll create your
               {' '}{noun} then with whatever’s been gathered. If you haven’t, the collection is deleted —
-              we’ll email a reminder 3 days before either way.
+              we’ll email a reminder 3 days before either way. Leave it as-is if you’re not sure.
             </p>
           </FieldRow>
         </SectionCard>
-
-        {blockedReason && (
-          <div ref={blockedPanelRef}>
-            <MemoriesBlockedPanel
-              reason={blockedReason}
-              onOverride={handleOverride}
-              overrideLabel="Generate with what I’ve shared"
-            />
-          </div>
-        )}
-
-        {/* Consent — the error ring hugs only the checkbox + label, not a panel. */}
-        <div className="px-1">
-          <label
-            ref={consentRef}
-            className={`flex w-fit max-w-full items-start gap-3 rounded-lg p-2 cursor-pointer ${
-              consentError ? 'ring-2 ring-destructive ring-offset-2 ring-offset-background' : ''
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={(e) => {
-                setConsent(e.target.checked);
-                if (e.target.checked) setConsentError(false);
-              }}
-              className="mt-0.5 shrink-0 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-            />
-            <span className="text-sm text-foreground leading-relaxed">
-              {intake.consentLabel}
-            </span>
-          </label>
-          {consentError && (
-            <p className="mt-2 px-2 text-xs text-destructive" role="alert">
-              Please check the box above so we can include your memory.
-            </p>
-          )}
-        </div>
 
         {formError && (
           <div
@@ -864,48 +454,17 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
               <Spinner size={16} /> Creating your collection…
             </span>
           ) : (
-            'Create collection & add my memory'
+            'Create your collection →'
           )}
         </Button>
 
-        {/* Secondary path — promoted from a quiet text link to a clearly tappable
-            outline button so the lower-friction "create now, write later" option
-            is visible at the most expensive point of the funnel. Same action. */}
-        <div className="flex flex-col items-center gap-1.5">
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            onClick={() => void runSubmit(true)}
-            disabled={submitting}
-            className="h-auto min-h-11 w-full whitespace-normal py-2 text-center text-sm leading-snug sm:text-base"
-          >
-            Create the collection now — I’ll write my memory later
-          </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            You can add your own memory any time from your manage link.
-          </p>
-        </div>
-
         <p className="text-center text-xs text-muted-foreground pb-2">
-          {memoryWc > 0 && memoryWc < 20
-            ? 'A little more detail and you’re set.'
-            : 'Free to create and collect · Pay once when you’re ready · No account needed'}
+          Free to create and collect · Pay once when you’re ready · No account needed
         </p>
       </form>
     </div>
   );
 }
-
-// Base for the relationship select — label is filled in per honoreeLabel.
-const RELATIONSHIP_FIELD_BASE: FormFieldConfig = {
-  name: 'relationship',
-  type: 'select',
-  label: 'Your relationship',
-  placeholder: 'Select your relationship…',
-  required: true,
-  maxLength: 50,
-};
 
 // Re-sends the private manage link to the organizer's email (the secure way back
 // to an existing collection — we never show the admin token on screen).

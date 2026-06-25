@@ -77,12 +77,42 @@ export default async function OccasionLandingPage({
     (isSandbox ? config.tiers[tier].priceIdSandbox : config.tiers[tier].priceId) ?? '';
 
   return (
-    <LandingPage
-      config={landing}
-      formPath={`/${occasion}/start`}
-      basicPriceId={resolvePrice('basic')}
-      fullPriceId={resolvePrice('full')}
-      formFirst
-    />
+    <>
+      {/* Explainer video — lives on the hub homepage, but ads now deep-link
+          straight to these occasion pages (skipping the hub), so the ~1-min
+          "how it works" has to ride along or paid visitors never see it. Native
+          controls, click-to-play (it has narration — no autoplay). Placed above
+          the venture-core LandingPage hero. */}
+      <section className="border-b border-border bg-card px-4 py-12">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
+            See how it works · about a minute
+          </p>
+          <h2 className="mb-6 font-serif text-2xl text-foreground md:text-3xl">
+            Watch a collection come together
+          </h2>
+          <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+            <video
+              className="aspect-video w-full"
+              controls
+              preload="metadata"
+              playsInline
+              poster="/words-that-matter-poster.jpg"
+            >
+              <source src="/words-that-matter.mp4" type="video/mp4" />
+              Your browser doesn’t support embedded video.
+            </video>
+          </div>
+        </div>
+      </section>
+
+      <LandingPage
+        config={landing}
+        formPath={`/${occasion}/start`}
+        basicPriceId={resolvePrice('basic')}
+        fullPriceId={resolvePrice('full')}
+        formFirst
+      />
+    </>
   );
 }
