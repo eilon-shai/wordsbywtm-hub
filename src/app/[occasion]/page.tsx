@@ -76,43 +76,16 @@ export default async function OccasionLandingPage({
   const resolvePrice = (tier: 'basic' | 'full') =>
     (isSandbox ? config.tiers[tier].priceIdSandbox : config.tiers[tier].priceId) ?? '';
 
+  // The explainer video now renders natively inside LandingPage (between the
+  // hero and "How it works") via the venture-core `config.video` slot — set per
+  // occasion in the _landing configs. No app-level video band here.
   return (
-    <>
-      {/* Explainer video — lives on the hub homepage, but ads now deep-link
-          straight to these occasion pages (skipping the hub), so the ~1-min
-          "how it works" has to ride along or paid visitors never see it. Native
-          controls, click-to-play (it has narration — no autoplay).
-          Rendered as a compact, contained card (not a full-bleed band) so it
-          reads as an intentional element. NOTE: the ideal spot is between the
-          venture-core hero and "How it works" — that needs a small venture-core
-          LandingPage video slot; until then it sits as a quiet lead-in card. */}
-      <section className="px-4 pt-8 pb-2">
-        <div className="mx-auto max-w-xl">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <video
-              className="aspect-video w-full"
-              controls
-              preload="none"
-              playsInline
-              poster="/words-that-matter-poster.jpg"
-            >
-              <source src="/words-that-matter.mp4" type="video/mp4" />
-              Your browser doesn’t support embedded video.
-            </video>
-            <p className="px-4 py-3 text-center text-xs font-medium text-muted-foreground">
-              <span aria-hidden="true" className="text-primary">▶</span> Watch how it works — about a minute
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <LandingPage
-        config={landing}
-        formPath={`/${occasion}/start`}
-        basicPriceId={resolvePrice('basic')}
-        fullPriceId={resolvePrice('full')}
-        formFirst
-      />
-    </>
+    <LandingPage
+      config={landing}
+      formPath={`/${occasion}/start`}
+      basicPriceId={resolvePrice('basic')}
+      fullPriceId={resolvePrice('full')}
+      formFirst
+    />
   );
 }

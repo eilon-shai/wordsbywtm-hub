@@ -58,6 +58,13 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     trustNote: 'Free to create and collect · Pay once when you’re ready · No account needed',
   },
 
+  video: {
+    src: '/words-that-matter.mp4',
+    poster: '/words-that-matter-poster.jpg',
+    eyebrow: 'See how it works',
+    caption: 'Watch how it works — about a minute',
+  },
+
   howItWorks: {
     eyebrow: 'How it works',
     heading: 'Four steps, one toast',
