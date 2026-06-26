@@ -121,7 +121,7 @@ export function ConsentBanner() {
         <p className="text-sm leading-relaxed text-muted-foreground">
           We use analytics cookies to understand how the site is used and to measure our ads. They load only if you
           accept. See our{' '}
-          <a href="/privacy" className="underline hover:text-foreground">
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
             Privacy Policy
           </a>
           .

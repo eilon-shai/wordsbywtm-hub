@@ -254,9 +254,9 @@ export default async function HubPage({
       <footer className="border-t border-border bg-card px-4 py-12 text-center">
         <p className="font-serif text-lg text-foreground">Words That Matter</p>
         <nav className="mt-4 flex justify-center gap-6 text-sm text-muted-foreground">
-          <Link href="/terms" className="transition-colors hover:text-foreground">Terms</Link>
-          <Link href="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
-          <Link href="/refund" className="transition-colors hover:text-foreground">Refund Policy</Link>
+          <Link href="/terms" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Terms</Link>
+          <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Privacy</Link>
+          <Link href="/refund" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Refund Policy</Link>
         </nav>
         <p className="mt-4 text-xs text-muted-foreground">
           © {new Date().getFullYear()} Words That Matter LLC. All rights reserved.

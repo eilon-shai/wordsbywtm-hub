@@ -45,16 +45,17 @@ export default async function StartPage({ params, searchParams }: StartPageProps
         intake={getIntake(occasion)}
       />
 
+      {/* Open legal pages in a new tab so a visitor mid-form doesn't lose their entries. */}
       <footer className="mt-auto pt-8 text-center text-xs text-muted-foreground">
-        <a href="/terms" className="hover:underline">
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Terms
         </a>
         <span className="mx-2">·</span>
-        <a href="/privacy" className="hover:underline">
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Privacy
         </a>
         <span className="mx-2">·</span>
-        <a href="/refund" className="hover:underline">
+        <a href="/refund" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Refund
         </a>
       </footer>
