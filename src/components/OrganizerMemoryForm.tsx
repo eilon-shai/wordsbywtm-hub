@@ -73,6 +73,9 @@ interface OrganizerMemoryFormProps {
   initial?: OrganizerMemoryFields;
   /** create: where to go after saving (the manage dashboard). */
   returnHref?: string;
+  /** When set, the organizer's name is already known (captured at create) — show
+   *  it read-only instead of asking again. */
+  lockedName?: string;
   /** edit: called after a successful save. */
   onSaved?: () => void;
   onCancel?: () => void;
@@ -88,9 +91,9 @@ function compose(f: { memory: string; qualities: string; favoriteMoment: string;
 }
 
 export function OrganizerMemoryForm({
-  mode, honoreeLabel, shareToken, organizerEmail, adminToken, contributionId, initial, returnHref, onSaved, onCancel,
+  mode, honoreeLabel, shareToken, organizerEmail, adminToken, contributionId, initial, returnHref, lockedName, onSaved, onCancel,
 }: OrganizerMemoryFormProps) {
-  const [name, setName] = React.useState(initial?.contributorName ?? '');
+  const [name, setName] = React.useState(initial?.contributorName ?? lockedName ?? '');
   const [relationship, setRelationship] = React.useState(initial?.relationship ?? '');
   const [relDesc, setRelDesc] = React.useState(initial?.relationshipDescription ?? '');
   const [memory, setMemory] = React.useState(initial?.rawMemory ?? '');
@@ -163,7 +166,14 @@ export function OrganizerMemoryForm({
   return (
     <form onSubmit={(e) => { e.preventDefault(); void submit(); }} noValidate className="space-y-5">
       <SectionCard heading="About you">
-        <FieldRow field={NAME_FIELD} value={name} error={errors.contributorName} onChange={setName} />
+        {lockedName ? (
+          // Name was captured when the collection was created — show it, don't re-ask.
+          <p className="text-sm text-muted-foreground">
+            Adding your memory as <span className="font-medium text-foreground">{lockedName}</span>.
+          </p>
+        ) : (
+          <FieldRow field={NAME_FIELD} value={name} error={errors.contributorName} onChange={setName} />
+        )}
         <FieldRow field={RELATIONSHIP_FIELD} value={relationship} error={errors.relationship} onChange={setRelationship} />
         <FieldRow field={RELDESC_FIELD} value={relDesc} error={errors.relationshipDescription} onChange={setRelDesc} />
       </SectionCard>
