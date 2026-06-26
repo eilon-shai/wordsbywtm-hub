@@ -127,6 +127,8 @@ export default async function ContributorSharePage({
           adminToken={collection.adminToken}
           honoreeLabel={collection.honoreeName}
           returnHref={backHref}
+          // Name was already given at create — show it read-only, don't ask again.
+          lockedName={collection.organizerName ?? undefined}
         />
       </main>
     );
