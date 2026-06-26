@@ -7,7 +7,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Button,
   Progress,
   Separator,
@@ -86,15 +85,17 @@ function daysUntil(iso?: string | null): number | null {
   return Math.ceil((d.getTime() - Date.now()) / 86_400_000);
 }
 
-function statusBadge(status: string, noun: string): { label: string; variant: 'default' | 'secondary' | 'outline' } {
+// A STATUS indicator, not an action. Rendered as a leading dot + muted text (no
+// border, no pill background) so it can never read as a clickable button — an
+// outline Badge here looked tappable and drew dead clicks.
+function statusBadge(status: string, noun: string): { label: string; dot: string } {
   switch (status) {
     case 'generated':
-      return { label: `${cap(noun)} created`, variant: 'secondary' };
+      return { label: `${cap(noun)} created`, dot: 'bg-emerald-500' };
     case 'closed':
-      return { label: 'Closed', variant: 'outline' };
+      return { label: 'Closed', dot: 'bg-muted-foreground/40' };
     default:
-      // Status indicator, not an action — outline + a dot so it doesn't read as a button.
-      return { label: 'Collecting memories', variant: 'outline' };
+      return { label: 'Collecting memories', dot: 'bg-primary' };
   }
 }
 
@@ -500,7 +501,10 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
             <CardTitle className="font-serif text-2xl">
               {data.honoreeName}
             </CardTitle>
-            <Badge variant={badge.variant}>{badge.label}</Badge>
+            <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pt-1 text-xs font-medium text-muted-foreground">
+              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${badge.dot}`} />
+              {badge.label}
+            </span>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
