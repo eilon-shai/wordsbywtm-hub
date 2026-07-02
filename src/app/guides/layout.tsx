@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import RefCapture from '@/components/RefCapture';
 
 // ---------------------------------------------------------------------------
 // Chrome for the /guides SEO content section: the hub's sticky header and
@@ -9,6 +10,7 @@ import Link from 'next/link';
 export default function GuidesLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
+      <RefCapture />
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <Link href="/" className="font-serif text-xl text-foreground transition-opacity hover:opacity-80">

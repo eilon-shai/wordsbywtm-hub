@@ -13,6 +13,7 @@ import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import type { OccasionIntake } from '@/lib/intake';
 import { getOccasionMeta } from '@/lib/registry';
 import { trackLead } from '@/lib/analytics';
+import { readRefSlug, REF_HEADER } from '@/lib/ref';
 import { InviteScreen } from './InviteScreen';
 import {
   SectionCard,
@@ -202,9 +203,16 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
   // on dedup, or null on failure (formError already set).
   async function postCreate(): Promise<CreateSuccess | 'existing' | null> {
     try {
+      // Partner attribution (?ref) captured on a landing visit — sent as a
+      // header so the server can stamp it on the new collection row. Telemetry
+      // only; absent/expired/invalid just means no header.
+      const refSlug = readRefSlug();
       const res = await fetch(`/api/${occasion}/collection/create`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(refSlug ? { [REF_HEADER]: refSlug } : {}),
+        },
         body: JSON.stringify({
           honoreeName: honoreeName.trim(),
           organizerEmail: organizerEmail.trim(),

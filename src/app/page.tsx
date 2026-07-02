@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import OccasionPicker, { resolveFocusSlug } from '@/components/OccasionPicker';
 import { getOccasionMeta } from '@/lib/registry';
 import FocusScroll from '@/components/FocusScroll';
+import RefCapture from '@/components/RefCapture';
 
 // ---------------------------------------------------------------------------
 // S1 — Root hub / occasion picker.
@@ -44,6 +45,7 @@ export default async function HubPage({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <RefCapture />
       {focusSlug ? <FocusScroll /> : null}
       {/* Nav — no login, ever */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">

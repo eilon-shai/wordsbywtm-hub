@@ -9,6 +9,7 @@ import { weddingLandingConfig } from '@/products/_landing/wedding';
 import { anniversaryLandingConfig } from '@/products/_landing/anniversary';
 import ComingSoon from '@/components/ComingSoon';
 import { PageBeacon } from '@/components/PageBeacon';
+import RefCapture from '@/components/RefCapture';
 
 // ---------------------------------------------------------------------------
 // S2 — Per-occasion landing page.
@@ -83,6 +84,7 @@ export default async function OccasionLandingPage({
   return (
     <>
       <PageBeacon occasion={occasion} step="landing" />
+      <RefCapture />
       <LandingPage
         config={landing}
         formPath={`/${occasion}/start`}
