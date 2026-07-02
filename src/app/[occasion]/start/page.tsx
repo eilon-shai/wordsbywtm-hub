@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { getIntake } from '@/lib/intake';
 import { CreateForm } from '@/components/CreateForm';
+import { PageBeacon } from '@/components/PageBeacon';
 
 // The create funnel is not a search-landing surface; keep it out of the index.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -32,6 +33,7 @@ export default async function StartPage({ params, searchParams }: StartPageProps
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-8 px-4 py-12 sm:py-16">
+      <PageBeacon occasion={occasion} step="start" />
       {/* No page-level header here — CreateForm renders its own occasion eyebrow +
           single H1. A second H1 (and the memorial-coded "when the words matter
           most" copy) was a duplicate-heading a11y + tone issue. */}

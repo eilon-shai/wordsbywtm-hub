@@ -8,6 +8,7 @@ import { retirementLandingConfig } from '@/products/_landing/retirement';
 import { weddingLandingConfig } from '@/products/_landing/wedding';
 import { anniversaryLandingConfig } from '@/products/_landing/anniversary';
 import ComingSoon from '@/components/ComingSoon';
+import { PageBeacon } from '@/components/PageBeacon';
 
 // ---------------------------------------------------------------------------
 // S2 — Per-occasion landing page.
@@ -80,12 +81,15 @@ export default async function OccasionLandingPage({
   // hero and "How it works") via the venture-core `config.video` slot — set per
   // occasion in the _landing configs. No app-level video band here.
   return (
-    <LandingPage
-      config={landing}
-      formPath={`/${occasion}/start`}
-      basicPriceId={resolvePrice('basic')}
-      fullPriceId={resolvePrice('full')}
-      formFirst
-    />
+    <>
+      <PageBeacon occasion={occasion} step="landing" />
+      <LandingPage
+        config={landing}
+        formPath={`/${occasion}/start`}
+        basicPriceId={resolvePrice('basic')}
+        fullPriceId={resolvePrice('full')}
+        formFirst
+      />
+    </>
   );
 }
