@@ -16,7 +16,7 @@
     "db:migrate": "psql \"$DATABASE_URL\" -f db/schema.sql"
   },
   "dependencies": {
-    "@eilon-shai/venture-core": "1.28.0",
+    "@eilon-shai/venture-core": "1.29.0",
     "@paddle/paddle-js": "^1.6.4",
     "@vercel/analytics": "^2.0.1",
     "geist": "^1.7.0",

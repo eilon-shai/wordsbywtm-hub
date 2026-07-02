@@ -256,6 +256,8 @@ export const memorialLandingConfig: LandingPageConfig = {
       { href: '/refund', label: 'Refund Policy' },
     ],
     copyright: `© ${new Date().getFullYear()} Words That Matter LLC. All rights reserved.`,
+    // Content link — same-tab (vc 1.29.0 footer.extraLink slot).
+    extraLink: { href: '/guides', label: 'Guides' },
     // Grief context — never cross-promote celebratory occasions on a memorial page.
     hideMoreOccasions: true,
   },
