@@ -60,3 +60,63 @@ export async function attachReferrer(request: Request, response: Response): Prom
     console.error('[ref] attach error (non-fatal):', err instanceof Error ? err.message : err);
   }
 }
+
+// ---- per-partner report (shared by /api/partners/summary + /support/metrics) --
+
+export interface ReferrerRow {
+  referrer: string;
+  collections: number;
+  generated: number;
+  paid: number;
+  firstCreatedAt: string;
+  lastCreatedAt: string;
+}
+
+export interface ReferrerSummary {
+  totals: { referrers: number; collections: number; generated: number; paid: number };
+  referrers: ReferrerRow[];
+}
+
+type RawRefRow = {
+  referrer: string;
+  collections: string | number;
+  generated: string | number;
+  paid: string | number;
+  first_created_at: string;
+  last_created_at: string;
+};
+
+const asNum = (v: string | number | null | undefined): number => (v == null ? 0 : Number(v));
+
+/** One row per collections.referrer slug: creates / generated / paid + date range. Throws on DB error. */
+export async function getReferrerSummary(db: NonNullable<ReturnType<typeof getDbClient>>): Promise<ReferrerSummary> {
+  const rows = await db.query<RawRefRow>(
+    `select referrer,
+            count(*)                                       as collections,
+            count(*) filter (where status = 'generated')   as generated,
+            count(*) filter (where paid_at is not null)    as paid,
+            min(created_at)                                as first_created_at,
+            max(created_at)                                as last_created_at
+       from collections
+      where referrer is not null
+      group by referrer
+      order by count(*) desc, referrer`,
+  );
+  const referrers = rows.map((r) => ({
+    referrer: r.referrer,
+    collections: asNum(r.collections),
+    generated: asNum(r.generated),
+    paid: asNum(r.paid),
+    firstCreatedAt: r.first_created_at,
+    lastCreatedAt: r.last_created_at,
+  }));
+  return {
+    totals: {
+      referrers: referrers.length,
+      collections: referrers.reduce((s, r) => s + r.collections, 0),
+      generated: referrers.reduce((s, r) => s + r.generated, 0),
+      paid: referrers.reduce((s, r) => s + r.paid, 0),
+    },
+    referrers,
+  };
+}

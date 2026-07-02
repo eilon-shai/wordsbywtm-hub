@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getDbClient } from '@eilon-shai/venture-core/db';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getMetrics, type MetricsSnapshot } from '@/lib/metrics';
+import { getReferrerSummary, type ReferrerSummary } from '@/lib/referrer';
 
 // ---------------------------------------------------------------------------
 // Business metrics dashboard. Behind the same edge-middleware Basic-Auth as the
@@ -41,6 +42,7 @@ function Stars({ avg }: { avg: number | null }) {
 export default async function MetricsPage() {
   const db = getDbClient();
   let snap: MetricsSnapshot | null = null;
+  let partners: ReferrerSummary | null = null;
   let error: string | null = null;
   if (!db) {
     error = 'Database unavailable (DATABASE_URL not set).';
@@ -49,6 +51,13 @@ export default async function MetricsPage() {
       snap = await getMetrics(db);
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load metrics.';
+    }
+    // Partner report loads independently — a failure here (e.g. referrer column
+    // not yet migrated) must not blank the rest of the dashboard.
+    try {
+      partners = await getReferrerSummary(db);
+    } catch (err) {
+      console.error('[metrics] partner summary error:', err instanceof Error ? err.message : err);
     }
   }
 
@@ -149,6 +158,53 @@ export default async function MetricsPage() {
               )}
             </section>
           </>
+        ) : null}
+
+        {/* Partner referrals (?ref attribution). Rendered whenever the report
+            loads — independent of the main snapshot. */}
+        {partners ? (
+          <section className="mt-10">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Partner referrals
+            </h2>
+            {partners.referrers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No partner-attributed collections yet. Partner links carry <code>?ref=&lt;slug&gt;</code>;
+                attributed rows will appear here.
+              </p>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <th className="px-3 py-2 font-medium">Partner</th>
+                      <th className="px-3 py-2 text-right font-medium">Collections</th>
+                      <th className="px-3 py-2 text-right font-medium">Generated</th>
+                      <th className="px-3 py-2 text-right font-medium">Paid</th>
+                      <th className="px-3 py-2 text-right font-medium">First</th>
+                      <th className="px-3 py-2 text-right font-medium">Latest</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {partners.referrers.map((r) => (
+                      <tr key={r.referrer} className="border-b border-border/60 last:border-0">
+                        <td className="px-3 py-2 font-mono text-xs text-foreground">{r.referrer}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{r.collections}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{r.generated}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{r.paid}</td>
+                        <td className="px-3 py-2 text-right text-xs text-muted-foreground">
+                          {new Date(r.firstCreatedAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-3 py-2 text-right text-xs text-muted-foreground">
+                          {new Date(r.lastCreatedAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         ) : null}
       </main>
     </>

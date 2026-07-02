@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbClient } from '@eilon-shai/venture-core/db';
+import { getReferrerSummary } from '@/lib/referrer';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
-
-interface RefRow {
-  referrer: string;
-  collections: string;
-  generated: string;
-  paid: string;
-  first_created_at: string;
-  last_created_at: string;
-}
-
-const num = (v: string | number | null | undefined): number => (v == null ? 0 : Number(v));
 
 // GET /api/partners/summary — per-partner referral report (?ref attribution).
 // One row per collections.referrer slug: how many collections that partner's
@@ -36,32 +26,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const db = getDbClient();
   if (!db) return NextResponse.json({ error: 'Service unavailable', retryable: true }, { status: 503 });
   try {
-    const rows = await db.query<RefRow>(
-      `select referrer,
-              count(*)                                       as collections,
-              count(*) filter (where status = 'generated')   as generated,
-              count(*) filter (where paid_at is not null)    as paid,
-              min(created_at)                                as first_created_at,
-              max(created_at)                                as last_created_at
-         from collections
-        where referrer is not null
-        group by referrer
-        order by count(*) desc, referrer`,
-    );
-    const referrers = rows.map((r) => ({
-      referrer: r.referrer,
-      collections: num(r.collections),
-      generated: num(r.generated),
-      paid: num(r.paid),
-      firstCreatedAt: r.first_created_at,
-      lastCreatedAt: r.last_created_at,
-    }));
-    const totals = {
-      referrers: referrers.length,
-      collections: referrers.reduce((s, r) => s + r.collections, 0),
-      generated: referrers.reduce((s, r) => s + r.generated, 0),
-      paid: referrers.reduce((s, r) => s + r.paid, 0),
-    };
+    const { totals, referrers } = await getReferrerSummary(db);
     return NextResponse.json({ generatedAt: new Date().toISOString(), totals, referrers });
   } catch (err) {
     console.error('[partners/summary] error:', err instanceof Error ? err.message : err);
