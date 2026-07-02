@@ -36,6 +36,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...occasionPages,
     {
+      // Partner program page (indexable; /partners/card is noindex tooling).
+      url: `${HOST}/partners`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    },
+    {
       url: `${HOST}/guides`,
       lastModified: now,
       changeFrequency: 'monthly' as const,
