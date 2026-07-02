@@ -230,5 +230,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
       { href: '/refund', label: 'Refund Policy' },
     ],
     copyright: `© ${new Date().getFullYear()} Words That Matter LLC. All rights reserved.`,
+    // Content link — same-tab (vc 1.29.0 footer.extraLink slot).
+    extraLink: { href: '/guides', label: 'Guides' },
   },
 };

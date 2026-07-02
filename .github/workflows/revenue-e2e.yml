@@ -93,6 +93,14 @@ jobs:
 
       - run: npm ci
 
+      # Keep the disposable test branch's schema current. db/schema.sql is
+      # idempotent (create table if not exists + additive add-column alters),
+      # so this self-heals column drift — e.g. venture-core 1.29.0 started
+      # writing collections.referrer, which exists in prod but not on a stale
+      # test branch — instead of failing the whole run.
+      - name: Migrate test DB schema
+        run: npm run db:migrate
+
       - name: Get Playwright version for cache key
         id: pw-version
         run: echo "version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
