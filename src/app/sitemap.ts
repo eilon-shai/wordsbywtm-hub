@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { OCCASIONS } from '@/lib/registry';
+import { GUIDES } from '@/lib/guides';
 
 // Canonical host — non-www, matching the layout's alternates.canonical. (The
 // metadataBase is www, but every canonical points here; SEO should follow the
@@ -18,6 +19,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  // SEO content section: the guides index + each guide article (all static).
+  const guidePages = GUIDES.map((g) => ({
+    url: `${HOST}/guides/${g.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
   return [
     {
       url: HOST,
@@ -26,5 +35,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...occasionPages,
+    {
+      url: `${HOST}/guides`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    ...guidePages,
   ];
 }
