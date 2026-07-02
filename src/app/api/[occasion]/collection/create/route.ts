@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createCreateCollectionHandler } from '@eilon-shai/venture-core/api';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { checkRateLimits, hashForKey, clientIp, type RateRule } from '@/lib/rate-limit';
+import { bumpFunnel } from '@/lib/funnel';
 
 export const maxDuration = 60;
 
@@ -90,5 +91,10 @@ export async function POST(
     }
   }
 
-  return createCreateCollectionHandler(config)(forwarded);
+  const response = await createCreateCollectionHandler(config)(forwarded);
+  // Funnel counter: count successful creates server-side (aggregate daily
+  // counter only — no user data). Status check only, body untouched; bumpFunnel
+  // is fail-silent so this can never break a create.
+  if (response.ok) await bumpFunnel(occasion, 'create');
+  return response;
 }
