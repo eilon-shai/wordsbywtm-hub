@@ -173,6 +173,36 @@ export default function PartnersPage() {
           </div>
         </section>
 
+        {/* Explainer video — same ~1-min asset as the homepage/occasion landings.
+            For a partner the question is "what will my families experience?", so
+            it's framed as a preview. Narrated → click-to-play with poster, never
+            autoplay (grief-adjacent audience, quiet page). */}
+        <section className="px-4 pb-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-primary">
+              What the family sees
+            </p>
+            <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+              Preview it before you share it
+            </h2>
+            <p className="mx-auto mb-8 mt-3 max-w-xl text-sm text-muted-foreground">
+              About a minute — from the first invite to the finished keepsake.
+            </p>
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <video
+                className="aspect-video w-full"
+                controls
+                preload="metadata"
+                playsInline
+                poster="/words-that-matter-poster.jpg"
+              >
+                <source src="/words-that-matter.mp4" type="video/mp4" />
+                Your browser doesn&rsquo;t support embedded video.
+              </video>
+            </div>
+          </div>
+        </section>
+
         {/* How it works for the family */}
         <section id="how" className="scroll-mt-20 border-y border-border bg-card px-4 py-20">
           <div className="mx-auto max-w-4xl">
