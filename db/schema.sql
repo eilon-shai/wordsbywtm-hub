@@ -23,7 +23,8 @@ create table if not exists collections (
   generated_at  timestamptz,                              -- set when synthesis is saved
   generated_content text,                                 -- durable synthesized deliverable
   reminder_sent_at timestamptz,                           -- deadline-reminder email sent marker
-  deadline_extended_count int not null default 0          -- # of times the deadline was extended
+  deadline_extended_count int not null default 0,         -- # of times the deadline was extended
+  referrer      text                                      -- partner attribution slug from ?ref (never PII)
 );
 
 -- Additive migrations for tables created before these columns existed. Idempotent.
@@ -35,6 +36,7 @@ alter table collections add column if not exists generated_at timestamptz;
 alter table collections add column if not exists generated_content text;
 alter table collections add column if not exists reminder_sent_at timestamptz;
 alter table collections add column if not exists deadline_extended_count int not null default 0;
+alter table collections add column if not exists referrer text;
 
 create index if not exists collections_share_token_idx on collections (share_token);
 create index if not exists collections_admin_token_idx on collections (admin_token);

@@ -3,6 +3,7 @@ import { createCreateCollectionHandler } from '@eilon-shai/venture-core/api';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { checkRateLimits, hashForKey, clientIp, type RateRule } from '@/lib/rate-limit';
 import { bumpFunnel } from '@/lib/funnel';
+import { attachReferrer } from '@/lib/referrer';
 
 export const maxDuration = 60;
 
@@ -96,5 +97,8 @@ export async function POST(
   // counter only — no user data). Status check only, body untouched; bumpFunnel
   // is fail-silent so this can never break a create.
   if (response.ok) await bumpFunnel(occasion, 'create');
+  // Partner referral attribution (?ref → x-wtm-ref header → collections.referrer).
+  // Fail-silent telemetry; a no-op unless a valid slug header rode the request.
+  await attachReferrer(request, response);
   return response;
 }
