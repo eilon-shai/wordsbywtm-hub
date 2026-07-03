@@ -13,7 +13,7 @@ import type { FormFieldConfig } from '@eilon-shai/venture-core/types';
 import type { OccasionIntake } from '@/lib/intake';
 import { getOccasionMeta } from '@/lib/registry';
 import { trackLead } from '@/lib/analytics';
-import { readRefSlug, REF_HEADER } from '@/lib/ref';
+import { readRefSlug, clearRefSlug, REF_HEADER } from '@/lib/ref';
 import { InviteScreen } from './InviteScreen';
 import {
   SectionCard,
@@ -245,6 +245,12 @@ export function CreateForm({ occasion, honoreeLabel, priceShown, tier, occasionT
         }
         return null;
       }
+
+      // The ref token has now reached a collection server-side (stamped on a new
+      // row, or already on the deduped one). Consume it so it can't bleed onto
+      // future, unrelated collections created from this same browser — one
+      // partner-link click must not discount everything for 90 days.
+      if (refSlug) clearRefSlug();
 
       const data = (await res.json()) as Partial<CreateSuccess> & { existing?: boolean };
       if (data.existing) return 'existing';

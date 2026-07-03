@@ -77,6 +77,21 @@ export function readRefSlug(now: number = Date.now()): string | null {
   return stored.slug;
 }
 
+/**
+ * Remove any stored ref token. Called once the token has been attached to a
+ * collection at create, so a single partner-link click doesn't keep
+ * discounting every later, unrelated collection created from the same browser
+ * for the whole 90-day window. Safe for the multi-day funnel: the pay-time
+ * discount reads the collection row (`collections.referrer`), not localStorage.
+ */
+export function clearRefSlug(): void {
+  try {
+    localStorage.removeItem(REF_STORAGE_KEY);
+  } catch {
+    /* storage unavailable — nothing to clear */
+  }
+}
+
 /** Capture ?ref from a location.search string (used by RefCapture on mount). */
 export function captureRefFromSearch(search: string, now: number = Date.now()): void {
   try {
