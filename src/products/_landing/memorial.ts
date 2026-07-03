@@ -54,9 +54,9 @@ export const memorialLandingConfig: LandingPageConfig = {
   brand: { name: 'Memorial Collection' },
 
   seo: {
-    metaTitle: 'Memorial Collection — Gather memories into one tribute | Words That Matter',
+    metaTitle: 'Free to gather memories — Memorial Collection',
     metaDescription:
-      'Start a memorial collection, invite everyone who knew them to add a memory, then weave it all into one tribute read aloud at the service. Free to create and collect. Pay once when you finalize. No account needed.',
+      'Free to start and gather. Invite everyone who knew them to add a memory, then weave it into one tribute to read at the service. Pay once to finalize.',
     canonicalUrl: 'https://wordsbywtm.com/memorial',
   },
 

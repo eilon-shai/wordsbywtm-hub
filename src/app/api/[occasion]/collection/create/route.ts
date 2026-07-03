@@ -94,9 +94,16 @@ export async function POST(
 
   const response = await createCreateCollectionHandler(config)(forwarded);
   // Funnel counter: count successful creates server-side (aggregate daily
-  // counter only — no user data). Status check only, body untouched; bumpFunnel
-  // is fail-silent so this can never break a create.
-  if (response.ok) await bumpFunnel(occasion, 'create');
+  // counter only — no user data). vc returns { existing: true } (HTTP 200) on
+  // the dedup path — a re-submit of an already-open collection, NOT a new
+  // create. Count the funnel step only for a genuinely new collection,
+  // mirroring attachReferrer's existing-guard so the two post-response
+  // side-effects agree on what "a create" is. bumpFunnel is fail-silent so
+  // this can never break a create.
+  if (response.ok) {
+    const body = await response.clone().json().catch(() => null);
+    if (body && body.existing !== true) await bumpFunnel(occasion, 'create');
+  }
   // Partner referral attribution (?ref → x-wtm-ref header → collections.referrer).
   // Fail-silent telemetry; a no-op unless a valid slug header rode the request.
   await attachReferrer(request, response);

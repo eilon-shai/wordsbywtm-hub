@@ -13,7 +13,7 @@
 // ---------------------------------------------------------------------------
 
 /** Lowercase slug, 3–40 chars, alphanumeric + hyphens, no edge hyphens. */
-const REF_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
+export const REF_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 
 /** Request header the create POST carries the slug on. */
 export const REF_HEADER = 'x-wtm-ref';

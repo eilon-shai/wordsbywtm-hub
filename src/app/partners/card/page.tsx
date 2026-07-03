@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { PrintButton } from './PrintButton';
+import { REF_SLUG_RE } from '@/lib/ref';
 
 // ---------------------------------------------------------------------------
 // /partners/card — print-optimized hand-to-family card.
@@ -26,10 +27,6 @@ export const metadata: Metadata = {
     'Print-ready card for partners to hand to families: one link where everyone can add memories of a loved one, free.',
   robots: { index: false },
 };
-
-// Partner slug: lowercase alphanumeric + hyphens, 3–40 chars, no leading or
-// trailing hyphen. Anything else falls back to the code-less link.
-const CODE_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 
 function CardPanel({ link }: { link: string }) {
   return (
@@ -61,7 +58,10 @@ export default async function PartnerCardPage({
   searchParams: Promise<{ code?: string }>;
 }) {
   const { code } = await searchParams;
-  const validCode = code && CODE_RE.test(code) ? code : null;
+  // Partner slug: lowercase alphanumeric + hyphens, 3–40 chars, no leading or
+  // trailing hyphen (shared REF_SLUG_RE). Anything else falls back to the
+  // code-less link.
+  const validCode = code && REF_SLUG_RE.test(code) ? code : null;
   const link = validCode
     ? `wordsbywtm.com/memorial?ref=${validCode}`
     : 'wordsbywtm.com/memorial';

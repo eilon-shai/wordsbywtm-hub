@@ -42,9 +42,9 @@ export const retirementLandingConfig: LandingPageConfig = {
   brand: { name: 'Retirement Collection' },
 
   seo: {
-    metaTitle: 'Retirement Collection — Gather stories into one send-off speech | Words That Matter',
+    metaTitle: 'Free to gather — Retirement Collection & Speech',
     metaDescription:
-      'Start a retirement collection, invite colleagues, friends, and family to add a story, then weave it all into one send-off speech to read aloud at the party. Free to create and collect. Pay once when you finalize. No account needed.',
+      'Free to start and gather. Invite colleagues, friends, and family to add a story, then weave it into one send-off speech. Pay once to finalize. No account.',
     canonicalUrl: 'https://wordsbywtm.com/retirement',
   },
 
