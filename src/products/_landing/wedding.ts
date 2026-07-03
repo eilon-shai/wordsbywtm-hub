@@ -38,9 +38,9 @@ export const weddingLandingConfig: LandingPageConfig = {
   brand: { name: 'Wedding Collection' },
 
   seo: {
-    metaTitle: 'Wedding Collection — Gather stories from both sides into one toast | Words That Matter',
+    metaTitle: 'Free to gather — Wedding Collection & Toast',
     metaDescription:
-      'Start a wedding collection, invite the wedding party, family, and friends from both sides to add a story or well-wish, then weave it all into one toast for the couple. Free to create and collect. Pay once when you finalize. No account needed.',
+      'Free to start and gather. Invite both sides to add a story or well-wish, then weave it into one toast for the couple. Pay once to finalize. No account.',
     canonicalUrl: 'https://wordsbywtm.com/wedding',
   },
 

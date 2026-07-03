@@ -38,9 +38,9 @@ export const anniversaryLandingConfig: LandingPageConfig = {
   brand: { name: 'Anniversary Collection' },
 
   seo: {
-    metaTitle: 'Anniversary Collection — Gather memories into one toast for the couple | Words That Matter',
+    metaTitle: 'Free to gather — Anniversary Collection & Toast',
     metaDescription:
-      'Start an anniversary collection, invite family and friends to add a memory of the couple, then weave it all into one toast read aloud at the celebration. Free to create and collect. Pay once when you finalize. No account needed.',
+      'Free to start and gather. Invite family and friends to add a memory of the couple, then weave it into one anniversary toast. Pay once to finalize.',
     canonicalUrl: 'https://wordsbywtm.com/anniversary',
   },
 
@@ -186,7 +186,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
         a: 'You’re in control. Every memory is included by default, but you can leave any of them out with one tap before you finalize.',
       },
       {
-        q: 'What if only a few people contoast?',
+        q: 'What if only a few people contribute?',
         a: 'That’s fine. The toast can be woven from even a single heartfelt memory — we never hold your collection hostage to a quota. More voices make a richer toast, but a small, close circle is enough.',
       },
       {
