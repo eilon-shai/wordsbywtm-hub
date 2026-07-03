@@ -1,6 +1,7 @@
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { TERMS_VERSION } from '@/lib/terms';
 import { SYNTHESIS_MODEL } from '@/lib/models';
+import { resolvePartnerDiscount } from '@/lib/partners';
 import type { CollectionMeta, Contribution } from '@eilon-shai/venture-core/db';
 
 // ---------------------------------------------------------------------------
@@ -190,6 +191,9 @@ export const weddingConfig: ProductConfig = {
 
   collectionConfig: {
     deliverableNoun: 'toast',
+    // Partner courtesy: shared 10% Paddle discount for referred collections
+    // (known token + PARTNER_DISCOUNT_ID set); price ID unchanged.
+    resolvePartnerDiscount,
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       {

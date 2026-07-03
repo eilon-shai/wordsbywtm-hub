@@ -7,6 +7,7 @@ import { audioEnabled } from '@/lib/audio';
 import { ResultFlow } from './ResultFlow';
 import { SiteHeader } from '@/components/SiteHeader';
 import { PurchaseTracker } from '@/components/PurchaseTracker';
+import { getPartner, partnerDiscountApplies, resolvePrice } from '@/lib/partners';
 
 // ---------------------------------------------------------------------------
 // S8 — Synthesized Result (COLLECTION_SCREENS_REDESIGN.md §4)
@@ -69,6 +70,9 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
   // prefs/checkout flow. We only set this on a clean null result — a DB error is
   // swallowed below so a transient hiccup doesn't hard-block (the client re-checks).
   let collectionMissing = false;
+  // Partner-referral courtesy. Read server-side from the durable collection row
+  // (never localStorage) so the paywall applies the discount deterministically.
+  let referrer: string | null | undefined;
   if (adminToken) {
     try {
       const db = getDbClient();
@@ -80,12 +84,22 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
           organizerEmail = collection.organizerEmail;
           paidInAdvance = !!collection.paidAt;
           paidTxnId = collection.paidTxnId ?? undefined;
+          referrer = collection.referrer;
         }
       }
     } catch {
       /* lookup failed — leave defaults; the client re-checks via the API */
     }
   }
+
+  // Resolve the price shown/tracked on this collection: base $49, or the 10%
+  // courtesy when a known partner referred it AND PARTNER_DISCOUNT_ID is set.
+  // resolvePrice is the single source of truth so on-screen, per-person, and the
+  // GA4/Ads purchase value all agree with what Paddle actually charges.
+  const basePrice = config.tiers.full.displayPrice;
+  const discountApplies = partnerDiscountApplies(referrer);
+  const resolvedPrice = resolvePrice(basePrice, discountApplies);
+  const partnerName = getPartner(referrer)?.displayName;
 
   // A deleted/expired collection reached via its ?t={adminToken} tribute link:
   // its memories are gone, so there's nothing to finalize. Mirror the contributor
@@ -126,7 +140,9 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
           PurchaseTracker reads useSearchParams, so it owns its own Suspense
           boundary rather than relying on the dynamic route to cover it. */}
       <Suspense fallback={null}>
-        <PurchaseTracker occasion={occasion} value={config.tiers.full.displayPrice} />
+        {/* Track the DISCOUNTED amount on referred+discounted collections so
+            GA4/Ads purchase value isn't over-reported to Smart Bidding. */}
+        <PurchaseTracker occasion={occasion} value={resolvedPrice.value} />
       </Suspense>
       <ResultFlow
         occasion={occasion}
@@ -142,7 +158,10 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         audioEnabled={audioEnabled()}
         deliverableNoun={meta.deliverableNoun}
         readAloudContext={meta.readAloudContext}
-        priceValue={config.tiers.full.displayPrice}
+        priceValue={resolvedPrice.value}
+        basePrice={basePrice}
+        discountApplies={discountApplies}
+        partnerName={partnerName}
       />
     </>
   );

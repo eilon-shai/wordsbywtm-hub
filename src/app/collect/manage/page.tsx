@@ -6,6 +6,7 @@ import {
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ManageDashboard } from '@/components/ManageDashboard';
 import { SiteHeader } from '@/components/SiteHeader';
+import { getPartner, partnerDiscountApplies } from '@/lib/partners';
 
 // S6 + S7 — Organizer manage / review dashboard + finalize.
 // Server component: reads the admin token from ?t=, resolves the collection to
@@ -54,6 +55,13 @@ export default async function ManagePage({ searchParams }: PageProps) {
   const resultPath = config?.brand.resultPath ?? '/memorial/result';
   const accent = meta?.accent;
 
+  // Partner-referral courtesy (durable, server-side from the collection row).
+  // Passed to the dashboard so its price copy + advance-pay CTA reflect the
+  // discounted price that Paddle will actually charge — never $49-then-$44.
+  const referrer = collection?.referrer;
+  const discountApplies = partnerDiscountApplies(referrer);
+  const partnerName = getPartner(referrer)?.displayName;
+
   return (
     <main
       style={
@@ -71,7 +79,15 @@ export default async function ManagePage({ searchParams }: PageProps) {
       }
     >
       <SiteHeader />
-      <ManageDashboard adminToken={adminToken} resultPath={resultPath} occasion={occasion} organizerEmail={collection?.organizerEmail} justCreated={justCreated} />
+      <ManageDashboard
+        adminToken={adminToken}
+        resultPath={resultPath}
+        occasion={occasion}
+        organizerEmail={collection?.organizerEmail}
+        justCreated={justCreated}
+        discountApplies={discountApplies}
+        partnerName={partnerName}
+      />
     </main>
   );
 }

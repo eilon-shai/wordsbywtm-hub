@@ -18,6 +18,7 @@ import { InviteBlock } from './InviteBlock';
 import { buildShareLink, buildInviteText } from '@/lib/invite';
 import { getOccasionMeta } from '@/lib/registry';
 import { getIntake } from '@/lib/intake';
+import { resolvePrice } from '@/lib/partners';
 
 // ---------------------------------------------------------------------------
 // S6 + S7 — Organizer review dashboard + finalize.
@@ -65,6 +66,11 @@ interface ManageDashboardProps {
   organizerEmail?: string;
   /** True right after creation (?new=1) — show a "ready, invite people" banner. */
   justCreated?: boolean;
+  /** True when a known-partner courtesy discount applies (server-resolved from
+   *  the collection's referrer). Drives discounted price copy + advance-pay CTA. */
+  discountApplies?: boolean;
+  /** Referring partner's display name, when this collection was partner-referred. */
+  partnerName?: string;
 }
 
 const isIncluded = (c: Contribution) => c.status !== 'removed';
@@ -156,7 +162,7 @@ function InfoTooltip({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false }: ManageDashboardProps) {
+export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false, discountApplies = false, partnerName }: ManageDashboardProps) {
   // Occasion-specific copy (defaults to memorial wording if the slug is unknown).
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
   const readAloud = getOccasionMeta(occasion)?.readAloudContext ?? 'at the service';
@@ -422,7 +428,13 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const badge = statusBadge(data.status, noun);
   const deadline = formatDeadline(data.deadline);
   const deadlineDaysLeft = daysUntil(data.deadline);
-  const price = data.priceShown ? `$${data.priceShown}` : null;
+  // Resolve the price actually charged: base priceShown ($49), or the 10%
+  // courtesy when a known partner referred this collection. Single source of
+  // truth (resolvePrice) so the dashboard, per-person split, and advance-pay CTA
+  // all match what Paddle charges — never show $49 then charge $44.
+  const resolved = data.priceShown ? resolvePrice(data.priceShown, discountApplies) : null;
+  const price = resolved ? resolved.display : null;
+  const priceNum = resolved ? resolved.value : null;
   // Completeness scale = everyone who can add a memory: the invite cap (3 free /
   // 10 paid) plus the organizer's own memory. The bar grows with each memory
   // instead of snapping to full at the minimum-of-1 synthesis floor.
@@ -611,7 +623,7 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
               paid={!!data.paid}
               price={price}
               occasion={occasion}
-              priceValue={data.priceShown ?? undefined}
+              priceValue={priceNum ?? undefined}
               deliverableNoun={noun}
             />
           </CardContent>
@@ -674,8 +686,8 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         // collection reads "from 1 person … woven from 0 memories".
         const peopleCount = includedCount;
         const perPerson =
-          price && data.priceShown && peopleCount >= 2
-            ? Math.round(data.priceShown / peopleCount)
+          price && priceNum && peopleCount >= 2
+            ? Math.round(priceNum / peopleCount)
             : null;
         return (
         <>
@@ -711,6 +723,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
                   <span className="font-medium">{price} for the whole group</span>, one time
                   {perPerson != null ? <span className="text-muted-foreground"> — about ${perPerson} per person</span> : null}
                 </p>
+                {/* Partner courtesy — pre-applied, positive framing (no coupon field). */}
+                {discountApplies && data.priceShown ? (
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {noun === 'tribute'
+                      ? <>The courtesy {partnerName ?? 'your funeral home'} arranged is already included — {price} instead of ${data.priceShown}.</>
+                      : <>{partnerName ?? 'A partner'} arranged a courtesy for you — {price} instead of ${data.priceShown}, applied automatically.</>}
+                  </p>
+                ) : null}
               </div>
             ) : null}
 
