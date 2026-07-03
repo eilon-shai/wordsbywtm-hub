@@ -47,6 +47,9 @@ export interface Partner {
 // the shape. See docs/PARTNER_PROGRAM_GUIDE.md for the onboarding steps.
 // ---------------------------------------------------------------------------
 export const PARTNERS: Record<string, Partner> = {
+  // Mock partner for end-to-end testing the referral discount. Rename/remove
+  // when a real partner signs. Example shape kept below.
+  'p-3ae689': { displayName: 'Riverside Memorial Home (test)' },
   // 'p-8f3a2': { displayName: 'Smith Funeral Home' },
 };
 
