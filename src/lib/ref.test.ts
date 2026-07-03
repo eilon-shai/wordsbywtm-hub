@@ -3,6 +3,7 @@ import {
   isValidRefSlug,
   storeRefSlug,
   readRefSlug,
+  clearRefSlug,
   captureRefFromSearch,
   REF_STORAGE_KEY,
   REF_TTL_MS,
@@ -110,6 +111,26 @@ describe('storeRefSlug / readRefSlug', () => {
     delete (globalThis as Record<string, unknown>).localStorage;
     expect(() => storeRefSlug('smith-funeral')).not.toThrow();
     expect(readRefSlug()).toBeNull();
+  });
+});
+
+describe('clearRefSlug', () => {
+  it('removes a stored token so it is not re-read on the next create', () => {
+    storeRefSlug('smith-funeral', 1000);
+    expect(readRefSlug(2000)).toBe('smith-funeral');
+    clearRefSlug();
+    expect(readRefSlug(2000)).toBeNull();
+    expect(storage._map.size).toBe(0);
+  });
+
+  it('is a no-op when nothing is stored', () => {
+    expect(() => clearRefSlug()).not.toThrow();
+    expect(readRefSlug()).toBeNull();
+  });
+
+  it('is a silent no-op when localStorage is unavailable', () => {
+    delete (globalThis as Record<string, unknown>).localStorage;
+    expect(() => clearRefSlug()).not.toThrow();
   });
 });
 
