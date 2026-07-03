@@ -10,7 +10,7 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['./test/setup.ts'],
-    include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'test/**/*.test.ts'],
     // venture-core ships ESM that imports the bare specifier "next/server".
     // Inline it so Vite (not Node's resolver) handles that import — Vite knows
     // next/server's export map. Without this, test-utils fails to load.
@@ -19,6 +19,12 @@ export default defineConfig({
         inline: ['@eilon-shai/venture-core'],
       },
     },
+  },
+  // Component render smokes (.test.tsx) use the automatic JSX runtime so JSX
+  // compiles without a classic `import React` in every file (matches Next's
+  // jsx:preserve + react-jsx handling). Harmless for the .ts unit tests.
+  esbuild: {
+    jsx: 'automatic',
   },
   resolve: {
     alias: {

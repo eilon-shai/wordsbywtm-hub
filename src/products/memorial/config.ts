@@ -1,6 +1,7 @@
 import type { ProductConfig } from '@eilon-shai/venture-core/types';
 import { TERMS_VERSION } from '@/lib/terms';
 import { SYNTHESIS_MODEL } from '@/lib/models';
+import { resolvePartnerDiscount } from '@/lib/partners';
 import type { CollectionMeta, Contribution } from '@eilon-shai/venture-core/db';
 
 // ---------------------------------------------------------------------------
@@ -195,6 +196,10 @@ export const memorialConfig: ProductConfig = {
 
   collectionConfig: {
     deliverableNoun: 'tribute',
+    // Partner courtesy: thread the shared 10% Paddle discount onto checkout for
+    // referred collections (known token + PARTNER_DISCOUNT_ID set). Price ID is
+    // unchanged; venture-core omits discountId when this returns undefined.
+    resolvePartnerDiscount,
     contributorFormFields: [
       { name: 'contributorName', label: 'Your name', type: 'text', required: true, maxLength: 100 },
       { name: 'relationship', label: 'How did you know them?', type: 'text', required: false, maxLength: 100, placeholder: 'e.g. daughter, college roommate, neighbor' },

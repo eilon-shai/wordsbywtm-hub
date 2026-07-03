@@ -10,26 +10,28 @@ Set these in **Vercel → Project → Settings → Environment Variables**, then
 (env changes only take effect on a new deployment).
 
 **Legend:** ✅ set on Production · 🟡 set on Preview only · ❌ missing everywhere
-(status as audited 2026-06-18 via `vercel env ls`; values not shown).
+(status as audited 2026-06-18 via `vercel env ls`; values not shown. Live-payment
+vars + the per-occasion live price/product ids are **founder-confirmed set on
+Production 2026-07-03** — reported by the founder, **not** re-audited via a fresh
+`vercel env ls`).
 
 ---
 
-## ⛔ Critical: the live Paddle payment path is NOT wired yet
+## ✅ Live Paddle payment path — CONFIGURED (founder-confirmed 2026-07-03)
 
-Production currently has only product ids + **sandbox** prices/token. There is **no
-live** `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`,
-`PADDLE_ENVIRONMENT=production`, or **any live price id** for any occasion. Until the
-items marked ❌ below are added, production cannot take real payments (it would run
-against Paddle sandbox / fail checkout). The founder has acknowledged this as a
-deferred launch step. **This whole section must be green before real charges.**
+The founder confirmed on **2026-07-03** that the full live Paddle payment path is
+now set on Production. All the vars below are marked ✅ Prod on that basis. Note
+this is **founder-confirmed, not re-audited** via `vercel env ls` — if you need
+certainty before the first real charge, run `vercel env ls production` and the
+"live overlay" smoke at the bottom of this file to verify directly.
 
 | Var | Purpose | Prod status |
 |---|---|---|
-| `PADDLE_ENVIRONMENT` = `production` | selects the live Paddle path server-side | ❌ (only Preview) |
-| `NEXT_PUBLIC_PADDLE_ENVIRONMENT` = `production` | client picks live; also selects live vs `_SANDBOX` price id | ✅ set — **confirm value is `production`, not `sandbox`** |
-| `PADDLE_API_KEY` | verify + create live transactions | ❌ (only `_SANDBOX`) |
-| `PADDLE_WEBHOOK_SECRET` | live webhook signature verification | ❌ (only `_SANDBOX`) |
-| `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | Paddle.js checkout overlay (live) | ❌ (only `_SANDBOX`) |
+| `PADDLE_ENVIRONMENT` = `production` | selects the live Paddle path server-side | ✅ Prod (founder-confirmed 2026-07-03) |
+| `NEXT_PUBLIC_PADDLE_ENVIRONMENT` = `production` | client picks live; also selects live vs `_SANDBOX` price id | ✅ Prod — value must be `production`, not `sandbox` |
+| `PADDLE_API_KEY` | verify + create live transactions | ✅ Prod (founder-confirmed 2026-07-03) |
+| `PADDLE_WEBHOOK_SECRET` | live webhook signature verification | ✅ Prod (founder-confirmed 2026-07-03) |
+| `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | Paddle.js checkout overlay (live) | ✅ Prod (founder-confirmed 2026-07-03) |
 
 ---
 
@@ -42,16 +44,19 @@ product id + sandbox price to hardcoded sandbox ids (so the registry guard/tests
 pass), but **production must override the live price** via the `NEXT_PUBLIC_..._<OCC>`
 var — it defaults to `''`, which breaks live checkout.
 
+Status below reflects the founder's 2026-07-03 confirmation that live payment is set
+on Production for all four occasions (not re-audited via CLI).
+
 | Occasion | `PADDLE_PRODUCT_ID_<OCC>` | `NEXT_PUBLIC_PADDLE_PRICE_ID_<OCC>` (live) | `..._<OCC>_SANDBOX` | `RESEND_FROM_EMAIL_<OCC>` |
 |---|---|---|---|---|
-| **MEMORIAL** | ✅ Prod | ❌ **missing** | ✅ Prod | (uses `RESEND_FROM_EMAIL`) |
-| **RETIREMENT** | 🟡 Preview only — **add to Prod** | ❌ **missing** | 🟡 Preview | ✅ Prod |
-| **WEDDING** | ✅ Prod | ❌ **missing** | 🟡 Preview | ✅ Prod |
-| **ANNIVERSARY** | ✅ Prod | ❌ **missing** | 🟡 Preview | ✅ Prod |
+| **MEMORIAL** | ✅ Prod | ✅ Prod (founder-confirmed 2026-07-03) | ✅ Prod | (uses `RESEND_FROM_EMAIL`) |
+| **RETIREMENT** | ✅ Prod (founder-confirmed 2026-07-03) | ✅ Prod (founder-confirmed 2026-07-03) | 🟡 Preview | ✅ Prod |
+| **WEDDING** | ✅ Prod | ✅ Prod (founder-confirmed 2026-07-03) | 🟡 Preview | ✅ Prod |
+| **ANNIVERSARY** | ✅ Prod | ✅ Prod (founder-confirmed 2026-07-03) | 🟡 Preview | ✅ Prod |
 
-**To finish each occasion for live:** create the live Paddle price → set
-`NEXT_PUBLIC_PADDLE_PRICE_ID_<OCC>` on Production; ensure `PADDLE_PRODUCT_ID_<OCC>`
-is on Production (retirement is the one still Preview-only).
+All four occasions are live-payment ready per the founder's 2026-07-03 confirmation.
+To re-verify independently: `vercel env ls production` + confirm a live overlay opens
+(smoke below).
 
 ---
 
@@ -69,7 +74,7 @@ is on Production (retirement is the one still Preview-only).
 | `CRON_SECRET` | deadline + purge cron auth | **fail-closed: crons 503 in prod if unset.** One cron sweeps all live occasions |
 | `SUPPORT_PASSWORD` | `/support` console Basic-Auth | **fail-closed: `/support` + `/api/support/*` 503 in prod if unset.** Console covers all live occasions |
 
-Plus the shared **live Paddle** vars in the ⛔ section above.
+Plus the shared **live Paddle** vars in the ✅ live Paddle section above.
 
 ## 🟡 Recommended
 
@@ -99,6 +104,22 @@ Plus the shared **live Paddle** vars in the ⛔ section above.
 | `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | conversion label for the purchase event |
 
 Not needed to run; needed for ad attribution on the money path.
+
+## 🤝 Optional — partner referral courtesy discount — ✅ set on Production
+
+The 10% partner-referral courtesy ($49 → $44). venture-core's collection checkout
+applies the discount via the hub's `resolvePartnerDiscount` (`src/lib/partners.ts`),
+but **only** for referral tokens present in the `PARTNERS` allowlist. Off unless the
+env var is set.
+
+| Var | Why | Prod status |
+|---|---|---|
+| `PARTNER_DISCOUNT_ID` | the Paddle discount id (`dsc_...`) for the 10% courtesy | ✅ Prod (founder created the Paddle discount + set it, 2026-07-03) |
+
+- **Server-side only** — do **NOT** prefix with `NEXT_PUBLIC_` (it must never reach the client bundle).
+- **Optional / safe-off:** when **unset**, `resolvePartnerDiscount` returns `undefined` → no discount → the Paddle transaction is byte-identical (same price id, no `discountId`). Production is correct with or without it, so this was always safe to ship ahead of the Paddle discount existing.
+- **Two prerequisites for a discount to actually apply:** (1) this env set (**done**), **and** (2) the partner's opaque token added to the `PARTNERS` map in `src/lib/partners.ts`. With `PARTNER_DISCOUNT_ID` set but no partner tokens onboarded yet, nothing is discounted — exactly the current state.
+- Paddle discount config: percentage 10%, `restrict_to` the finalize price ids, plus `usage_limit` + `expires_at` for leak control (see `docs/PARTNER_PROGRAM_GUIDE.md` §6).
 
 ## 🔊 Optional — audio narration (ElevenLabs) — ✅ key set on Production
 
@@ -157,7 +178,7 @@ you use `/support` there.
 - Create a collection on each occasion → the manage-link email arrives from that
   occasion's from-address (confirms Resend + DB + per-occasion config).
 - Confirm a real checkout opens the **live** Paddle overlay (not sandbox) — proves
-  the ⛔ live-payment vars are correctly set.
+  the live-payment vars are correctly set.
 
 ---
 
@@ -166,7 +187,7 @@ you use `/support` there.
 For each of memorial / retirement / wedding / anniversary:
 1. Live Paddle **product** exists and `PADDLE_PRODUCT_ID_<OCC>` is on **Production**.
 2. Live Paddle **price** exists and `NEXT_PUBLIC_PADDLE_PRICE_ID_<OCC>` is on **Production**.
-3. Shared live Paddle vars set (⛔ section): `PADDLE_ENVIRONMENT=production`,
+3. Shared live Paddle vars set (✅ live Paddle section): `PADDLE_ENVIRONMENT=production`,
    `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`,
    `NEXT_PUBLIC_PADDLE_ENVIRONMENT=production`.
 4. `RESEND_FROM_EMAIL_<OCC>` set (optional; defaults to `<occasion>@wordsbywtm.com`).

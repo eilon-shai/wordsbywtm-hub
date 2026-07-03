@@ -129,8 +129,15 @@ interface ResultFlowProps {
   deliverableNoun?: string;
   /** Where it's read aloud for this occasion ("at the service" | "at the reception" | …). */
   readAloudContext?: string;
-  /** Numeric finalize price — used for the begin_checkout analytics value. */
+  /** Numeric finalize price (already discounted if a partner courtesy applies) —
+   *  used for the shown price, per-person split, and begin_checkout value. */
   priceValue?: number;
+  /** Undiscounted list price ($49) — for the "instead of $X" courtesy framing. */
+  basePrice?: number;
+  /** True when a known-partner courtesy discount is applied to this collection. */
+  discountApplies?: boolean;
+  /** Referring partner's display name, when this collection was partner-referred. */
+  partnerName?: string;
 }
 
 type Phase = 'checking' | 'prefs' | 'generating' | 'done' | 'error' | 'deleted';
@@ -140,7 +147,8 @@ function ResultFlowInner(props: ResultFlowProps) {
   const noun = props.deliverableNoun ?? 'tribute';
   const readAloud = props.readAloudContext ?? 'at the service';
   // Occasion's real finalize price (falls back to the historical $49 if unset).
-  const priceLabel = typeof props.priceValue === 'number' ? `$${props.priceValue}` : '$49';
+  // Rounded for display — priceValue may be an exact discounted amount (44.1).
+  const priceLabel = typeof props.priceValue === 'number' ? `$${Math.round(props.priceValue)}` : '$49';
   // Occasion-aware AVOID field — the placeholder names the occasion's deliverable.
   const avoidField: FormFieldConfig = {
     ...AVOID_FIELD,
@@ -760,6 +768,26 @@ function ResultFlowInner(props: ResultFlowProps) {
               ? `Choose how you’d like the memories woven together, then we’ll create your ${noun}.`
               : `Choose how you’d like the memories woven together. You’ll complete your one-time payment next, then we’ll create your ${noun}.`}
           </p>
+          {/* Partner courtesy — pre-applied, positive framing (no coupon field).
+              Shown only on the unpaid path (where the charge happens) when a known
+              partner referred this collection and the discount is live. Occasion-
+              branched per PARTNER_DISCOUNT_DESIGN.md §UX. */}
+          {!paid && props.discountApplies && typeof props.priceValue === 'number' && typeof props.basePrice === 'number' ? (
+            <div className="mx-auto mt-4 max-w-md rounded-xl border border-primary/25 bg-primary/5 px-4 py-3">
+              <p className="text-sm leading-relaxed text-foreground/90">
+                {isMemorial ? (
+                  <>
+                    The courtesy {props.partnerName ? <span className="font-semibold">{props.partnerName}</span> : 'your funeral home'} arranged is
+                    already included — your one-time keepsake is <span className="font-semibold">${Math.round(props.priceValue)}</span> instead of ${props.basePrice}. Nothing due until you finalize.
+                  </>
+                ) : (
+                  <>
+                    {props.partnerName ? <span className="font-semibold">{props.partnerName}</span> : 'A partner'} arranged a courtesy for you — <span className="font-semibold">${Math.round(props.priceValue)}</span> (normally ${props.basePrice}), applied automatically. Nothing due until you finalize.
+                  </>
+                )}
+              </p>
+            </div>
+          ) : null}
         </header>
         <form
           onSubmit={(e) => { e.preventDefault(); void onPrefsSubmit(); }}

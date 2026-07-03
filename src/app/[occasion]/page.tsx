@@ -10,6 +10,7 @@ import { anniversaryLandingConfig } from '@/products/_landing/anniversary';
 import ComingSoon from '@/components/ComingSoon';
 import { PageBeacon } from '@/components/PageBeacon';
 import RefCapture from '@/components/RefCapture';
+import { PartnerEndorsement } from '@/components/PartnerEndorsement';
 
 // ---------------------------------------------------------------------------
 // S2 — Per-occasion landing page.
@@ -54,10 +55,13 @@ export async function generateMetadata({
 
 export default async function OccasionLandingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ occasion: string }>;
+  searchParams: Promise<{ ref?: string }>;
 }) {
   const { occasion } = await params;
+  const { ref } = await searchParams;
   const meta = getOccasionMeta(occasion);
   const config = getConfig(occasion);
 
@@ -85,6 +89,11 @@ export default async function OccasionLandingPage({
     <>
       <PageBeacon occasion={occasion} step="landing" />
       <RefCapture />
+      {/* Partner endorsement — rendered near the hero, above the CTA, ONLY when
+          ?ref resolves to a known partner. No-op for organic/unknown traffic. */}
+      <div className="px-4 pt-6">
+        <PartnerEndorsement occasion={occasion} referrer={ref} />
+      </div>
       <LandingPage
         config={landing}
         formPath={`/${occasion}/start`}

@@ -12,7 +12,11 @@
 // shape is dropped on the floor at every boundary (capture, read, server).
 // ---------------------------------------------------------------------------
 
-/** Lowercase slug, 3–40 chars, alphanumeric + hyphens, no edge hyphens. */
+/**
+ * Lowercase slug, 3–40 chars, alphanumeric + hyphens, no edge hyphens.
+ * The partner allowlist (src/lib/partners.ts) reuses this to validate opaque
+ * tokens (`p_8f3a2`) — one source of truth for what a legal `?ref` looks like.
+ */
 export const REF_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 
 /** Request header the create POST carries the slug on. */
