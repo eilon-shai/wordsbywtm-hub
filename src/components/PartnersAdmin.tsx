@@ -60,6 +60,8 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
   const [addError, setAddError] = React.useState<string | null>(null);
   const [busyToken, setBusyToken] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState<string | null>(null); // `${token}:${which}`
+  const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null); // token pending confirm
+  const [deletingToken, setDeletingToken] = React.useState<string | null>(null);
 
   const titleFor = React.useCallback(
     (slug: string) => occasions.find((o) => o.slug === slug)?.title ?? slug,
@@ -146,6 +148,25 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
       /* leave the row as-is; the founder can retry */
     } finally {
       setBusyToken(null);
+    }
+  }, []);
+
+  const remove = React.useCallback(async (token: string) => {
+    setDeletingToken(token);
+    try {
+      const res = await fetch('/api/support/partners', {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      if (res.ok) {
+        setPartners((prev) => (prev ?? []).filter((p) => p.token !== token));
+        setConfirmDelete(null);
+      }
+    } catch {
+      /* leave the row; the founder can retry */
+    } finally {
+      setDeletingToken(null);
     }
   }, []);
 
@@ -259,18 +280,55 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
                         </span>
                       </p>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => toggleActive(p.token, !p.active)}
-                      disabled={busyToken === p.token}
-                    >
-                      {busyToken === p.token
-                        ? 'Saving…'
-                        : p.active
-                          ? 'Deactivate'
-                          : 'Reactivate'}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => toggleActive(p.token, !p.active)}
+                        disabled={busyToken === p.token || deletingToken === p.token}
+                      >
+                        {busyToken === p.token
+                          ? 'Saving…'
+                          : p.active
+                            ? 'Deactivate'
+                            : 'Reactivate'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setConfirmDelete(p.token)}
+                        disabled={deletingToken === p.token}
+                        className="text-destructive"
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
+
+                  {confirmDelete === p.token ? (
+                    <div
+                      className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3"
+                      data-testid="partner-delete-confirm"
+                    >
+                      <p className="flex-1 text-sm text-foreground">
+                        Permanently delete <span className="font-medium">{p.displayName}</span>? Their
+                        referral link stops working. Past attributions are kept; to just pause them,
+                        use Deactivate instead.
+                      </p>
+                      <Button
+                        variant="destructive"
+                        onClick={() => remove(p.token)}
+                        disabled={deletingToken === p.token}
+                      >
+                        {deletingToken === p.token ? 'Deleting…' : 'Delete permanently'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setConfirmDelete(null)}
+                        disabled={deletingToken === p.token}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : null}
 
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <LinkCopy

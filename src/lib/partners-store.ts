@@ -221,3 +221,23 @@ export async function setPartnerActive(
   );
   return rows[0] ? rowToPartner(rows[0]) : null;
 }
+
+/**
+ * Permanently remove a partner from the allowlist. Unlike deactivation this drops
+ * the row entirely (use it to clean up test/mistaken entries). Collections already
+ * attributed to this token keep their `collections.referrer` stamp — that column
+ * is a plain slug with no FK, so per-partner metrics for past referrals are
+ * unaffected; only the allowlist entry (name + future endorsements/discounts) goes
+ * away. Returns true if a row was deleted, false if the token wasn't found.
+ */
+export async function deletePartner(token: string, db?: SqlClient | null): Promise<boolean> {
+  if (!isPartnerToken(token)) throw new Error('Invalid partner token.');
+  const client = db ?? getDbClient();
+  if (!client) throw new Error('Database unavailable (DATABASE_URL not set).');
+  await ensurePartnersTable(client);
+  const rows = await client.query<{ token: string }>(
+    `delete from partners where token = $1 returning token`,
+    [token],
+  );
+  return rows.length > 0;
+}

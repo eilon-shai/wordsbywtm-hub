@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { addPartner, listPartners, setPartnerActive } from '@/lib/partners-store';
+import { addPartner, deletePartner, listPartners, setPartnerActive } from '@/lib/partners-store';
 import { isPartnerToken } from '@/lib/partners';
 import { OCCASIONS } from '@/lib/registry';
 
@@ -9,9 +9,10 @@ const LIVE_OCCASION_SLUGS = new Set(OCCASIONS.filter((o) => o.live).map((o) => o
 
 // ---------------------------------------------------------------------------
 // Support console — partner registry admin.
-//   GET   → list every partner (active first), for /support/partners.
-//   POST  { displayName }        → mint an opaque token + add the partner.
-//   PATCH { token, active }      → activate / deactivate a partner.
+//   GET    → list every partner (active first), for /support/partners.
+//   POST   { displayName, occasions? } → mint an opaque token + add the partner.
+//   PATCH  { token, active }           → activate / deactivate a partner.
+//   DELETE { token }                   → permanently remove a partner.
 //
 // The `partners` table is the source of truth for the referral courtesy discount
 // (an active partner's ?ref token earns the family a 10% courtesy at pay). Adding
@@ -86,6 +87,30 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to update partner.';
     console.error('[support/partners] update error:', message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
+  let body: { token?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+  }
+  const token = typeof body.token === 'string' ? body.token : '';
+  if (!isPartnerToken(token)) {
+    return NextResponse.json({ error: 'Invalid partner token.' }, { status: 400 });
+  }
+  try {
+    const deleted = await deletePartner(token);
+    if (!deleted) {
+      return NextResponse.json({ error: 'No partner with that token.' }, { status: 404 });
+    }
+    return NextResponse.json({ deleted: true, token });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to delete partner.';
+    console.error('[support/partners] delete error:', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

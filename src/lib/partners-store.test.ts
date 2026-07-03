@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   addPartner,
+  deletePartner,
   getPartner,
   getPartnerForOccasion,
   isActivePartner,
@@ -69,6 +70,14 @@ function makeFakeDb(initial: Row[] = []) {
         if (!row) return [] as T[];
         row.active = active;
         return [row] as unknown as T[];
+      }
+
+      if (sql.startsWith('delete from partners')) {
+        const [token] = params as [string];
+        const idx = table.findIndex((r) => r.token === token);
+        if (idx === -1) return [] as T[];
+        const [removed] = table.splice(idx, 1);
+        return [{ token: removed.token }] as unknown as T[];
       }
 
       throw new Error(`unexpected query: ${sql}`);
@@ -191,6 +200,26 @@ describe('setPartnerActive', () => {
   it('throws for a malformed token', async () => {
     const db = makeFakeDb();
     await expect(setPartnerActive('BAD', true, db)).rejects.toThrow(/invalid/i);
+  });
+});
+
+describe('deletePartner', () => {
+  it('permanently removes a partner and returns true', async () => {
+    const db = makeFakeDb();
+    const added = await addPartner('Temp Home', [], db);
+    expect(await deletePartner(added.token, db)).toBe(true);
+    expect(await getPartner(added.token, db)).toBeNull();
+    expect(await listPartners(db)).toHaveLength(0);
+  });
+
+  it('returns false for an unknown token', async () => {
+    const db = makeFakeDb();
+    expect(await deletePartner('p-unknown1', db)).toBe(false);
+  });
+
+  it('throws for a malformed token', async () => {
+    const db = makeFakeDb();
+    await expect(deletePartner('BAD', db)).rejects.toThrow(/invalid/i);
   });
 });
 
