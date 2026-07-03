@@ -1,15 +1,18 @@
-import { getPartner, partnerDiscountApplies } from '@/lib/partners';
-
 // ---------------------------------------------------------------------------
 // PartnerEndorsement — server-rendered banner on the occasion landing, shown
-// ONLY when a `?ref` resolves to a KNOWN partner. Attacks the pre-form funnel
-// leak (families bouncing before they start): the endorsement is the conversion
-// lever, the discount is a pleasant confirmation days later at the paywall.
+// ONLY when a `?ref` resolves to a KNOWN, ACTIVE partner. Attacks the pre-form
+// funnel leak (families bouncing before they start): the endorsement is the
+// conversion lever, the discount is a pleasant confirmation days later at the
+// paywall.
+//
+// PURE presentational component — the partner is resolved from the Postgres
+// allowlist by the landing page (async getPartner) and passed in as props, so
+// this file stays free of DB access and is trivially render-testable.
 //
 // Occasion-branched (PARTNER_DISCOUNT_DESIGN.md §UX):
 //   - MEMORIAL: NO number, NO price — pure courtesy + care.
 //   - CELEBRATORY (wedding/retirement/anniversary): warmer, a soft courtesy
-//     mention allowed.
+//     mention allowed (only when the discount is live).
 //
 // House style: never "10% OFF"/SALE/urgency/scarcity/starbursts, no demographic
 // language. Frame as courtesy / arranged / set up with care, attributed to the
@@ -18,25 +21,24 @@ import { getPartner, partnerDiscountApplies } from '@/lib/partners';
 
 export function PartnerEndorsement({
   occasion,
-  referrer,
+  partnerName,
+  courtesyLive = false,
 }: {
   /** Occasion slug — drives the memorial vs celebratory branch. */
   occasion: string;
-  /** The raw `?ref` value from the landing URL (may be absent/unknown). */
-  referrer: string | null | undefined;
+  /** Resolved partner display name, or null/undefined for organic/unknown/
+   *  inactive traffic. When absent, the banner renders NOTHING. */
+  partnerName: string | null | undefined;
+  /** Whether the courtesy discount is actually live (Paddle discount configured).
+   *  The celebratory endorsement only *softly* mentions a courtesy when true. */
+  courtesyLive?: boolean;
 }) {
-  const partner = getPartner(referrer);
-  // Hard gate: only known, allowlisted partners get an endorsement. Unknown or
-  // absent tokens render nothing — no banner ever leaks to organic traffic.
-  if (!partner) return null;
+  // Hard gate: only a resolved (known, active) partner gets an endorsement.
+  // Absent → render nothing; no banner ever leaks to organic traffic.
+  const name = partnerName?.trim() || null;
+  if (!name) return null;
 
-  // Defensive fallback: getPartner already guarantees a displayName, but if a
-  // future entry ever lacked one, suppress the name rather than show a raw token.
-  const name = partner.displayName?.trim() || null;
   const isMemorial = occasion === 'memorial';
-  // Whether the courtesy discount is actually live (Paddle discount configured).
-  // The celebratory endorsement only *softly* mentions a courtesy when it's real.
-  const courtesyLive = partnerDiscountApplies(referrer);
 
   return (
     <div
@@ -47,30 +49,15 @@ export function PartnerEndorsement({
       {isMemorial ? (
         // MEMORIAL — no number, no price. Courtesy + care only.
         <p className="text-sm leading-relaxed text-foreground/90">
-          {name ? (
-            <>
-              Shared with the care of <span className="font-semibold">{name}</span>. They set this up
-              so your family can gather everyone&apos;s memories in one place — free to start.
-            </>
-          ) : (
-            <>Set up with the care of your funeral home. Free to start, and free to gather.</>
-          )}
+          Shared with the care of <span className="font-semibold">{name}</span>. They set this up
+          so your family can gather everyone&apos;s memories in one place — free to start.
         </p>
       ) : (
         // CELEBRATORY — warmer; a soft courtesy mention is allowed when it's live.
         <p className="text-sm leading-relaxed text-foreground/90">
-          {name ? (
-            <>
-              <span className="font-semibold">{name}</span> set this up for you — a place to gather
-              everyone&apos;s messages before the day. Free to start
-              {courtesyLive ? ', and they’ve arranged a small courtesy toward your keepsake.' : '.'}
-            </>
-          ) : (
-            <>
-              Set up for you with care — a place to gather everyone&apos;s messages before the day.
-              Free to start{courtesyLive ? ', with a small courtesy toward your keepsake.' : '.'}
-            </>
-          )}
+          <span className="font-semibold">{name}</span> set this up for you — a place to gather
+          everyone&apos;s messages before the day. Free to start
+          {courtesyLive ? ', and they’ve arranged a small courtesy toward your keepsake.' : '.'}
         </p>
       )}
     </div>

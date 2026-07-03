@@ -1,5 +1,6 @@
 import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
 import { isValidRefSlug, REF_HEADER } from '@/lib/ref';
+import { isActivePartner } from '@/lib/partners-store';
 
 // ---------------------------------------------------------------------------
 // Server side of partner referral attribution: after a successful create, stamp
@@ -49,6 +50,15 @@ export async function attachReferrer(request: Request, response: Response): Prom
 
     const db = getDbClient();
     if (!db) return;
+
+    // THE allowlist gate. Stamp the referrer ONLY when the slug is an active,
+    // allowlisted partner (Postgres `partners` table). This is the single point
+    // where partner membership is enforced for the discount: the sync checkout
+    // hook (resolvePartnerDiscount) trusts any non-null referrer, so an unknown
+    // or crafted `?ref=anything` must never land here. Fail-closed — a DB hiccup
+    // in isActivePartner returns false, so we simply don't attribute (full price).
+    if (!(await isActivePartner(slug, db))) return;
+
     const meta = await getCollectionByAdminToken(db, adminToken);
     if (!meta) return;
 

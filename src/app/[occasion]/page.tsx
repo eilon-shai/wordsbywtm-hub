@@ -11,6 +11,8 @@ import ComingSoon from '@/components/ComingSoon';
 import { PageBeacon } from '@/components/PageBeacon';
 import RefCapture from '@/components/RefCapture';
 import { PartnerEndorsement } from '@/components/PartnerEndorsement';
+import { discountConfigured } from '@/lib/partners';
+import { getPartner } from '@/lib/partners-store';
 
 // ---------------------------------------------------------------------------
 // S2 — Per-occasion landing page.
@@ -76,6 +78,13 @@ export default async function OccasionLandingPage({
   const landing = LANDING_CONFIGS[occasion];
   if (!landing) notFound();
 
+  // Resolve the partner endorsement from the live allowlist (Postgres). Only a
+  // known, ACTIVE partner yields a banner; organic/unknown `?ref` → null → no
+  // banner. courtesyLive gates the soft celebratory courtesy mention (a family
+  // referred by an active partner will get the discount at pay iff it's set).
+  const partner = await getPartner(ref);
+  const courtesyLive = !!partner && discountConfigured();
+
   // Resolve Paddle price IDs for type-safety. Unused in formFirst nav mode (CTAs
   // navigate to formPath), but LandingPage requires both props.
   const isSandbox = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT !== 'production';
@@ -92,7 +101,11 @@ export default async function OccasionLandingPage({
       {/* Partner endorsement — rendered near the hero, above the CTA, ONLY when
           ?ref resolves to a known partner. No-op for organic/unknown traffic. */}
       <div className="px-4 pt-6">
-        <PartnerEndorsement occasion={occasion} referrer={ref} />
+        <PartnerEndorsement
+          occasion={occasion}
+          partnerName={partner?.displayName}
+          courtesyLive={courtesyLive}
+        />
       </div>
       <LandingPage
         config={landing}

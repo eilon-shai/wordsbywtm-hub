@@ -6,7 +6,8 @@ import {
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { ManageDashboard } from '@/components/ManageDashboard';
 import { SiteHeader } from '@/components/SiteHeader';
-import { getPartner, partnerDiscountApplies } from '@/lib/partners';
+import { partnerDiscountApplies } from '@/lib/partners';
+import { getPartner } from '@/lib/partners-store';
 
 // S6 + S7 — Organizer manage / review dashboard + finalize.
 // Server component: reads the admin token from ?t=, resolves the collection to
@@ -60,7 +61,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
   // discounted price that Paddle will actually charge — never $49-then-$44.
   const referrer = collection?.referrer;
   const discountApplies = partnerDiscountApplies(referrer);
-  const partnerName = getPartner(referrer)?.displayName;
+  const partnerName = (await getPartner(referrer))?.displayName;
 
   return (
     <main

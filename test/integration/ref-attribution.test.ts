@@ -17,6 +17,8 @@ const h = vi.hoisted(() => ({
   dbNull: false,
   metaId: 'col-123' as string | null,
   mode: 'created' as 'created' | 'existing' | 'invalid',
+  // Whether the partners allowlist gate (isActivePartner) sees an active partner.
+  partnerActive: true,
 }));
 
 vi.mock('@eilon-shai/venture-core/db', () => ({
@@ -24,9 +26,17 @@ vi.mock('@eilon-shai/venture-core/db', () => ({
     h.dbNull
       ? null
       : {
-          query: async (text: string, params?: unknown[]) => {
+          query: async (text: string, params: unknown[] = []) => {
             if (h.queryThrows) throw new Error('db down');
-            h.queryCalls.push({ text, params: params ?? [] });
+            const sql = text.toLowerCase();
+            if (sql.includes('create table')) return []; // ensurePartnersTable DDL
+            if (sql.includes('from partners')) {
+              // Create-time allowlist gate — return an active partner row (or none).
+              return h.partnerActive
+                ? [{ token: params[0], display_name: 'Test Partner', active: true, created_at: '2026-01-01T00:00:00.000Z' }]
+                : [];
+            }
+            h.queryCalls.push({ text, params }); // the attribution write only
             return [];
           },
         },
@@ -78,6 +88,7 @@ beforeEach(() => {
   h.dbNull = false;
   h.metaId = 'col-123';
   h.mode = 'created';
+  h.partnerActive = true;
 });
 
 describe('create route — referral attribution', () => {
