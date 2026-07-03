@@ -20,25 +20,60 @@ function fmt(iso: string | null | undefined): string {
     : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-/** Referral link a partner hands a family. Occasion-agnostic entry is /memorial
- *  (the primary flow); the ?ref carries attribution across every occasion. */
-function refLink(origin: string, token: string): string {
-  return `${origin}/memorial?ref=${token}`;
+/** The occasion a partner's referral link should point at: their first scoped
+ *  occasion, or memorial when unrestricted (empty scope). Pointing at an occasion
+ *  OUTSIDE the partner's scope would show no endorsement + earn no discount (the
+ *  create-time gate rejects it), so the link must land in-scope. */
+function linkOccasion(partner: Partner): string {
+  return partner.occasions[0] ?? 'memorial';
 }
-/** Printable-card link (the card bakes the ?ref into wordsbywtm.com/memorial). */
+/** Referral link a partner hands a family (occasion-scoped, carries ?ref). */
+function refLink(origin: string, partner: Partner): string {
+  return `${origin}/${linkOccasion(partner)}?ref=${partner.token}`;
+}
+/** Printable-card link (the card is memorial-templated → only for memorial partners). */
 function cardLink(origin: string, token: string): string {
   return `${origin}/partners/card?code=${token}`;
 }
+/** The memorial printable card only makes sense for partners covering memorial. */
+function showsCard(partner: Partner): boolean {
+  return partner.occasions.length === 0 || partner.occasions.includes('memorial');
+}
 
-export function PartnersAdmin() {
+interface OccasionOption {
+  slug: string;
+  title: string;
+}
+
+export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
   const [origin, setOrigin] = React.useState('');
   const [partners, setPartners] = React.useState<Partner[] | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [name, setName] = React.useState('');
+  // Occasion scope for the partner being added. Default: memorial only (partners
+  // are mostly funeral homes/hospices), so a memorial courtesy can't leak onto a
+  // wedding. The founder can widen it per partner.
+  const [scope, setScope] = React.useState<Set<string>>(
+    () => new Set(occasions.some((o) => o.slug === 'memorial') ? ['memorial'] : []),
+  );
   const [adding, setAdding] = React.useState(false);
   const [addError, setAddError] = React.useState<string | null>(null);
   const [busyToken, setBusyToken] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState<string | null>(null); // `${token}:${which}`
+
+  const titleFor = React.useCallback(
+    (slug: string) => occasions.find((o) => o.slug === slug)?.title ?? slug,
+    [occasions],
+  );
+
+  const toggleScope = React.useCallback((slug: string) => {
+    setScope((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+  }, []);
 
   React.useEffect(() => {
     setOrigin(window.location.origin);
@@ -74,7 +109,7 @@ export function PartnersAdmin() {
         const res = await fetch('/api/support/partners', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ displayName }),
+          body: JSON.stringify({ displayName, occasions: [...scope] }),
         });
         const json = await res.json();
         if (!res.ok) {
@@ -90,7 +125,7 @@ export function PartnersAdmin() {
         setAdding(false);
       }
     },
-    [name],
+    [name, scope],
   );
 
   const toggleActive = React.useCallback(async (token: string, active: boolean) => {
@@ -151,6 +186,28 @@ export function PartnersAdmin() {
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground outline-none focus:border-primary"
           />
         </label>
+        <div className="w-full">
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
+            Applies to
+          </span>
+          <div className="mt-1 flex flex-wrap gap-3">
+            {occasions.map((o) => (
+              <label key={o.slug} className="flex items-center gap-1.5 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={scope.has(o.slug)}
+                  onChange={() => toggleScope(o.slug)}
+                  className="h-4 w-4 accent-primary"
+                />
+                {o.title}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            The endorsement + discount apply only to the checked occasions.
+            {scope.size === 0 ? ' With none checked, it applies to all occasions.' : ''}
+          </p>
+        </div>
         <Button type="submit" disabled={adding || !name.trim()}>
           {adding ? 'Adding…' : 'Add partner'}
         </Button>
@@ -170,7 +227,7 @@ export function PartnersAdmin() {
         ) : (
           <ul className="space-y-3">
             {partners.map((p) => {
-              const ref = refLink(origin, p.token);
+              const ref = refLink(origin, p);
               const card = cardLink(origin, p.token);
               return (
                 <li
@@ -194,7 +251,12 @@ export function PartnersAdmin() {
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         <span className="font-mono text-foreground/80">{p.token}</span> · added{' '}
-                        {fmt(p.createdAt)}
+                        {fmt(p.createdAt)} ·{' '}
+                        <span className="text-foreground/80">
+                          {p.occasions.length === 0
+                            ? 'all occasions'
+                            : p.occasions.map(titleFor).join(', ')}
+                        </span>
                       </p>
                     </div>
                     <Button
@@ -217,12 +279,14 @@ export function PartnersAdmin() {
                       copied={copied === `${p.token}:ref`}
                       onCopy={() => copy(ref, `${p.token}:ref`)}
                     />
-                    <LinkCopy
-                      label="Printable card"
-                      value={card}
-                      copied={copied === `${p.token}:card`}
-                      onCopy={() => copy(card, `${p.token}:card`)}
-                    />
+                    {showsCard(p) ? (
+                      <LinkCopy
+                        label="Printable card"
+                        value={card}
+                        copied={copied === `${p.token}:card`}
+                        onCopy={() => copy(card, `${p.token}:card`)}
+                      />
+                    ) : null}
                   </div>
                 </li>
               );

@@ -12,7 +12,7 @@ import { PageBeacon } from '@/components/PageBeacon';
 import RefCapture from '@/components/RefCapture';
 import { PartnerEndorsement } from '@/components/PartnerEndorsement';
 import { discountConfigured } from '@/lib/partners';
-import { getPartner } from '@/lib/partners-store';
+import { getPartnerForOccasion } from '@/lib/partners-store';
 
 // ---------------------------------------------------------------------------
 // S2 — Per-occasion landing page.
@@ -78,11 +78,12 @@ export default async function OccasionLandingPage({
   const landing = LANDING_CONFIGS[occasion];
   if (!landing) notFound();
 
-  // Resolve the partner endorsement from the live allowlist (Postgres). Only a
-  // known, ACTIVE partner yields a banner; organic/unknown `?ref` → null → no
-  // banner. courtesyLive gates the soft celebratory courtesy mention (a family
-  // referred by an active partner will get the discount at pay iff it's set).
-  const partner = await getPartner(ref);
+  // Resolve the partner endorsement from the live allowlist (Postgres), scoped to
+  // THIS occasion. Only a known, ACTIVE partner whose scope permits this occasion
+  // yields a banner; organic/unknown/out-of-scope `?ref` → null → no banner.
+  // courtesyLive gates the soft celebratory courtesy mention (a family referred by
+  // an in-scope active partner will get the discount at pay iff it's set).
+  const partner = await getPartnerForOccasion(ref, occasion);
   const courtesyLive = !!partner && discountConfigured();
 
   // Resolve Paddle price IDs for type-safety. Unused in formFirst nav mode (CTAs

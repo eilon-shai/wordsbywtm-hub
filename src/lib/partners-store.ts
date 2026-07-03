@@ -20,7 +20,7 @@
 
 import { randomBytes } from 'node:crypto';
 import { getDbClient, type SqlClient } from '@eilon-shai/venture-core/db';
-import { isPartnerToken, type Partner } from '@/lib/partners';
+import { isPartnerToken, partnerAllowsOccasion, type Partner } from '@/lib/partners';
 
 /** Max length for a family-facing display name (a business name, not an essay). */
 const MAX_DISPLAY_NAME = 120;
@@ -29,13 +29,31 @@ interface PartnerRow {
   token: string;
   display_name: string;
   active: boolean;
+  occasions: string[] | null;
   created_at: string | Date;
 }
 
 function rowToPartner(r: PartnerRow): Partner {
   const createdAt =
     r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at);
-  return { token: r.token, displayName: r.display_name, active: r.active, createdAt };
+  return {
+    token: r.token,
+    displayName: r.display_name,
+    active: r.active,
+    occasions: r.occasions ?? [],
+    createdAt,
+  };
+}
+
+/** Sanitize a caller-supplied occasion list: lowercase slug-shaped strings,
+ *  de-duped. Empty (or all-invalid) → [] which means "all occasions". */
+function cleanOccasions(occasions: unknown): string[] {
+  if (!Array.isArray(occasions)) return [];
+  const out = new Set<string>();
+  for (const o of occasions) {
+    if (typeof o === 'string' && /^[a-z][a-z-]{1,30}$/.test(o)) out.add(o);
+  }
+  return [...out];
 }
 
 // Per-instance guard so we don't issue the `create table` DDL on every call.
@@ -50,9 +68,13 @@ async function ensurePartnersTable(db: SqlClient): Promise<void> {
        token        text        primary key,
        display_name text        not null,
        active       boolean     not null default true,
+       occasions    text[]      not null default '{}',
        created_at   timestamptz not null default now()
      )`,
   );
+  // Additive migration for a partners table created before the occasions column
+  // existed (idempotent). Empty array = all occasions (unrestricted).
+  await db.query(`alter table partners add column if not exists occasions text[] not null default '{}'`);
   tableEnsured = true;
 }
 
@@ -61,7 +83,7 @@ export function __resetPartnersTableGuard(): void {
   tableEnsured = false;
 }
 
-const SELECT_COLS = 'token, display_name, active, created_at';
+const SELECT_COLS = 'token, display_name, active, occasions, created_at';
 
 /**
  * Resolve an opaque `?ref` token to its ACTIVE partner entry, or null. Validates
@@ -101,6 +123,31 @@ export async function isActivePartner(
 }
 
 /**
+ * Resolve an active partner ONLY if its occasion scope permits `occasion`. This
+ * is the occasion-scoped gate used by the landing banner and (via
+ * isActivePartnerForOccasion) by attachReferrer at create time, so a partner
+ * scoped to e.g. ['memorial'] can never endorse or discount a wedding. A partner
+ * with an empty occasions scope matches every occasion (unrestricted).
+ */
+export async function getPartnerForOccasion(
+  token: string | null | undefined,
+  occasion: string,
+  db?: SqlClient | null,
+): Promise<Partner | null> {
+  const partner = await getPartner(token, db);
+  return partner && partnerAllowsOccasion(partner.occasions, occasion) ? partner : null;
+}
+
+/** Whether a token is an active partner allowed for `occasion` (create-time gate). */
+export async function isActivePartnerForOccasion(
+  token: string | null | undefined,
+  occasion: string,
+  db?: SqlClient | null,
+): Promise<boolean> {
+  return (await getPartnerForOccasion(token, occasion, db)) !== null;
+}
+
+/**
  * All partners (active first, newest first) for the admin console — INCLUDES
  * deactivated ones so they can be reactivated. Throws on DB error so the admin
  * page can surface it (unlike the fail-closed read paths above).
@@ -126,22 +173,27 @@ export function generatePartnerToken(): string {
  * display name and retries on the astronomically unlikely token clash. Returns
  * the created Partner (active). Throws on bad input / no DB / exhausted retries.
  */
-export async function addPartner(displayName: string, db?: SqlClient | null): Promise<Partner> {
+export async function addPartner(
+  displayName: string,
+  occasions: string[] = [],
+  db?: SqlClient | null,
+): Promise<Partner> {
   const name = (displayName ?? '').trim();
   if (!name) throw new Error('A partner display name is required.');
   if (name.length > MAX_DISPLAY_NAME) {
     throw new Error(`Display name must be ${MAX_DISPLAY_NAME} characters or fewer.`);
   }
+  const scope = cleanOccasions(occasions); // [] = all occasions (unrestricted)
   const client = db ?? getDbClient();
   if (!client) throw new Error('Database unavailable (DATABASE_URL not set).');
   await ensurePartnersTable(client);
   for (let attempt = 0; attempt < 5; attempt++) {
     const token = generatePartnerToken();
     const rows = await client.query<PartnerRow>(
-      `insert into partners (token, display_name) values ($1, $2)
+      `insert into partners (token, display_name, occasions) values ($1, $2, $3)
          on conflict (token) do nothing
          returning ${SELECT_COLS}`,
-      [token, name],
+      [token, name, scope],
     );
     if (rows[0]) return rowToPartner(rows[0]);
   }

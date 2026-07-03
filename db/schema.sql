@@ -122,8 +122,11 @@ create table if not exists partners (
   token        text        primary key,
   display_name text        not null,
   active       boolean     not null default true,
+  occasions    text[]      not null default '{}',   -- occasion slugs this partner's discount/endorsement apply to; '{}' = all
   created_at   timestamptz not null default now()
 );
+-- Additive migration for a partners table created before the occasions column.
+alter table partners add column if not exists occasions text[] not null default '{}';
 -- Seed the mock test partner (previously a hardcoded code allowlist entry) so
 -- nothing regresses on cutover and the E2E discount test keeps working. Deactivate
 -- or repurpose it from /support/partners once real partners are onboarded.

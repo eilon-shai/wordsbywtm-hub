@@ -45,8 +45,22 @@ export interface Partner {
   /** Deactivated partners keep their attribution history but stop earning new
    *  endorsements/discounts. */
   active: boolean;
+  /** Occasion slugs this partner's endorsement + discount apply to (e.g.
+   *  ['memorial']). An EMPTY array means "all occasions" (unrestricted) — that's
+   *  the backward-compatible default for the pre-existing mock partner. A funeral
+   *  home is typically ['memorial'] so its courtesy can't leak onto a wedding. */
+  occasions: string[];
   /** ISO timestamp the partner was added (present on DB-sourced entries). */
   createdAt?: string;
+}
+
+/**
+ * Whether a partner's `occasions` scope permits a given occasion. Empty scope =
+ * all occasions (unrestricted). This is the rule the create-time gate and the
+ * landing banner both apply so a memorial partner never discounts a wedding.
+ */
+export function partnerAllowsOccasion(occasions: string[], occasion: string): boolean {
+  return occasions.length === 0 || occasions.includes(occasion);
 }
 
 /** Whether a value is a well-formed opaque partner token (same shape as any

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/SiteHeader';
 import { PartnersAdmin } from '@/components/PartnersAdmin';
+import { OCCASIONS } from '@/lib/registry';
 
 // ---------------------------------------------------------------------------
 // Partner registry admin. Behind the same edge-middleware Basic-Auth as the rest
@@ -14,10 +15,12 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Partners', robots: { index: false, follow: false } };
 
 export default function PartnersAdminPage() {
+  // Live occasions a partner can be scoped to (memorial pre-selected client-side).
+  const occasions = OCCASIONS.filter((o) => o.live).map((o) => ({ slug: o.slug, title: o.title }));
   return (
     <>
       <SiteHeader />
-      <PartnersAdmin />
+      <PartnersAdmin occasions={occasions} />
     </>
   );
 }

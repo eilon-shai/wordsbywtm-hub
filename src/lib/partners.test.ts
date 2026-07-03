@@ -5,6 +5,7 @@ import {
   resolvePrice,
   discountConfigured,
   isPartnerToken,
+  partnerAllowsOccasion,
   DISCOUNT_PERCENT,
 } from './partners';
 
@@ -77,6 +78,20 @@ describe('isPartnerToken', () => {
     expect(isPartnerToken(null)).toBe(false);
     expect(isPartnerToken(undefined)).toBe(false);
     expect(isPartnerToken(42)).toBe(false);
+  });
+});
+
+describe('partnerAllowsOccasion', () => {
+  it('an empty scope matches every occasion (unrestricted)', () => {
+    expect(partnerAllowsOccasion([], 'memorial')).toBe(true);
+    expect(partnerAllowsOccasion([], 'wedding')).toBe(true);
+  });
+
+  it('a scoped partner matches only its listed occasions', () => {
+    expect(partnerAllowsOccasion(['memorial'], 'memorial')).toBe(true);
+    expect(partnerAllowsOccasion(['memorial'], 'wedding')).toBe(false);
+    expect(partnerAllowsOccasion(['memorial', 'retirement'], 'retirement')).toBe(true);
+    expect(partnerAllowsOccasion(['memorial', 'retirement'], 'anniversary')).toBe(false);
   });
 });
 

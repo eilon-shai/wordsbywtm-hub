@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   addPartner,
   getPartner,
+  getPartnerForOccasion,
   isActivePartner,
+  isActivePartnerForOccasion,
   listPartners,
   setPartnerActive,
   generatePartnerToken,
@@ -19,6 +21,7 @@ interface Row {
   token: string;
   display_name: string;
   active: boolean;
+  occasions: string[];
   created_at: string;
 }
 
@@ -30,7 +33,7 @@ function makeFakeDb(initial: Row[] = []) {
     query: async <T = Record<string, unknown>>(text: string, params: unknown[] = []): Promise<T[]> => {
       const sql = text.replace(/\s+/g, ' ').trim().toLowerCase();
 
-      if (sql.startsWith('create table')) return [] as T[];
+      if (sql.startsWith('create table') || sql.startsWith('alter table')) return [] as T[];
 
       if (sql.startsWith('select') && sql.includes('and active = true')) {
         const token = params[0];
@@ -46,12 +49,13 @@ function makeFakeDb(initial: Row[] = []) {
       }
 
       if (sql.startsWith('insert into partners')) {
-        const [token, name] = params as [string, string];
+        const [token, name, occasions] = params as [string, string, string[]];
         if (table.some((r) => r.token === token)) return [] as T[]; // on conflict do nothing
         const row: Row = {
           token,
           display_name: name,
           active: true,
+          occasions: occasions ?? [],
           // Monotonic timestamps so the "newest first" sort is deterministic.
           created_at: new Date(1_700_000_000_000 + seq++ * 1000).toISOString(),
         };
@@ -88,7 +92,7 @@ describe('generatePartnerToken', () => {
 describe('addPartner', () => {
   it('adds an active partner with a minted token and trimmed name', async () => {
     const db = makeFakeDb();
-    const p = await addPartner('  Riverside Memorial Home  ', db);
+    const p = await addPartner('  Riverside Memorial Home  ', [], db);
     expect(p.displayName).toBe('Riverside Memorial Home');
     expect(p.active).toBe(true);
     expect(p.token).toMatch(/^p-[0-9a-f]{8}$/);
@@ -97,19 +101,19 @@ describe('addPartner', () => {
 
   it('rejects an empty / whitespace-only name', async () => {
     const db = makeFakeDb();
-    await expect(addPartner('   ', db)).rejects.toThrow(/required/i);
+    await expect(addPartner('   ', [], db)).rejects.toThrow(/required/i);
   });
 
   it('rejects a name over 120 chars', async () => {
     const db = makeFakeDb();
-    await expect(addPartner('x'.repeat(121), db)).rejects.toThrow(/120/);
+    await expect(addPartner('x'.repeat(121), [], db)).rejects.toThrow(/120/);
   });
 });
 
 describe('getPartner / isActivePartner', () => {
   it('returns an active partner and true for isActivePartner', async () => {
     const db = makeFakeDb();
-    const added = await addPartner('Smith Funeral Home', db);
+    const added = await addPartner('Smith Funeral Home', [], db);
     expect(await getPartner(added.token, db)).toMatchObject({
       token: added.token,
       displayName: 'Smith Funeral Home',
@@ -128,17 +132,50 @@ describe('getPartner / isActivePartner', () => {
 
   it('does NOT return a deactivated partner (fail-closed for the discount gate)', async () => {
     const db = makeFakeDb();
-    const added = await addPartner('Valley Hospice', db);
+    const added = await addPartner('Valley Hospice', [], db);
     await setPartnerActive(added.token, false, db);
     expect(await getPartner(added.token, db)).toBeNull();
     expect(await isActivePartner(added.token, db)).toBe(false);
   });
 });
 
+describe('occasion scope (getPartnerForOccasion / isActivePartnerForOccasion)', () => {
+  it('a scoped partner matches only its occasions', async () => {
+    const db = makeFakeDb();
+    const p = await addPartner('Memorial Only Home', ['memorial'], db);
+    expect(p.occasions).toEqual(['memorial']);
+    expect(await getPartnerForOccasion(p.token, 'memorial', db)).toMatchObject({ token: p.token });
+    expect(await getPartnerForOccasion(p.token, 'wedding', db)).toBeNull();
+    expect(await isActivePartnerForOccasion(p.token, 'memorial', db)).toBe(true);
+    expect(await isActivePartnerForOccasion(p.token, 'wedding', db)).toBe(false);
+  });
+
+  it('an unrestricted (empty scope) partner matches every occasion', async () => {
+    const db = makeFakeDb();
+    const p = await addPartner('All Occasions Partner', [], db);
+    expect(p.occasions).toEqual([]);
+    expect(await isActivePartnerForOccasion(p.token, 'memorial', db)).toBe(true);
+    expect(await isActivePartnerForOccasion(p.token, 'anniversary', db)).toBe(true);
+  });
+
+  it('de-dupes and drops malformed occasion slugs on add', async () => {
+    const db = makeFakeDb();
+    const p = await addPartner('Multi', ['memorial', 'memorial', 'BAD SLUG', 'wedding'], db);
+    expect(p.occasions.sort()).toEqual(['memorial', 'wedding']);
+  });
+
+  it('a deactivated scoped partner matches no occasion', async () => {
+    const db = makeFakeDb();
+    const p = await addPartner('Off Home', ['memorial'], db);
+    await setPartnerActive(p.token, false, db);
+    expect(await isActivePartnerForOccasion(p.token, 'memorial', db)).toBe(false);
+  });
+});
+
 describe('setPartnerActive', () => {
   it('deactivates then reactivates a partner', async () => {
     const db = makeFakeDb();
-    const added = await addPartner('Meadow Funeral Care', db);
+    const added = await addPartner('Meadow Funeral Care', [], db);
     const off = await setPartnerActive(added.token, false, db);
     expect(off?.active).toBe(false);
     const on = await setPartnerActive(added.token, true, db);
@@ -160,9 +197,9 @@ describe('setPartnerActive', () => {
 describe('listPartners', () => {
   it('lists all partners, active first then newest first', async () => {
     const db = makeFakeDb();
-    const a = await addPartner('Alpha Home', db);
-    const b = await addPartner('Beta Home', db);
-    await addPartner('Gamma Home', db);
+    const a = await addPartner('Alpha Home', [], db);
+    const b = await addPartner('Beta Home', [], db);
+    await addPartner('Gamma Home', [], db);
     await setPartnerActive(a.token, false, db); // deactivate the oldest
 
     const list = await listPartners(db);

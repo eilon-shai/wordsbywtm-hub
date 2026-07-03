@@ -29,11 +29,13 @@ vi.mock('@eilon-shai/venture-core/db', () => ({
           query: async (text: string, params: unknown[] = []) => {
             if (h.queryThrows) throw new Error('db down');
             const sql = text.toLowerCase();
-            if (sql.includes('create table')) return []; // ensurePartnersTable DDL
+            if (sql.includes('create table') || sql.includes('alter table')) return []; // ensurePartnersTable DDL
             if (sql.includes('from partners')) {
               // Create-time allowlist gate — return an active partner row (or none).
+              // Empty occasions scope = all occasions, so it permits the memorial
+              // create in these tests.
               return h.partnerActive
-                ? [{ token: params[0], display_name: 'Test Partner', active: true, created_at: '2026-01-01T00:00:00.000Z' }]
+                ? [{ token: params[0], display_name: 'Test Partner', active: true, occasions: [], created_at: '2026-01-01T00:00:00.000Z' }]
                 : [];
             }
             h.queryCalls.push({ text, params }); // the attribution write only

@@ -2,6 +2,10 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { addPartner, listPartners, setPartnerActive } from '@/lib/partners-store';
 import { isPartnerToken } from '@/lib/partners';
+import { OCCASIONS } from '@/lib/registry';
+
+// Slugs a partner may be scoped to — only live occasions with a collection flow.
+const LIVE_OCCASION_SLUGS = new Set(OCCASIONS.filter((o) => o.live).map((o) => o.slug));
 
 // ---------------------------------------------------------------------------
 // Support console — partner registry admin.
@@ -33,7 +37,7 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  let body: { displayName?: unknown };
+  let body: { displayName?: unknown; occasions?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -43,8 +47,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!displayName.trim()) {
     return NextResponse.json({ error: 'A partner display name is required.' }, { status: 400 });
   }
+  // Occasion scope: only known live occasions; empty (or omitted) = all occasions.
+  const occasions = Array.isArray(body.occasions)
+    ? body.occasions.filter((o): o is string => typeof o === 'string' && LIVE_OCCASION_SLUGS.has(o))
+    : [];
   try {
-    const partner = await addPartner(displayName);
+    const partner = await addPartner(displayName, occasions);
     return NextResponse.json({ partner }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to add partner.';

@@ -106,6 +106,6 @@ export async function POST(
   }
   // Partner referral attribution (?ref → x-wtm-ref header → collections.referrer).
   // Fail-silent telemetry; a no-op unless a valid slug header rode the request.
-  await attachReferrer(request, response);
+  await attachReferrer(request, response, occasion);
   return response;
 }
