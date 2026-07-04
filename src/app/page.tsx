@@ -287,7 +287,6 @@ export default async function HubPage({
         <p className="font-serif text-lg text-foreground">Words That Matter</p>
         <nav className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
           <Link href="/guides" className="transition-colors hover:text-foreground">Guides</Link>
-          <Link href="/support" className="transition-colors hover:text-foreground">Support</Link>
           <Link href="/terms" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Terms</Link>
           <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Privacy</Link>
           <Link href="/refund" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Refund Policy</Link>

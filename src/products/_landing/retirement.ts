@@ -239,7 +239,6 @@ export const retirementLandingConfig: LandingPageConfig = {
       { href: '/terms', label: 'Terms' },
       { href: '/privacy', label: 'Privacy' },
       { href: '/refund', label: 'Refund Policy' },
-      { href: '/support', label: 'Support' },
     ],
     copyright: `© ${new Date().getFullYear()} Words That Matter LLC. All rights reserved.`,
     // Content link — same-tab (vc 1.29.0 footer.extraLink slot).
