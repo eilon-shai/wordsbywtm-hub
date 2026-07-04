@@ -1,5 +1,6 @@
 import { getDbClient, getCollectionByAdminToken } from '@eilon-shai/venture-core/db';
 import { isValidRefSlug, REF_HEADER } from '@/lib/ref';
+import { isActivePartnerForOccasion } from '@/lib/partners-store';
 
 // ---------------------------------------------------------------------------
 // Server side of partner referral attribution: after a successful create, stamp
@@ -25,8 +26,13 @@ function adminTokenFromUrl(value: unknown): string | null {
  * If `request` carries a valid x-wtm-ref slug and `response` is a successful
  * create (2xx, not the `existing` dedup ack), set `collections.referrer` on the
  * new row — first writer wins (`and referrer is null`). Fail-silent throughout.
+ * `occasion` is the validated route occasion, used for the occasion-scoped gate.
  */
-export async function attachReferrer(request: Request, response: Response): Promise<void> {
+export async function attachReferrer(
+  request: Request,
+  response: Response,
+  occasion: string,
+): Promise<void> {
   try {
     const slug = request.headers.get(REF_HEADER);
     if (!isValidRefSlug(slug)) return;
@@ -49,6 +55,17 @@ export async function attachReferrer(request: Request, response: Response): Prom
 
     const db = getDbClient();
     if (!db) return;
+
+    // THE allowlist gate. Stamp the referrer ONLY when the slug is an active,
+    // allowlisted partner (Postgres `partners` table) whose occasion scope
+    // permits THIS occasion. This is the single point where partner membership +
+    // scope are enforced for the discount: the sync checkout hook
+    // (resolvePartnerDiscount) trusts any non-null referrer, so an unknown /
+    // crafted / out-of-scope `?ref` must never land here. Fail-closed — a DB
+    // hiccup returns false, so we simply don't attribute (full price). A memorial
+    // partner therefore can't discount a wedding even if a family reuses the link.
+    if (!(await isActivePartnerForOccasion(slug, occasion, db))) return;
+
     const meta = await getCollectionByAdminToken(db, adminToken);
     if (!meta) return;
 

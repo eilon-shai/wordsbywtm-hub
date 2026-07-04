@@ -1,93 +1,108 @@
 // ---------------------------------------------------------------------------
-// Partner referral courtesy discount — the hub-owned allowlist, display-name
-// map, discount resolution, and the single price-math source of truth.
+// Partner referral courtesy discount — client-safe pure helpers: the discount
+// gate the checkout hook calls, the price math, and shared types/constants.
 //
-// Model (SES-053, PARTNER_DISCOUNT_DESIGN.md): a partner (funeral home, hospice,
-// planner) hands families an opaque link `?ref=<token>`. Tokens are opaque but
-// MUST match REF_SLUG_RE (lowercase alphanumeric + hyphens, no underscores), so
-// use a hyphen separator — e.g. `p-8f3a2`, NOT `p_8f3a2`. An underscore token is
-// silently dropped at every ref boundary (capture/store/server) and would never
-// reach the collection row, so it could never earn a discount. If — and only if — that
-// token is in the PARTNERS allowlist AND the founder has set PARTNER_DISCOUNT_ID
-// in Vercel, we thread a single shared Paddle percentage discount (10%) onto the
-// checkout transaction (price ID unchanged), and render a partner *endorsement*
-// on the landing + a pre-applied *courtesy* line at the paywall. It is a discount
-// only — no commission, no payout, so zero back-office. Never a public coupon:
-// tokens are OPAQUE and the discount is only ever seen by a family a partner
-// already sent.
+// This module is imported by CLIENT components (ManageDashboard pulls in
+// resolvePrice), so it MUST stay free of server-only imports (no node:crypto,
+// no getDbClient). All database + token-minting code lives in the server-only
+// companion `partners-store.ts`.
 //
-// Two gates, both required, both server-authoritative:
-//   1. getPartner(token) is non-null  → the token is a known, active partner.
-//   2. process.env.PARTNER_DISCOUNT_ID is set → the Paddle discount exists.
-// Either missing = full price, no discount, no banner. Safe default is OFF: with
-// PARTNER_DISCOUNT_ID unset this whole feature is inert, so it can ship before
-// the Paddle discount is created.
+// Model (SES-053/054, PARTNER_DISCOUNT_DESIGN.md): a partner (funeral home,
+// hospice, planner) hands families an opaque link `?ref=<token>`. Tokens are
+// opaque but MUST match REF_SLUG_RE (lowercase alphanumeric + hyphens, no
+// underscores) — e.g. `p-3ae689`. Partners are now managed at runtime from the
+// /support/partners admin page (Postgres `partners` table, see partners-store),
+// no code deploy. If — and only if — a family's collection was referred by an
+// ACTIVE partner AND the founder set PARTNER_DISCOUNT_ID in Vercel, we thread a
+// single shared Paddle percentage discount (10%) onto the checkout transaction
+// (price ID unchanged) and render a partner endorsement + courtesy line. It is a
+// discount only — no commission, no payout, so zero back-office.
+//
+// ── SECURITY INVARIANT (read before touching resolvePartnerDiscount) ──────────
+// `collections.referrer` is written by exactly ONE function — attachReferrer in
+// src/lib/referrer.ts — which stores a slug ONLY after confirming it is an
+// ACTIVE, allowlisted partner (DB lookup, fail-closed). Therefore any non-null
+// `referrer` that reaches checkout is already a vetted partner, and the sync
+// checkout hook below only needs the env gate — it does NOT (and cannot, being
+// sync) re-read the Postgres allowlist. If you ever add another writer of
+// collections.referrer, it MUST perform the same active-partner gate, or this
+// becomes a self-serve discount hole (?ref=anything → 10% off).
 // ---------------------------------------------------------------------------
 
 import { REF_SLUG_RE } from '@/lib/ref';
 
 /** The referral courtesy: 10% off the finalize price. Single source of truth —
- *  the on-screen/analytics numbers below and the Paddle discount must agree. */
+ *  the on-screen/analytics numbers and the Paddle discount must agree. */
 export const DISCOUNT_PERCENT = 10;
 
 export interface Partner {
+  /** Opaque referral token (e.g. `p-3ae689`) — matches REF_SLUG_RE. Never shown
+   *  to a family; it's the `?ref` value and the printable-card `?code`. */
+  token: string;
   /** Family-facing name rendered in the endorsement/courtesy copy ("Smith Funeral
    *  Home"). Tokens are opaque, so a grieving family must NEVER see the raw token. */
   displayName: string;
+  /** Deactivated partners keep their attribution history but stop earning new
+   *  endorsements/discounts. */
+  active: boolean;
+  /** Occasion slugs this partner's endorsement + discount apply to (e.g.
+   *  ['memorial']). An EMPTY array means "all occasions" (unrestricted) — that's
+   *  the backward-compatible default for the pre-existing mock partner. A funeral
+   *  home is typically ['memorial'] so its courtesy can't leak onto a wedding. */
+  occasions: string[];
+  /** ISO timestamp the partner was added (present on DB-sourced entries). */
+  createdAt?: string;
 }
 
-// ---------------------------------------------------------------------------
-// ALLOWLIST. The key is an OPAQUE token (e.g. `p-8f3a2`, hyphen not underscore —
-// see REF_SLUG_RE note above) — issue a fresh random one per partner, add it
-// here, then hand them their link (`?ref=<token>`) and printable card
-// (`?code=<token>`). Only tokens present here get an endorsement or discount;
-// unknown/absent tokens resolve to null (organic, full price).
-//
-// EMPTY at launch — no real partners onboarded yet. Uncomment the example to see
-// the shape. See docs/PARTNER_PROGRAM_GUIDE.md for the onboarding steps.
-// ---------------------------------------------------------------------------
-export const PARTNERS: Record<string, Partner> = {
-  // Mock partner for end-to-end testing the referral discount. Rename/remove
-  // when a real partner signs. Example shape kept below.
-  'p-3ae689': { displayName: 'Riverside Memorial Home (test)' },
-  // 'p-8f3a2': { displayName: 'Smith Funeral Home' },
-};
-
 /**
- * Resolve a `?ref` token to its partner entry, or null. Validates the token
- * against REF_SLUG_RE first (same shape enforced at every ref boundary), so a
- * malformed/injected value can never map to a partner. Returns null for any
- * unknown, absent, or malformed token.
+ * Whether a partner's `occasions` scope permits a given occasion. Empty scope =
+ * all occasions (unrestricted). This is the rule the create-time gate and the
+ * landing banner both apply so a memorial partner never discounts a wedding.
  */
-export function getPartner(token: string | null | undefined): Partner | null {
-  if (typeof token !== 'string' || !REF_SLUG_RE.test(token)) return null;
-  return PARTNERS[token] ?? null;
+export function partnerAllowsOccasion(occasions: string[], occasion: string): boolean {
+  return occasions.length === 0 || occasions.includes(occasion);
+}
+
+/** Whether a value is a well-formed opaque partner token (same shape as any
+ *  `?ref` slug). A malformed/injected value can never be a partner. */
+export function isPartnerToken(value: unknown): value is string {
+  return typeof value === 'string' && REF_SLUG_RE.test(value);
+}
+
+/** Whether the Paddle courtesy discount is configured (founder set the env var).
+ *  With it unset the whole discount feature is inert — endorsements still show,
+ *  but no price is ever changed. */
+export function discountConfigured(): boolean {
+  // Dynamic key so bundlers don't statically inline this server-only var.
+  return !!process.env['PARTNER_DISCOUNT_ID'];
 }
 
 /**
- * The venture-core `CollectionConfig.resolvePartnerDiscount` hook. Given the
- * collection's `referrer` slug, return the shared Paddle discount id ONLY when
- * both gates pass: the token is a known partner AND PARTNER_DISCOUNT_ID is set.
- * Otherwise undefined → venture-core omits `discountId` and charges full price.
+ * The venture-core `CollectionConfig.resolvePartnerDiscount` hook (SYNCHRONOUS).
+ * Given the collection's stored `referrer` slug, return the shared Paddle
+ * discount id when PARTNER_DISCOUNT_ID is set and the collection was referred.
+ *
+ * It trusts a non-null referrer WITHOUT re-checking the allowlist — see the
+ * SECURITY INVARIANT at the top of this file: attachReferrer already guaranteed
+ * that any stored referrer is an active partner. Returns undefined (full price)
+ * when the env is unset or the collection is organic.
  *
  * Signature matches @eilon-shai/venture-core 1.30.0 exactly:
  *   resolvePartnerDiscount?(referrer: string | null | undefined): string | undefined
  */
 export function resolvePartnerDiscount(referrer: string | null | undefined): string | undefined {
-  // Read via a dynamic key so bundlers (Vite/Next) don't statically inline this
-  // server-only var at build time — it must be resolved fresh at request time.
   const discountId = process.env['PARTNER_DISCOUNT_ID'];
   if (!discountId) return undefined; // feature off until the founder sets it in Vercel
-  if (!getPartner(referrer)) return undefined; // unknown/absent token → full price
-  return discountId;
+  return referrer ? discountId : undefined; // referrer is pre-vetted at create time
 }
 
 /**
- * Whether a referred collection actually gets the courtesy discount: a known
- * partner AND the Paddle discount configured. Mirrors resolvePartnerDiscount's
- * gate, but returns a boolean for the UI/analytics layer (which doesn't need the
- * id). Use this — not getPartner alone — to decide whether to show a discounted
- * price, so on-screen numbers never claim a discount that Paddle won't apply.
+ * Whether a collection with this STORED referrer actually gets the courtesy
+ * discount — mirrors resolvePartnerDiscount exactly, as a boolean for the UI.
+ * Callers MUST pass a stored `collections.referrer` (already allowlist-gated at
+ * create), NOT a raw `?ref` query value; for the pre-create landing decision use
+ * the DB lookup getPartner() in partners-store.ts instead. Using this keeps the
+ * on-screen/tracked price identical to what Paddle charges (never $49-then-$44).
  */
 export function partnerDiscountApplies(referrer: string | null | undefined): boolean {
   return resolvePartnerDiscount(referrer) !== undefined;

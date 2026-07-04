@@ -108,3 +108,28 @@ create table if not exists collection_audio (
   created_at    timestamptz not null default now(),
   primary key (collection_id, voice)
 );
+
+-- Partner referral registry (SES-054). The SOURCE OF TRUTH for who is an active
+-- partner — funeral homes / hospices / planners handed an opaque `?ref=<token>`
+-- link. Managed live from the /support/partners admin page (no code deploy).
+-- A family arriving via an active partner's token sees the endorsement and, if
+-- PARTNER_DISCOUNT_ID is set, a 10% courtesy at pay. `token` is opaque and
+-- matches REF_SLUG_RE (lowercase alphanumeric + hyphens). Deactivate (not
+-- delete) to keep attribution history. Auto-created on demand by
+-- src/lib/partners-store.ts (ensurePartnersTable); mirrored here so a fresh/DR/
+-- preview DB — and the revenue-e2e gate that applies this file — is complete.
+create table if not exists partners (
+  token        text        primary key,
+  display_name text        not null,
+  active       boolean     not null default true,
+  occasions    text[]      not null default '{}',   -- occasion slugs this partner's discount/endorsement apply to; '{}' = all
+  created_at   timestamptz not null default now()
+);
+-- Additive migration for a partners table created before the occasions column.
+alter table partners add column if not exists occasions text[] not null default '{}';
+-- Seed the mock test partner (previously a hardcoded code allowlist entry) so
+-- nothing regresses on cutover and the E2E discount test keeps working. Deactivate
+-- or repurpose it from /support/partners once real partners are onboarded.
+insert into partners (token, display_name)
+  values ('p-3ae689', 'Riverside Memorial Home (test)')
+  on conflict (token) do nothing;

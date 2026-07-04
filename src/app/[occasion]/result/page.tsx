@@ -7,7 +7,8 @@ import { audioEnabled } from '@/lib/audio';
 import { ResultFlow } from './ResultFlow';
 import { SiteHeader } from '@/components/SiteHeader';
 import { PurchaseTracker } from '@/components/PurchaseTracker';
-import { getPartner, partnerDiscountApplies, resolvePrice } from '@/lib/partners';
+import { partnerDiscountApplies, resolvePrice } from '@/lib/partners';
+import { getPartner } from '@/lib/partners-store';
 
 // ---------------------------------------------------------------------------
 // S8 — Synthesized Result (COLLECTION_SCREENS_REDESIGN.md §4)
@@ -99,7 +100,7 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
   const basePrice = config.tiers.full.displayPrice;
   const discountApplies = partnerDiscountApplies(referrer);
   const resolvedPrice = resolvePrice(basePrice, discountApplies);
-  const partnerName = getPartner(referrer)?.displayName;
+  const partnerName = (await getPartner(referrer))?.displayName;
 
   // A deleted/expired collection reached via its ?t={adminToken} tribute link:
   // its memories are gone, so there's nothing to finalize. Mirror the contributor

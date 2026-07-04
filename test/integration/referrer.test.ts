@@ -13,11 +13,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // ---------------------------------------------------------------------------
 
 const h = vi.hoisted(() => ({
-  queryCalls: [] as Array<{ text: string; params: unknown[] }>,
+  // Only the `update collections set referrer` calls (the attribution write).
+  updateCalls: [] as Array<{ text: string; params: unknown[] }>,
+  // Tokens looked up against the partners allowlist (isActivePartner gate).
+  partnerSelectCalls: [] as string[],
   lookupCalls: [] as string[],
   queryThrows: false,
   dbNull: false,
   metaId: 'col-123' as string | null,
+  // Whether the partners SELECT returns an ACTIVE partner (the create-time gate).
+  partnerActive: true,
+  // The partner's occasion scope ([] = all occasions).
+  partnerOccasions: [] as string[],
 }));
 
 vi.mock('@eilon-shai/venture-core/db', () => ({
@@ -25,9 +32,27 @@ vi.mock('@eilon-shai/venture-core/db', () => ({
     h.dbNull
       ? null
       : {
-          query: async (text: string, params?: unknown[]) => {
+          query: async (text: string, params: unknown[] = []) => {
             if (h.queryThrows) throw new Error('db down');
-            h.queryCalls.push({ text, params: params ?? [] });
+            const sql = text.toLowerCase();
+            if (sql.includes('create table') || sql.includes('alter table')) return []; // ensurePartnersTable DDL
+            if (sql.includes('from partners')) {
+              // The occasion-scoped allowlist gate.
+              h.partnerSelectCalls.push(params[0] as string);
+              return h.partnerActive
+                ? [
+                    {
+                      token: params[0],
+                      display_name: 'Test Partner',
+                      active: true,
+                      occasions: h.partnerOccasions,
+                      created_at: '2026-01-01T00:00:00.000Z',
+                    },
+                  ]
+                : [];
+            }
+            // The attribution write.
+            h.updateCalls.push({ text, params });
             return [];
           },
         },
@@ -41,11 +66,14 @@ import { attachReferrer, getReferrerSummary } from '@/lib/referrer';
 import { REF_HEADER } from '@/lib/ref';
 
 beforeEach(() => {
-  h.queryCalls.length = 0;
+  h.updateCalls.length = 0;
+  h.partnerSelectCalls.length = 0;
   h.lookupCalls.length = 0;
   h.queryThrows = false;
   h.dbNull = false;
   h.metaId = 'col-123';
+  h.partnerActive = true;
+  h.partnerOccasions = [];
 });
 
 /** A create Request carrying (or not) an x-wtm-ref header. */
@@ -72,91 +100,122 @@ function resWith(
   });
 }
 
+// attachReferrer(request, response, occasion). Default the occasion to memorial
+// for the common tests; the scoping test overrides it.
+const attach = (ref: string | undefined, res: Response, occasion = 'memorial') =>
+  attachReferrer(reqWith(ref), res, occasion);
+
 describe('attachReferrer', () => {
   it('skips on a non-2xx response (no lookup, no update)', async () => {
-    await attachReferrer(reqWith('smith-funeral'), resWith({ error: 'bad' }, 400));
+    await attach('smith-funeral', resWith({ error: 'bad' }, 400));
     expect(h.lookupCalls).toHaveLength(0);
-    expect(h.queryCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
   });
 
   it('skips on the { existing: true } dedup ack', async () => {
-    await attachReferrer(reqWith('smith-funeral'), resWith({ existing: true }));
+    await attach('smith-funeral', resWith({ existing: true }));
     expect(h.lookupCalls).toHaveLength(0);
-    expect(h.queryCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
   });
 
   it('skips when the x-wtm-ref header is missing', async () => {
-    await attachReferrer(reqWith(), resWith());
+    await attach(undefined, resWith());
     expect(h.lookupCalls).toHaveLength(0);
-    expect(h.queryCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
   });
 
   it.each(['Smith-Funeral', '-smith', 'a', 'not a slug', "x';drop table collections;--"])(
     'skips when the header slug is invalid (%j)',
     async (bad) => {
-      await attachReferrer(reqWith(bad), resWith());
+      await attach(bad, resWith());
       expect(h.lookupCalls).toHaveLength(0);
-      expect(h.queryCalls).toHaveLength(0);
+      expect(h.updateCalls).toHaveLength(0);
     },
   );
 
+  it('ANTI-ABUSE: a valid-shaped but non-partner slug is never attributed', async () => {
+    // The slug passes REF_SLUG_RE but is not an active allowlisted partner, so
+    // the create-time gate rejects it — no attribution, no discount. This is THE
+    // gate the sync checkout hook relies on.
+    h.partnerActive = false;
+    await attach('not-a-real-partner', resWith());
+    expect(h.partnerSelectCalls).toEqual(['not-a-real-partner']); // gate consulted
+    expect(h.lookupCalls).toHaveLength(0); // never resolved the row
+    expect(h.updateCalls).toHaveLength(0); // never stamped a referrer
+  });
+
+  it('OCCASION SCOPE: a partner scoped to another occasion is not attributed', async () => {
+    // The partner is active but scoped to ['wedding']; this create is a memorial,
+    // so the occasion-scoped gate rejects it → a memorial can never earn a
+    // wedding-only partner's discount.
+    h.partnerActive = true;
+    h.partnerOccasions = ['wedding'];
+    await attach('wedding-planner', resWith(), 'memorial');
+    expect(h.partnerSelectCalls).toEqual(['wedding-planner']); // gate consulted
+    expect(h.lookupCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
+  });
+
+  it('OCCASION SCOPE: a partner scoped to THIS occasion is attributed', async () => {
+    h.partnerOccasions = ['memorial'];
+    await attach('smith-funeral', resWith(), 'memorial');
+    expect(h.updateCalls).toHaveLength(1);
+    expect(h.updateCalls[0].params).toEqual(['smith-funeral', 'col-123']);
+  });
+
   it('resolves the row via body.adminToken when present', async () => {
-    await attachReferrer(
-      reqWith('smith-funeral'),
-      resWith({ adminToken: 'direct_tok', honoreeName: 'Eleanor' }),
-    );
+    await attach('smith-funeral', resWith({ adminToken: 'direct_tok', honoreeName: 'Eleanor' }));
+    expect(h.partnerSelectCalls).toEqual(['smith-funeral']);
     expect(h.lookupCalls).toEqual(['direct_tok']);
-    expect(h.queryCalls).toHaveLength(1);
-    expect(h.queryCalls[0].params).toEqual(['smith-funeral', 'col-123']);
+    expect(h.updateCalls).toHaveLength(1);
+    expect(h.updateCalls[0].params).toEqual(['smith-funeral', 'col-123']);
   });
 
   it("resolves the row via adminUrl's t= param when adminToken is absent", async () => {
-    await attachReferrer(
-      reqWith('smith-funeral'),
+    await attach(
+      'smith-funeral',
       resWith({ adminUrl: 'https://wordsbywtm.com/collect/manage?t=url_tok' }),
     );
     expect(h.lookupCalls).toEqual(['url_tok']);
-    expect(h.queryCalls).toHaveLength(1);
-    expect(h.queryCalls[0].params).toEqual(['smith-funeral', 'col-123']);
+    expect(h.updateCalls).toHaveLength(1);
+    expect(h.updateCalls[0].params).toEqual(['smith-funeral', 'col-123']);
   });
 
   it('issues the first-writer-wins update only on the happy path', async () => {
-    await attachReferrer(reqWith('smith-funeral'), resWith());
-    expect(h.queryCalls).toHaveLength(1);
-    expect(h.queryCalls[0].text).toMatch(/update collections set referrer/);
-    expect(h.queryCalls[0].text).toMatch(/referrer is null/);
-    expect(h.queryCalls[0].params).toEqual(['smith-funeral', 'col-123']);
+    await attach('smith-funeral', resWith());
+    expect(h.updateCalls).toHaveLength(1);
+    expect(h.updateCalls[0].text).toMatch(/update collections set referrer/);
+    expect(h.updateCalls[0].text).toMatch(/referrer is null/);
+    expect(h.updateCalls[0].params).toEqual(['smith-funeral', 'col-123']);
   });
 
   it('is a no-op when the admin token cannot be extracted', async () => {
-    await attachReferrer(
-      reqWith('smith-funeral'),
-      resWith({ shareUrl: 'https://wordsbywtm.com/c/x' }),
-    );
+    await attach('smith-funeral', resWith({ shareUrl: 'https://wordsbywtm.com/c/x' }));
     expect(h.lookupCalls).toHaveLength(0);
-    expect(h.queryCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
   });
 
   it('is a no-op when the row cannot be resolved from the token', async () => {
     h.metaId = null;
-    await attachReferrer(reqWith('smith-funeral'), resWith());
+    await attach('smith-funeral', resWith());
     expect(h.lookupCalls).toEqual(['admin_abc']);
-    expect(h.queryCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
   });
 
   it('is a no-op when the DB client is unavailable', async () => {
     h.dbNull = true;
-    await attachReferrer(reqWith('smith-funeral'), resWith());
-    expect(h.queryCalls).toHaveLength(0);
+    await attach('smith-funeral', resWith());
+    expect(h.updateCalls).toHaveLength(0);
   });
 
-  it('swallows a DB error and never throws (fail-silent telemetry)', async () => {
+  it('swallows a DB error and never throws (fail-closed telemetry)', async () => {
+    // A DB error at the allowlist gate fails CLOSED: getPartner swallows it and
+    // returns null, so we simply don't attribute (no lookup, no update) — and
+    // attachReferrer still resolves without throwing into the create path.
     h.queryThrows = true;
-    await expect(
-      attachReferrer(reqWith('smith-funeral'), resWith()),
-    ).resolves.toBeUndefined();
-    // The lookup ran; the update threw and was swallowed.
-    expect(h.lookupCalls).toEqual(['admin_abc']);
+    await expect(attach('smith-funeral', resWith())).resolves.toBeUndefined();
+    expect(h.lookupCalls).toHaveLength(0);
+    expect(h.updateCalls).toHaveLength(0);
   });
 });
 
