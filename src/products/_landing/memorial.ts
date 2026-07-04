@@ -180,12 +180,17 @@ export const memorialLandingConfig: LandingPageConfig = {
       description: 'Start a collection, invite people, and read every memory — all free, with nothing due until you finalize.',
       features: [
         'Create a collection in under a minute',
-        'Invite up to 3 people with one link (10 once you finalize/pay)',
+        'Start with your closest circle — up to 3 memories free, room for 10 voices in the finished tribute',
         'Read and review every memory as it arrives',
         'No account, no card, nothing due upfront',
       ],
       ctaLabel: 'Start a Memorial Collection →',
     },
+    // Risk-reversal + quiet, factual trust cues right at the pay decision (SES-055
+    // UX panel T-UX-002). Every claim is literally true: a person answers
+    // memorial@, Paddle is the checkout, memories are private and auto-purged.
+    trustNote:
+      'A real person reads every collection — if the finished tribute doesn’t feel right, we’ll make it right. · Secure one-time checkout by Paddle · Only you can read the memories · Auto-deleted after 30 days',
   },
 
   faq: {
@@ -254,6 +259,7 @@ export const memorialLandingConfig: LandingPageConfig = {
       { href: '/terms', label: 'Terms' },
       { href: '/privacy', label: 'Privacy' },
       { href: '/refund', label: 'Refund Policy' },
+      { href: '/support', label: 'Support' },
     ],
     copyright: `© ${new Date().getFullYear()} Words That Matter LLC. All rights reserved.`,
     // Content link — same-tab (vc 1.29.0 footer.extraLink slot).
