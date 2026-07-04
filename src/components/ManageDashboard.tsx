@@ -9,7 +9,6 @@ import {
   CardTitle,
   Button,
   Progress,
-  Separator,
   buttonVariants,
 } from '@eilon-shai/venture-core/ui';
 import { MemoryCard, type Contribution } from './MemoryCard';
@@ -28,6 +27,11 @@ import { resolvePrice } from '@/lib/partners';
 // failure), shows the live "woven from N memories" bar, and finalizes via
 // /api/collection/checkout. Output is NEVER shown here — synthesis happens only
 // after payment on the result page. See COLLECTION_FLOW_DESIGN.md §3, §S6/§S7.
+//
+// SES-056 redesign: the page reshapes around the single next action of the
+// current stage. Exactly one solid-primary Button per state (Copy while
+// gathering; Review & create once finalizable). Everything else is one quiet
+// line or one <details> expander away. See docs/DASHBOARD_REDESIGN_SES056.md.
 // ---------------------------------------------------------------------------
 
 interface CollectionData {
@@ -137,7 +141,7 @@ function InfoTooltip({ text, label }: { text: string; label: string }) {
       <button
         ref={ref}
         type="button"
-        className="flex h-5 w-5 cursor-help items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full align-middle text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         aria-label={label}
         onMouseEnter={show}
         onMouseLeave={hide}
@@ -435,10 +439,14 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const resolved = data.priceShown ? resolvePrice(data.priceShown, discountApplies) : null;
   const price = resolved ? resolved.display : null;
   const priceNum = resolved ? resolved.value : null;
+  // Non-organizer contributors used + the link cap (3 free / 10 paid).
+  const used = data.contributorCount ?? data.contributions.filter((c) => !c.isOrganizer && c.status !== 'removed').length;
+  const capN = data.contributorCap ?? (data.paid ? 10 : 3);
+  const linkFull = used >= capN;
   // Completeness scale = everyone who can add a memory: the invite cap (3 free /
   // 10 paid) plus the organizer's own memory. The bar grows with each memory
   // instead of snapping to full at the minimum-of-1 synthesis floor.
-  const completenessTarget = (data.contributorCap ?? (data.paid ? 10 : 3)) + 1;
+  const completenessTarget = capN + 1;
   const progressValue = Math.min(100, Math.round((includedCount / completenessTarget) * 100));
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -448,6 +456,312 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const emailUrl = `mailto:?subject=${encodeURIComponent(
     `Add a memory for ${data.honoreeName}`,
   )}&body=${encodeURIComponent(inviteText)}`;
+
+  const mem = (n: number) => (n === 1 ? 'memory' : 'memories');
+
+  // One composed status sentence — replaces the old count line + "X of Y people"
+  // line + progress caption (the count used to render ~5 ways).
+  const countSentence =
+    data.count === 0
+      ? 'No memories yet — share your invite link to gather them.'
+      : `${data.count} ${mem(data.count)} from ${used} of ${capN} invite spots${linkFull && !data.paid ? ' — link full' : ''}.`;
+
+  // Deadline, staged by urgency (redesign §3.3): >14d → quiet meta-line, no
+  // deletion language; ≤7d → the prominent box returns (honest late motivation);
+  // 8–14d → meta-line + tooltip. Deletion consequences live in the tooltip +
+  // delete-confirm only. The InfoTooltip text is kept verbatim (the only place
+  // the paid-auto-create vs unpaid-delete distinction is explained).
+  const deadlineTooltip = (
+    <InfoTooltip
+      label="What the deadline means"
+      text={
+        data.paid
+          ? `On this date, memories close and we automatically create your ${noun} from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.`
+          : `On this date, memories close. Finalize before then to create your ${noun} — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.`
+      }
+    />
+  );
+  const deadlineNode =
+    deadline && !generated ? (
+      deadlineDaysLeft != null && deadlineDaysLeft <= 7 && deadlineDaysLeft >= 0 ? (
+        <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+          <span aria-hidden className="mt-0.5 text-lg">🗓️</span>
+          <div className="min-w-0 flex-1">
+            <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-foreground">
+              <span>Deadline: {deadline}</span>
+              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
+                {deadlineDaysLeft === 0 ? 'today' : `${deadlineDaysLeft} day${deadlineDaysLeft === 1 ? '' : 's'} left`}
+              </span>
+              {deadlineTooltip}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {data.paid
+                ? `Memories close then — we’ll create your ${noun} automatically with whatever’s gathered.`
+                : 'Finalize before then, or the collection and its memories are deleted.'}{' '}
+              We’ll email a reminder 3 days before.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Collecting until <span className="text-foreground">{deadline}</span> · we’ll email a reminder{' '}
+          {deadlineTooltip}
+        </p>
+      )
+    ) : null;
+
+  // ---- Reusable blocks ----------------------------------------------------
+
+  const bannerNode =
+    justCreated && !generated ? (
+      <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
+        <p className="font-serif text-lg text-foreground">Your collection is ready {successIcon}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Share your invite link below to gather memories of {data.honoreeName}. We’ve also emailed you this private link
+          — it’s how you’ll come back to review and finalize.
+        </p>
+      </div>
+    ) : null;
+
+  // Tier-1 identity header (slimmed): honoree + status (+ Paid chip) + one
+  // composed sentence + capacity bar + staged deadline meta.
+  const headerCard = (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <CardTitle className="font-serif text-2xl">{data.honoreeName}</CardTitle>
+          <span className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap pt-1 text-xs font-medium text-muted-foreground">
+            {data.paid && !generated ? (
+              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">Paid</span>
+            ) : null}
+            <span className="inline-flex items-center gap-1.5">
+              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${badge.dot}`} />
+              {badge.label}
+            </span>
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-muted-foreground">{countSentence}</p>
+        {!generated ? (
+          <Progress value={progressValue} aria-label={`Memories gathered toward capacity of ${completenessTarget}`} />
+        ) : null}
+        {deadlineNode}
+      </CardContent>
+    </Card>
+  );
+
+  // Add-your-own-memory — a single quiet row (not a full card) above the feed.
+  const addMemoryRow =
+    !generated && !hasOrganizerMemory ? (
+      <div className="flex flex-col gap-2 rounded-xl bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Add your own memory</span> of {data.honoreeName}.
+        </p>
+        <a
+          href={`/c/${data.shareToken}?occasion=${data.occasion}&as=organizer&t=${encodeURIComponent(adminToken)}`}
+          className={`${buttonVariants({ variant: 'outline', size: 'sm' })} self-start sm:self-auto`}
+        >
+          Write a memory
+        </a>
+      </div>
+    ) : null;
+
+  const memoryFeed = (
+    <div className="space-y-3">
+      {data.contributions.length === 0 ? (
+        <Card size="sm">
+          <CardContent className="p-8">
+            <p className="font-serif text-lg text-foreground">No memories yet</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Share your invite link and memories will appear here as they come in.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        [...data.contributions]
+          .sort((a, b) => Number(b.isOrganizer ?? false) - Number(a.isOrganizer ?? false))
+          .map((c) => (
+            <MemoryCard
+              key={c.id}
+              contribution={c}
+              included={isIncluded(c)}
+              disabled={generated || savingIds.has(c.id)}
+              canEdit={!generated}
+              onToggle={handleToggle}
+              onEdit={openEdit}
+              error={toggleErrors[c.id] ?? null}
+              deliverableNoun={noun}
+              relationshipLabel={c.relationship ? (relationshipLabels[c.relationship] ?? c.relationship) : undefined}
+            />
+          ))
+      )}
+    </div>
+  );
+
+  const inviteCard = (opts: { copyVariant: 'default' | 'outline'; compact: boolean }) => (
+    <Card>
+      <CardContent className="p-5">
+        <InviteBlock
+          surface="dashboard"
+          adminToken={adminToken}
+          shareLink={shareLink}
+          inviteText={inviteText}
+          whatsappUrl={whatsappUrl}
+          emailUrl={emailUrl}
+          honoreeName={data.honoreeName}
+          organizerEmail={organizerEmail}
+          paid={!!data.paid}
+          price={price}
+          occasion={occasion}
+          priceValue={priceNum ?? undefined}
+          deliverableNoun={noun}
+          linkCap={capN}
+          linkFull={linkFull}
+          copyVariant={opts.copyVariant}
+          compact={opts.compact}
+        />
+      </CardContent>
+    </Card>
+  );
+
+  // Tier-1 finalize hero — the only priced card, left-aligned, one solid CTA.
+  const peopleCount = includedCount;
+  const perPerson = price && priceNum && peopleCount >= 2 ? Math.round(priceNum / peopleCount) : null;
+  const finalizeHero = (
+    <div className="rounded-xl border border-border bg-card p-6">
+      {includedCount === 0 ? (
+        <>
+          <p className="font-serif text-lg text-foreground">Your keepsake takes shape as memories come in</p>
+          <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
+            As memories arrive, they’re woven into one {noun} — with a keepsake PDF to print and keep, and a spoken
+            version to play {readAloud}.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="font-serif text-lg text-foreground">
+            Your keepsake from <span className="text-primary">{peopleCount}</span> {peopleCount === 1 ? 'person' : 'people'}
+          </p>
+          <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
+            One {noun} woven from {includedCount} {mem(includedCount)}, a keepsake PDF to print and keep, and a spoken
+            version to play {readAloud}.
+          </p>
+        </>
+      )}
+
+      {/* Price framing only when payment is still due (pre-paid finalizes free). */}
+      {price && !data.paid ? (
+        <div className="mt-4 max-w-prose">
+          <p className="text-sm text-foreground">
+            <span className="font-medium">{price} for the whole group</span>, one time
+            {perPerson != null ? <span className="text-muted-foreground"> — about ${perPerson} per person</span> : null}
+          </p>
+          {discountApplies && data.priceShown ? (
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              {noun === 'tribute' ? (
+                <>The courtesy {partnerName ?? 'your funeral home'} arranged is already included — {price} instead of ${data.priceShown}.</>
+              ) : (
+                <>{partnerName ?? 'A partner'} arranged a courtesy for you — {price} instead of ${data.priceShown}, applied automatically.</>
+              )}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      <p className="mt-3 text-sm text-muted-foreground">
+        {data.paid
+          ? `On the next step you’ll choose how it reads — and the voice for the spoken version — then create the ${noun}.`
+          : `Finalizing closes the collection. You’ll choose how it reads — and the voice for the spoken version — and pay${price ? ` your one-time ${price}` : ''} on the next step.`}
+      </p>
+
+      {hasToggleError ? (
+        <p className="mt-3 max-w-prose rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+          A change to which memories are included didn’t save. Retry it in the list above before finalizing, so your {noun} is woven from the right memories.
+        </p>
+      ) : null}
+
+      <div className="mt-5">
+        <Button
+          size="lg"
+          className="w-full sm:w-auto"
+          disabled={belowMin || finalizing || hasToggleError}
+          onClick={() => handleFinalize()}
+          title={hasToggleError ? 'Retry the unsaved change above before finalizing' : undefined}
+        >
+          {finalizing ? 'Opening…' : `Review & create the ${noun}`}
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Quiet finalize footer line while still below the minimum (no second card).
+  const finalizeGhost = (
+    <div className="text-sm text-muted-foreground">
+      <p>
+        Free to gather — when you’re ready, <span className="text-foreground">review &amp; create the {noun}</span>
+        {price && !data.paid ? ` (${price})` : ''}.
+      </p>
+      <p className="mt-1">
+        {remaining} more {mem(remaining)} to finalize.
+      </p>
+    </div>
+  );
+
+  const generatedCard = (
+    <Card>
+      <CardContent className="space-y-4 p-6">
+        <p className="font-serif text-xl text-foreground">Your {noun} has been created</p>
+        <p className="text-muted-foreground">
+          It was woven from {includedCount} {mem(includedCount)} and emailed to you.
+        </p>
+        <a href={`${resultPath}?t=${encodeURIComponent(adminToken)}`} className={buttonVariants({ size: 'lg' })}>
+          View your {noun}
+        </a>
+      </CardContent>
+    </Card>
+  );
+
+  // Footer meta — delete demoted to a quiet destructive text link (confirm kept).
+  const dangerZone = (
+    <div className="border-t border-border pt-6">
+      {data.paid || generated ? (
+        <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
+          Paid collections can’t be deleted here — contact support if you need to remove it.
+        </p>
+      ) : !confirmDelete ? (
+        <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
+          If you do nothing, this collection is automatically deleted about 30 days after the {noun} is created (or at the deadline if you never finalize).{' '}
+          <button
+            type="button"
+            className="text-destructive underline underline-offset-2 hover:text-destructive/80"
+            onClick={() => setConfirmDelete(true)}
+          >
+            Delete it now
+          </button>
+          .
+        </p>
+      ) : (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+          <p className="text-sm font-medium text-foreground">
+            Delete this collection and all {data.count} {mem(data.count)}?
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This permanently removes everything contributors shared. It can’t be undone.
+          </p>
+          {deleteError ? <p className="mt-2 text-sm text-destructive" role="alert">{deleteError}</p> : null}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" variant="destructive" size="sm" disabled={deleting} onClick={() => void handleDelete()}>
+              {deleting ? 'Deleting…' : 'Yes, delete everything'}
+            </Button>
+            <Button type="button" variant="outline" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>
+              Keep collection
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
@@ -491,336 +805,38 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         </div>
       ) : null}
 
-      {/* Everything below is the dashboard content behind the modal — wrapped so
-          it can be marked inert while the edit-memory modal is open. */}
-      <div ref={backgroundRef}>
-      {/* Just-created banner — replaces the old standalone invite page: leads with
-          "invite people" + the emailed-link reassurance. */}
-      {justCreated && !generated ? (
-        <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-          <p className="font-serif text-lg text-foreground">Your collection is ready {successIcon}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Share your invite link below to gather memories of {data.honoreeName}. We’ve also emailed you
-            this private link — it’s how you’ll come back to review and finalize.
-          </p>
-        </div>
-      ) : null}
+      {/* Dashboard content behind the modal — wrapped so it can be marked inert
+          while the edit-memory modal is open. space-y-8 separates the tiers. */}
+      <div ref={backgroundRef} className="space-y-8">
+        {bannerNode}
+        {headerCard}
 
-      {/* Header card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <CardTitle className="font-serif text-2xl">
-              {data.honoreeName}
-            </CardTitle>
-            <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pt-1 text-xs font-medium text-muted-foreground">
-              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${badge.dot}`} />
-              {badge.label}
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            <span className="font-medium text-foreground">{data.count}</span>{' '}
-            {data.count === 1 ? 'memory' : 'memories'} collected
-          </p>
-
-          {!generated ? (() => {
-            const used = data.contributorCount ?? data.contributions.filter((c) => !c.isOrganizer && c.status !== 'removed').length;
-            const capN = data.contributorCap ?? (data.paid ? 10 : 3);
-            const full = used >= capN;
-            return (
-              <p className={`text-sm ${full && !data.paid ? 'text-foreground' : 'text-muted-foreground'}`}>
-                <span className="font-medium text-foreground">{used} of {capN}</span> people have added a memory via your link
-                {full && !data.paid ? ' — your link is full. Pay below to invite up to 10.' : '.'}
-              </p>
-            );
-          })() : null}
-
-          {!generated ? (
-            <div className="space-y-1.5">
-              <Progress value={progressValue} aria-label="Progress toward the minimum" />
-              <p className="text-sm text-muted-foreground">
-                {belowMin
-                  ? `${remaining} more ${remaining === 1 ? 'memory' : 'memories'} until you can finalize`
-                  : 'Ready to finalize whenever you are'}
-              </p>
-            </div>
-          ) : null}
-
-          {/* A2 — seed the price expectation before finalize so it isn't a surprise. */}
-          {!generated && !data.paid && price ? (
-            <p className="text-xs text-muted-foreground">
-              Free to gather memories — pay once ({price}) when you’re ready to finalize.
-            </p>
-          ) : null}
-
-          {deadline && !generated ? (
-            <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
-              <span aria-hidden className="mt-0.5 text-lg">🗓️</span>
-              <div className="min-w-0 flex-1">
-                <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-foreground">
-                  <span>Deadline: {deadline}</span>
-                  {deadlineDaysLeft != null && deadlineDaysLeft >= 0 ? (
-                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
-                      {deadlineDaysLeft === 0 ? 'today' : `${deadlineDaysLeft} day${deadlineDaysLeft === 1 ? '' : 's'} left`}
-                    </span>
-                  ) : null}
-                  <InfoTooltip
-                    label="What the deadline means"
-                    text={
-                      data.paid
-                        ? `On this date, memories close and we automatically create your ${noun} from the memories gathered so far (you don’t have to do anything). We email a reminder 3 days before.`
-                        : `On this date, memories close. Finalize before then to create your ${noun} — otherwise the collection and all its memories are permanently deleted. We email a reminder 3 days before.`
-                    }
-                  />
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {data.paid
-                    ? `Memories close then — we’ll create your ${noun} automatically with whatever’s gathered.`
-                    : 'Finalize before then, or the collection and its memories are deleted.'}{' '}
-                  We’ll email a reminder 3 days before.
-                </p>
-              </div>
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      {/* Add your own memory — only while the organizer hasn't added theirs yet
-          (e.g. they chose "write later" at create). Once it exists it's pinned
-          above with its own Edit button, so this prompt would be redundant. */}
-      {!generated && !hasOrganizerMemory ? (
-        <Card className="mt-4">
-          <CardContent className="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">Add your own memory</p>
-              <p className="text-sm text-muted-foreground">Share a memory of {data.honoreeName} yourself.</p>
-            </div>
-            <a
-              href={`/c/${data.shareToken}?occasion=${data.occasion}&as=organizer&t=${encodeURIComponent(adminToken)}`}
-              className={buttonVariants({ variant: 'outline', size: 'sm' })}
-            >
-              Write a memory
-            </a>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {/* Invite more people (any time before finalizing) */}
-      {!generated ? (
-        <Card className="mt-4">
-          <CardContent className="p-5">
-            <InviteBlock
-              surface="dashboard"
-              adminToken={adminToken}
-              shareLink={shareLink}
-              inviteText={inviteText}
-              whatsappUrl={whatsappUrl}
-              emailUrl={emailUrl}
-              honoreeName={data.honoreeName}
-              organizerEmail={organizerEmail}
-              paid={!!data.paid}
-              price={price}
-              occasion={occasion}
-              priceValue={priceNum ?? undefined}
-              deliverableNoun={noun}
-            />
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {/* Generated read-only state */}
-      {generated ? (
-        <Card className="mt-4">
-          <CardContent className="space-y-4 p-6 text-center">
-            <p className="font-serif text-xl text-foreground">Your {noun} has been created</p>
-            <p className="text-muted-foreground">
-              It was woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'} and emailed to you.
-            </p>
-            <a href={`${resultPath}?t=${encodeURIComponent(adminToken)}`} className={buttonVariants({ size: 'lg' })}>
-              View your {noun}
-            </a>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {/* Memory list */}
-      <div className="mt-8 space-y-4">
-        {data.contributions.length === 0 ? (
-          <Card>
-            <CardContent className="p-10 text-center">
-              <p className="font-serif text-lg text-foreground">No memories yet</p>
-              <p className="mt-2 text-muted-foreground">
-                Share your invite link above and memories will appear here as they come in.
-              </p>
-            </CardContent>
-          </Card>
+        {generated ? (
+          <>
+            {generatedCard}
+            {memoryFeed}
+          </>
+        ) : belowMin ? (
+          // Still gathering — the invite is the hero (Copy = the one solid CTA);
+          // finalize is a quiet footer line until the minimum is reached.
+          <>
+            {inviteCard({ copyVariant: 'default', compact: false })}
+            {addMemoryRow}
+            {memoryFeed}
+            {finalizeGhost}
+          </>
         ) : (
-          [...data.contributions]
-            .sort((a, b) => Number(b.isOrganizer ?? false) - Number(a.isOrganizer ?? false))
-            .map((c) => (
-              <MemoryCard
-                key={c.id}
-                contribution={c}
-                included={isIncluded(c)}
-                disabled={generated || savingIds.has(c.id)}
-                canEdit={!generated}
-                onToggle={handleToggle}
-                onEdit={openEdit}
-                error={toggleErrors[c.id] ?? null}
-                deliverableNoun={noun}
-                relationshipLabel={c.relationship ? (relationshipLabels[c.relationship] ?? c.relationship) : undefined}
-              />
-            ))
+          // Finalizable — Review & create is the hero; the invite is demoted
+          // (outline Copy) below it, its expanders intact.
+          <>
+            {addMemoryRow}
+            {memoryFeed}
+            {finalizeHero}
+            {inviteCard({ copyVariant: 'outline', compact: true })}
+          </>
         )}
-      </div>
 
-      {/* Live summary + finalize (S7) */}
-      {!generated ? (() => {
-        // A1/A3 — anchor the keepsake at the price. "People" = everyone whose
-        // included memory will be woven in (each included memory is one person's
-        // contribution). Pre-pay data only — no synthesized content is shown.
-        // "People" = everyone whose included memory will be woven in (one per
-        // contribution). Use the real count — never floor to 1, or an empty
-        // collection reads "from 1 person … woven from 0 memories".
-        const peopleCount = includedCount;
-        const perPerson =
-          price && priceNum && peopleCount >= 2
-            ? Math.round(priceNum / peopleCount)
-            : null;
-        return (
-        <>
-          <Separator className="my-8" />
-          <div className="rounded-xl border border-border bg-card p-6">
-            {includedCount === 0 ? (
-              <>
-                <p className="text-center font-serif text-lg text-foreground">
-                  Your keepsake takes shape as memories come in
-                </p>
-                <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
-                  As memories arrive, they’re woven into one {noun} — with a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-center font-serif text-lg text-foreground">
-                  Your keepsake from{' '}
-                  <span className="text-primary">{peopleCount}</span>{' '}
-                  {peopleCount === 1 ? 'person' : 'people'}
-                </p>
-                <p className="mx-auto mt-2 max-w-prose text-center text-sm leading-relaxed text-muted-foreground">
-                  One {noun} woven from {includedCount} {includedCount === 1 ? 'memory' : 'memories'}, a keepsake PDF to print and keep, and a spoken version to play {readAloud}.
-                </p>
-              </>
-            )}
-
-            {/* Price framing is shown only when payment is still due. A pre-paid
-                organizer finalizes at no charge, so the price/split would mislead. */}
-            {price && !data.paid ? (
-              <div className="mx-auto mt-4 max-w-prose text-center">
-                <p className="text-sm text-foreground">
-                  <span className="font-medium">{price} for the whole group</span>, one time
-                  {perPerson != null ? <span className="text-muted-foreground"> — about ${perPerson} per person</span> : null}
-                </p>
-                {/* Partner courtesy — pre-applied, positive framing (no coupon field). */}
-                {discountApplies && data.priceShown ? (
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {noun === 'tribute'
-                      ? <>The courtesy {partnerName ?? 'your funeral home'} arranged is already included — {price} instead of ${data.priceShown}.</>
-                      : <>{partnerName ?? 'A partner'} arranged a courtesy for you — {price} instead of ${data.priceShown}, applied automatically.</>}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-
-            <p className="mt-3 text-center text-sm text-muted-foreground">
-              {data.paid
-                ? `On the next step you’ll choose how it reads — and the voice for the spoken version — then create the ${noun}.`
-                : `Finalizing closes the collection. You’ll choose how it reads — and the voice for the spoken version — and pay${price ? ` your one-time ${price}` : ''} on the next step.`}
-            </p>
-
-            {hasToggleError ? (
-              <p className="mx-auto mt-3 max-w-prose rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-center text-sm text-destructive" role="alert">
-                A change to which memories are included didn’t save. Retry it in the list above before finalizing, so your {noun} is woven from the right memories.
-              </p>
-            ) : null}
-
-            <div className="mt-5 flex flex-col items-center gap-2">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto"
-                disabled={belowMin || finalizing || hasToggleError}
-                onClick={() => handleFinalize()}
-                title={
-                  belowMin
-                    ? `Add ${remaining} more ${remaining === 1 ? 'memory' : 'memories'} to finalize`
-                    : hasToggleError
-                      ? 'Retry the unsaved change above before finalizing'
-                      : undefined
-                }
-              >
-                {finalizing ? 'Opening…' : `Review & create the ${noun}`}
-              </Button>
-              {belowMin ? (
-                <p className="text-sm text-muted-foreground">
-                  Add {remaining} more {remaining === 1 ? 'memory' : 'memories'} to finalize.
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </>
-        );
-      })() : null}
-
-      {/* Danger zone — delete the whole collection (cascades to all memories).
-          Hidden once the collection is paid or generated: deleting it would
-          destroy something the customer paid for (a server guard is added
-          separately; this is the UI half). */}
-      <div className="mt-10 border-t border-border pt-6">
-        {data.paid || generated ? (
-          <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
-            Paid collections can’t be deleted here — contact support if you need to remove it.
-          </p>
-        ) : !confirmDelete ? (
-          <div>
-            <button
-              type="button"
-              className={`${buttonVariants({ variant: 'outline', size: 'sm' })} border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive`}
-              onClick={() => setConfirmDelete(true)}
-            >
-              Delete this collection
-            </button>
-            <p className="mt-3 max-w-prose text-xs leading-relaxed text-muted-foreground">
-              If you do nothing, this collection and all its memories are automatically deleted about 30 days after the {noun} is created (or at the deadline if you never finalize). Download or copy your {noun} to keep it.
-            </p>
-          </div>
-        ) : (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-            <p className="text-sm font-medium text-foreground">
-              Delete this collection and all {data.count} {data.count === 1 ? 'memory' : 'memories'}?
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              This permanently removes everything contributors shared. It can’t be undone.
-            </p>
-            {deleteError ? <p className="mt-2 text-sm text-destructive" role="alert">{deleteError}</p> : null}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                disabled={deleting}
-                onClick={() => void handleDelete()}
-              >
-                {deleting ? 'Deleting…' : 'Yes, delete everything'}
-              </Button>
-              <Button type="button" variant="outline" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>
-                Keep collection
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+        {dangerZone}
       </div>
     </div>
   );

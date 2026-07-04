@@ -56,8 +56,8 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
   const noun = (deliverableNoun ?? '').trim() || 'tribute';
 
   return (
-    <Card className={isOrganizer ? 'border-primary/40 ring-1 ring-primary/20' : included ? '' : 'opacity-60'}>
-      <CardContent className="p-5 sm:p-6">
+    <Card size="sm" className={isOrganizer ? 'border-primary/40 ring-1 ring-primary/20' : included ? '' : 'opacity-60'}>
+      <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="font-medium text-foreground">
@@ -70,58 +70,51 @@ export function MemoryCard({ contribution, included, disabled, onToggle, error, 
               <p className="text-sm text-muted-foreground">{relationshipLabel ?? relationship}</p>
             ) : null}
           </div>
+          {/* Date + the include control on one right-aligned stack — the toggle
+              moved up here (no more full-width border-t footer row). */}
           <div className="flex shrink-0 flex-col items-end gap-2">
-            {!isOrganizer && !included ? (
-              <Badge variant="outline" className="text-muted-foreground">
-                Won&apos;t be included
-              </Badge>
-            ) : null}
             {date ? <span className="text-xs text-muted-foreground">{date}</span> : null}
-          </div>
-        </div>
-
-        <p className="speech-text mt-4 whitespace-pre-wrap text-[1.05rem] leading-relaxed text-foreground/90">
-          {memory}
-        </p>
-
-        <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-          {isOrganizer ? (
-            // Organizer's own memory: always included, editable — no toggle.
-            <>
-              <span className="text-sm text-muted-foreground">Always part of the {noun}</span>
-              {canEdit ? (
+            {isOrganizer ? (
+              canEdit ? (
                 <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={() => onEdit?.(contribution)}>
                   Edit
                 </Button>
-              ) : null}
-            </>
-          ) : (
-            <label
-              className={`flex items-center gap-2.5 text-sm ${
-                disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-              }`}
-            >
-              <button
-                type="button"
-                role="switch"
-                aria-checked={included}
-                aria-label={`Include in the ${noun}`}
-                disabled={disabled}
-                onClick={() => onToggle(id, !included)}
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed ${
-                  included ? 'bg-primary' : 'bg-muted'
+              ) : (
+                <span className="text-xs text-muted-foreground">Always in the {noun}</span>
+              )
+            ) : (
+              <label
+                className={`flex items-center gap-2 text-xs ${
+                  disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
                 }`}
               >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-background shadow transition-transform ${
-                    included ? 'translate-x-5' : 'translate-x-0.5'
+                <span className="select-none text-muted-foreground">{included ? 'Included' : 'Not included'}</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={included}
+                  aria-label={`Include in the ${noun}`}
+                  disabled={disabled}
+                  onClick={() => onToggle(id, !included)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed ${
+                    included ? 'bg-primary' : 'bg-muted'
                   }`}
-                />
-              </button>
-              <span className="select-none text-foreground">Include in the {noun}</span>
-            </label>
-          )}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-background shadow transition-transform ${
+                      included ? 'translate-x-5' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </label>
+            )}
+          </div>
         </div>
+
+        {/* Contributors' words are the emotional core — never truncate. */}
+        <p className="speech-text mt-3 whitespace-pre-wrap text-[1.05rem] leading-relaxed text-foreground/90">
+          {memory}
+        </p>
 
         {error ? (
           <p className="mt-2 text-sm text-destructive" role="alert">
