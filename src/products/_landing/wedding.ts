@@ -50,8 +50,11 @@ export const weddingLandingConfig: LandingPageConfig = {
     headlineEmphasis: 'from both sides.',
     subheading:
       'No one person knows the whole love story. Start a collection, invite the wedding party, family, and friends from both sides to each add a story, and we weave them into one toast for the couple — ready to read aloud at the reception.',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80&auto=format&fit=crop',
+    // Self-hosted + shown as intentional warm art (vc 1.31.0) — present, full
+    // color, matching the hub homepage; not the old 0.15 grayscale wash.
+    backgroundImageUrl: '/hero-wedding.jpg',
+    backgroundImageOpacity: 0.5,
+    backgroundImageGrayscale: false,
     sampleExcerpt: SAMPLE_BOTH_SIDES,
     sampleExcerptBadge: 'Woven from 11 stories',
     fullCtaLabel: 'Start a collection →',
@@ -217,8 +220,7 @@ export const weddingLandingConfig: LandingPageConfig = {
     subheading:
       'Start a collection now — it’s free. Invite both sides, and weave their stories into one toast when you’re ready.',
     ctaLabel: 'Start a Wedding Collection →',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1600&q=80&auto=format&fit=crop',
+    backgroundImageUrl: '/finalcta-wedding.jpg',
     trustNote: 'Free to create and collect · Pay once when you finalize · No account needed',
   },
 

@@ -54,8 +54,11 @@ export const retirementLandingConfig: LandingPageConfig = {
     headlineEmphasis: 'in everyone’s voice.',
     subheading:
       'No one person saw the whole career. Start a collection, invite the people who worked alongside them to each add a story, and we weave them into one warm send-off speech — ready to read aloud at the party.',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&q=80&auto=format&fit=crop',
+    // Self-hosted + shown as intentional warm art (vc 1.31.0) — present, full
+    // color, matching the hub homepage; not the old 0.15 grayscale wash.
+    backgroundImageUrl: '/hero-retirement.jpg',
+    backgroundImageOpacity: 0.5,
+    backgroundImageGrayscale: false,
     sampleExcerpt: SAMPLE_TEAM,
     sampleExcerptBadge: 'Woven from 8 stories',
     fullCtaLabel: 'Start a collection →',
@@ -222,7 +225,7 @@ export const retirementLandingConfig: LandingPageConfig = {
       'Start a collection now — it’s free. Invite the people who worked with them, and weave their stories into one speech when you’re ready.',
     ctaLabel: 'Start a Retirement Collection →',
     backgroundImageUrl:
-      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1600&q=80&auto=format&fit=crop',
+      '/finalcta-retirement.jpg',
     trustNote: 'Free to create and collect · Pay once when you finalize · No account needed',
   },
 

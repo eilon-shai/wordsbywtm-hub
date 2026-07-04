@@ -50,8 +50,11 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     headlineEmphasis: 'in everyone’s voice.',
     subheading:
       'A long marriage touches everyone around it. Start a collection, invite family and friends to each add a memory of the couple, and we weave them into one toast — ready to read aloud at the celebration.',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=1600&q=80&auto=format&fit=crop',
+    // Self-hosted + shown as intentional warm art (vc 1.31.0) — present, full
+    // color, matching the hub homepage; not the old 0.15 grayscale wash.
+    backgroundImageUrl: '/hero-anniversary.jpg',
+    backgroundImageOpacity: 0.5,
+    backgroundImageGrayscale: false,
     sampleExcerpt: SAMPLE_FAMILY,
     sampleExcerptBadge: 'Woven from 9 memories',
     fullCtaLabel: 'Start a collection →',
@@ -217,8 +220,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     subheading:
       'Start a collection now — it’s free. Invite family and friends, and weave their memories into one toast when you’re ready.',
     ctaLabel: 'Start an Anniversary Collection →',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1600&q=80&auto=format&fit=crop',
+    backgroundImageUrl: '/finalcta-anniversary.jpg',
     trustNote: 'Free to create and collect · Pay once when you finalize · No account needed',
   },
 

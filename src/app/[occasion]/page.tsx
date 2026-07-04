@@ -11,6 +11,7 @@ import ComingSoon from '@/components/ComingSoon';
 import { PageBeacon } from '@/components/PageBeacon';
 import RefCapture from '@/components/RefCapture';
 import { PartnerEndorsement } from '@/components/PartnerEndorsement';
+import { ProductShowcase } from '@/components/ProductShowcase';
 import { discountConfigured } from '@/lib/partners';
 import { getPartnerForOccasion } from '@/lib/partners-store';
 
@@ -113,6 +114,7 @@ export default async function OccasionLandingPage({
         formPath={`/${occasion}/start`}
         basicPriceId={resolvePrice('basic')}
         fullPriceId={resolvePrice('full')}
+        showcase={<ProductShowcase meta={meta} />}
         formFirst
       />
     </>
