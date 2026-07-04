@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createCreateCollectionHandler } from '@eilon-shai/venture-core/api';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 import { checkRateLimits, hashForKey, clientIp, type RateRule } from '@/lib/rate-limit';
-import { bumpFunnel } from '@/lib/funnel';
+import { bumpFunnel, INTERNAL_COOKIE } from '@/lib/funnel';
 import { attachReferrer } from '@/lib/referrer';
 
 export const maxDuration = 60;
@@ -102,7 +102,9 @@ export async function POST(
   // this can never break a create.
   if (response.ok) {
     const body = await response.clone().json().catch(() => null);
-    if (body && body.existing !== true) await bumpFunnel(occasion, 'create');
+    // Skip the operator's own testing on the live site (?wtm_internal=1 cookie).
+    const internal = request.cookies.get(INTERNAL_COOKIE)?.value === '1';
+    if (body && body.existing !== true && !internal) await bumpFunnel(occasion, 'create');
   }
   // Partner referral attribution (?ref → x-wtm-ref header → collections.referrer).
   // Fail-silent telemetry; a no-op unless a valid slug header rode the request.

@@ -58,6 +58,24 @@ export function middleware(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
   const password = process.env.SUPPORT_PASSWORD;
 
+  // 0) Operator self-exclusion from the funnel counters. `?wtm_internal=1` sets a
+  //    long-lived cookie so this browser's page-views + creates aren't counted on
+  //    the live site (the view/create routes check it); `?wtm_internal=0` clears
+  //    it. Harmless if a visitor sets it — only their own visits stop counting.
+  //    Mirrors the ?preview= bypass below; runs first so it works during
+  //    construction too.
+  const internalFlag = req.nextUrl.searchParams.get('wtm_internal');
+  if (internalFlag === '1' || internalFlag === '0') {
+    const clean = req.nextUrl.clone();
+    clean.searchParams.delete('wtm_internal');
+    const res = NextResponse.redirect(clean);
+    res.cookies.set('wtm_internal', internalFlag === '1' ? '1' : '', {
+      httpOnly: true, secure: true, sameSite: 'lax', path: '/',
+      maxAge: internalFlag === '1' ? 60 * 60 * 24 * 180 : 0,
+    });
+    return res;
+  }
+
   // 1) UNDER_CONSTRUCTION gate — page routes only (APIs keep serving so Paddle
   //    webhooks, crons, and the bypassing operator's fetches still work).
   if (process.env.UNDER_CONSTRUCTION === 'true' && !pathname.startsWith('/api/')) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { bumpFunnel } from '@/lib/funnel';
+import { bumpFunnel, INTERNAL_COOKIE } from '@/lib/funnel';
 import { getConfig, getOccasionMeta } from '@/lib/registry';
 
 // ---------------------------------------------------------------------------
@@ -25,6 +25,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Drop the obvious non-humans (crawlers, link previews, headless browsers).
   const ua = request.headers.get('user-agent') ?? '';
   if (!ua || BOT_UA.test(ua)) return NO_CONTENT();
+
+  // Operator self-exclusion — don't count a browser that opted out via
+  // ?wtm_internal=1 (their own testing on the live site).
+  if (request.cookies.get(INTERNAL_COOKIE)?.value === '1') return NO_CONTENT();
 
   let occasion = '';
   let step = '';

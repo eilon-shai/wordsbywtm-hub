@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Unit tests for the first-party funnel counters. getRedisClient is mocked at
@@ -11,6 +11,7 @@ interface FakeRedis {
   incr: (key: string) => Promise<number>;
   expire: (key: string, sec: number) => Promise<number>;
   mget: (...keys: string[]) => Promise<(number | string | null)[]>;
+  del?: (...keys: string[]) => Promise<number>;
 }
 
 const redisState: { client: FakeRedis | null; throwOnGet: boolean } = {
@@ -27,6 +28,7 @@ vi.mock('@eilon-shai/venture-core/redis', () => ({
 
 import {
   bumpFunnel,
+  resetFunnel,
   readFunnel,
   summarizeFunnel,
   funnelKey,
@@ -51,13 +53,30 @@ function makeStore() {
     async mget(...keys) {
       return keys.map((k) => counts.get(k) ?? null);
     },
+    async del(...keys) {
+      let n = 0;
+      for (const k of keys) {
+        if (counts.delete(k)) n++;
+        expires.delete(k);
+      }
+      return n;
+    },
   };
   return { counts, expires, client };
 }
 
+// bumpFunnel only writes in production (preview/CI share this Redis). Pin the env
+// to 'production' by default so the counting/read/rollup tests can seed via
+// bumpFunnel; the one gate test flips it to 'preview' locally.
+const ORIG_VERCEL_ENV = process.env.VERCEL_ENV;
 beforeEach(() => {
   redisState.client = null;
   redisState.throwOnGet = false;
+  process.env.VERCEL_ENV = 'production';
+});
+afterEach(() => {
+  if (ORIG_VERCEL_ENV === undefined) delete process.env.VERCEL_ENV;
+  else process.env.VERCEL_ENV = ORIG_VERCEL_ENV;
 });
 
 describe('funnelKey / utcDay', () => {
@@ -74,6 +93,14 @@ describe('funnelKey / utcDay', () => {
 });
 
 describe('bumpFunnel', () => {
+  it('does not count outside production (preview/CI share the Redis)', async () => {
+    process.env.VERCEL_ENV = 'preview';
+    const store = makeStore();
+    redisState.client = store.client;
+    await bumpFunnel('memorial', 'landing');
+    expect(store.counts.size).toBe(0);
+  });
+
   it("increments today's key and sets the ~90-day TTL", async () => {
     const store = makeStore();
     redisState.client = store.client;
@@ -108,6 +135,26 @@ describe('bumpFunnel', () => {
       },
     };
     await expect(bumpFunnel('memorial', 'landing')).resolves.toBeUndefined();
+  });
+});
+
+describe('resetFunnel', () => {
+  it('deletes the counter keys and returns how many were removed', async () => {
+    const store = makeStore();
+    redisState.client = store.client;
+    // Seed today's counters directly (bypass the prod-gate on bumpFunnel).
+    store.counts.set(funnelKey(utcDay(), 'memorial', 'landing'), 5);
+    store.counts.set(funnelKey(utcDay(), 'wedding', 'create'), 3);
+    expect(store.counts.size).toBe(2);
+
+    const deleted = await resetFunnel();
+    expect(deleted).toBe(2);
+    expect(store.counts.size).toBe(0);
+  });
+
+  it('is silent (returns 0) when Redis is unavailable', async () => {
+    redisState.client = null;
+    await expect(resetFunnel()).resolves.toBe(0);
   });
 });
 

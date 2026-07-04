@@ -11,6 +11,7 @@ import { NextRequest } from 'next/server';
 const bumpFunnel = vi.fn(async () => {});
 vi.mock('@/lib/funnel', () => ({
   bumpFunnel: (...args: unknown[]) => bumpFunnel(...(args as [])),
+  INTERNAL_COOKIE: 'wtm_internal',
 }));
 
 import { POST as view } from './route';
@@ -91,5 +92,16 @@ describe('metrics/view beacon', () => {
   it('sets no cookies on the response', async () => {
     const res = await view(beaconReq({ occasion: 'memorial', step: 'landing' }));
     expect(res.headers.get('set-cookie')).toBeNull();
+  });
+
+  it('204 but no bump when the operator self-exclusion cookie (wtm_internal=1) is set', async () => {
+    const req = new NextRequest('http://localhost/api/metrics/view', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'user-agent': HUMAN_UA, cookie: 'wtm_internal=1' },
+      body: JSON.stringify({ occasion: 'memorial', step: 'landing' }),
+    });
+    const res = await view(req);
+    expect(res.status).toBe(204);
+    expect(bumpFunnel).not.toHaveBeenCalled();
   });
 });
