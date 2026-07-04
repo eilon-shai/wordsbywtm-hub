@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import OccasionPicker, { resolveFocusSlug } from '@/components/OccasionPicker';
-import { getOccasionMeta } from '@/lib/registry';
+import { getOccasionMeta, OCCASIONS } from '@/lib/registry';
 import FocusScroll from '@/components/FocusScroll';
 import RefCapture from '@/components/RefCapture';
 
@@ -41,7 +41,11 @@ export default async function HubPage({
   // occasion picker (you can't "start" before choosing); known intent (ad
   // deep-link ?focus=) → straight into that occasion. Never hardcode an occasion.
   const ctaHref = focusSlug ? `/${focusSlug}` : '#occasions';
-  const ctaLabel = focusMeta ? `Start a ${focusMeta.title} collection →` : 'Choose an occasion';
+  const ctaLabel = focusMeta ? `Start a ${focusMeta.title} collection →` : 'Start a free collection →';
+
+  // Occasion self-route pills — let occasion-intent visitors jump straight to
+  // their landing instead of scrolling to the picker (SES-055 UX panel doNext).
+  const livePills = OCCASIONS.filter((o) => o.live);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -77,11 +81,8 @@ export default async function HubPage({
               fades into the page so the text stays legible. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-40"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1600&q=80&auto=format&fit=crop')",
-            }}
+            className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-[0.55]"
+            style={{ backgroundImage: "url('/hero-hub.jpg')" }}
           />
           <div
             aria-hidden
@@ -93,7 +94,7 @@ export default async function HubPage({
           />
           <div className="mx-auto flex max-w-3xl flex-col items-center">
             <span className="mb-8 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Gathered · Woven · Read Aloud
+              Group memory collections
             </span>
             <h1 className="font-serif text-5xl leading-tight tracking-tight text-foreground md:text-6xl lg:text-7xl">
               No one person holds the whole story.
@@ -104,12 +105,31 @@ export default async function HubPage({
               Invite the people who were there to each add one memory. We weave them into a single
               piece — written in a voice that belongs to all of you — ready to read aloud.
             </p>
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              You’ll get one woven piece, a <span className="text-foreground">keepsake PDF</span> to print,
-              and a <span className="text-foreground">spoken version</span> to play out loud.
-            </p>
+            {/* The three tangible deliverables, as a scannable icon row (SES-055
+                UX panel finding #7) — a 5-second visitor should register that
+                they get a printable page and spoken audio, not just text. */}
+            <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 text-primary" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M6 2.5h5L15.5 7v10.5H6z" strokeLinejoin="round" /><path d="M11 2.5V7h4.5" strokeLinejoin="round" />
+                </svg>
+                <span>One woven piece</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 text-primary" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M5.5 7.5V3h9v4.5M5.5 14.5h-2v-5h13v5h-2M6.5 12.5h7v4.5h-7z" strokeLinejoin="round" />
+                </svg>
+                <span>Keepsake PDF to print</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 text-primary" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M3.5 7.5v5h3l4 3.5v-12l-4 3.5z" strokeLinejoin="round" /><path d="M13.5 7q1.5 3 0 6M15.5 5q3 5 0 10" strokeLinecap="round" />
+                </svg>
+                <span>Spoken audio to play</span>
+              </li>
+            </ul>
             <p className="mt-6 text-sm font-medium text-muted-foreground">
-              Free to create · Free to collect · Pay once when you’re ready
+              Free to create · Free to collect · $49 once when you’re ready
             </p>
             <a
               href={ctaHref}
@@ -117,6 +137,19 @@ export default async function HubPage({
             >
               {ctaLabel}
             </a>
+            {/* Occasion self-route pills — occasion-intent visitors jump straight
+                to their landing instead of scrolling to the picker. */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              {livePills.map((o) => (
+                <Link
+                  key={o.slug}
+                  href={`/${o.slug}`}
+                  className="rounded-full border border-border bg-card/70 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                >
+                  {o.title}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -220,10 +253,7 @@ export default async function HubPage({
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-35"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1600&q=80&auto=format&fit=crop')",
-            }}
+            style={{ backgroundImage: "url('/hero-finalcta.jpg')" }}
           />
           {/* dark scrim to keep the light text legible */}
           <div
@@ -255,12 +285,20 @@ export default async function HubPage({
       {/* Footer */}
       <footer className="border-t border-border bg-card px-4 py-12 text-center">
         <p className="font-serif text-lg text-foreground">Words That Matter</p>
-        <nav className="mt-4 flex justify-center gap-6 text-sm text-muted-foreground">
+        <nav className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
           <Link href="/guides" className="transition-colors hover:text-foreground">Guides</Link>
+          <Link href="/support" className="transition-colors hover:text-foreground">Support</Link>
           <Link href="/terms" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Terms</Link>
           <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Privacy</Link>
           <Link href="/refund" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">Refund Policy</Link>
         </nav>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Questions before you start?{' '}
+          <a href="mailto:hello@wordsbywtm.com" className="underline underline-offset-2 transition-colors hover:text-foreground">
+            hello@wordsbywtm.com
+          </a>{' '}
+          — a real person answers.
+        </p>
         <p className="mt-4 text-xs text-muted-foreground">
           © {new Date().getFullYear()} Words That Matter LLC. All rights reserved.
         </p>
