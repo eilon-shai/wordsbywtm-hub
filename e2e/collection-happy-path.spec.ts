@@ -91,9 +91,10 @@ test.describe('Tier B — full collection happy-path (mock payment, self-cleanin
     await expect(page.getByText(HONOREE, { exact: false }).first()).toBeVisible();
 
     // ── 2. A contributor adds a memory via the share link ───────────────────
-    // The dashboard (InviteBlock hero) renders the full share URL as TEXT, not an
-    // <a>, so read the visible URL and pull the token out. (Bounded timeout — a
-    // missing element should fail fast, not eat the whole test budget.)
+    // The raw share URL now lives behind a "Show link" toggle (SES-056 redesign):
+    // reveal it, then read the one-line pill's text and pull the token out.
+    // (Bounded timeout — a missing element should fail fast, not eat the budget.)
+    await page.getByRole('button', { name: /show link/i }).first().click();
     const shareText = await page
       .getByText(/\/c\/[A-Za-z0-9_-]+/)
       .first()

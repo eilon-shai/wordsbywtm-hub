@@ -33,6 +33,10 @@ on:
   workflow_dispatch: {} # run on demand (e.g. right after a venture-core bump)
   # MF-6 (SES-048): a venture-core bump is exactly when contract drift lands, so
   # run the gate as a real status check on any PR that touches the dependency pin.
+  # SES-056: also run it when the revenue-path UI or its e2e specs change — the
+  # Tier-B happy-path drives the create → invite → finalize → pay flow rendered by
+  # src/components/** (dashboard, invite, memory, result) and src/app/collect/**,
+  # so a UI restructure there can break the journey without touching package.json.
   # (Still gated on RUN_REVENUE_E2E below, so it no-ops until the founder provisions
   # the test branch.) Mark "Revenue journey (Tier B)" a REQUIRED check in branch
   # protection to block merging a bump that breaks the revenue path — see
@@ -41,6 +45,9 @@ on:
     paths:
       - 'package.json'
       - 'package-lock.json'
+      - 'src/components/**'
+      - 'src/app/collect/**'
+      - 'e2e/**'
 
 concurrency:
   group: revenue-e2e
