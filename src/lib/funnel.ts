@@ -24,6 +24,15 @@ export type FunnelStep = 'landing' | 'start' | 'create';
 
 export const FUNNEL_STEPS: readonly FunnelStep[] = ['landing', 'start', 'create'] as const;
 
+/**
+ * Cookie an operator sets (via `?wtm_internal=1`, handled in middleware) to keep
+ * their OWN browser out of the funnel counters — testing on the live site then
+ * doesn't count. `?wtm_internal=0` clears it. The view + create routes check it
+ * before bumping; harmless if a visitor sets it (only their own visits stop
+ * counting). Not user-identifying — a single on/off flag, never read for content.
+ */
+export const INTERNAL_COOKIE = 'wtm_internal';
+
 /** ~90 days — long enough to compare month-over-month, short enough to self-clean. */
 const TTL_SEC = 90 * 86400;
 
@@ -38,6 +47,10 @@ export function funnelKey(date: string, occasion: string, step: FunnelStep): str
 
 /** Increment today's counter for (occasion, step). Never throws. */
 export async function bumpFunnel(occasion: string, step: FunnelStep): Promise<void> {
+  // Only PRODUCTION traffic counts. Preview deployments + CI/E2E share this one
+  // Upstash Redis (see reference_wordsbywtm_shared_redis), so without this gate
+  // every preview page-view and every E2E create would inflate the live funnel.
+  if (process.env.VERCEL_ENV !== 'production') return;
   let redis: ReturnType<typeof getRedisClient>;
   try {
     redis = getRedisClient();
@@ -55,6 +68,45 @@ export async function bumpFunnel(occasion: string, step: FunnelStep): Promise<vo
   } catch {
     /* non-fatal — telemetry only */
   }
+}
+
+/**
+ * Zero out the funnel counters — deletes every wtm:metrics:{date}:{occasion}:
+ * {step} key over the last `days` days (default 120, past the 90-day TTL). Uses
+ * the deterministic key shape (no SCAN/KEYS), so it can only ever touch these
+ * counters, nothing else in the shared Redis. Returns the number of keys
+ * actually deleted. Never throws.
+ */
+export async function resetFunnel(days = 120): Promise<number> {
+  let redis: ReturnType<typeof getRedisClient>;
+  try {
+    redis = getRedisClient();
+  } catch {
+    return 0;
+  }
+  if (!redis) return 0;
+
+  const slugs = OCCASIONS.map((o) => o.slug);
+  const keys: string[] = [];
+  const now = Date.now();
+  for (let i = 0; i < days; i++) {
+    const date = utcDay(new Date(now - i * 86400_000));
+    for (const slug of slugs) {
+      for (const step of FUNNEL_STEPS) keys.push(funnelKey(date, slug, step));
+    }
+  }
+
+  let deleted = 0;
+  // Batch the DEL so one call never carries thousands of args (Upstash REST limit).
+  for (let i = 0; i < keys.length; i += 200) {
+    const batch = keys.slice(i, i + 200);
+    try {
+      deleted += (await redis.del(...batch)) ?? 0;
+    } catch {
+      /* non-fatal — best-effort reset */
+    }
+  }
+  return deleted;
 }
 
 export type DailyFunnel = Record<string, Record<string, Record<FunnelStep, number>>>;

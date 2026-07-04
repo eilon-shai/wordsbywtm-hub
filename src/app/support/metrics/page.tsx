@@ -5,6 +5,7 @@ import { getMetrics, type MetricsSnapshot } from '@/lib/metrics';
 import { getReferrerSummary, type ReferrerSummary } from '@/lib/referrer';
 import { summarizeFunnel, type FunnelSummary, type StepSummary } from '@/lib/funnel';
 import { getOccasionMeta } from '@/lib/registry';
+import { ResetFunnelButton } from '@/components/ResetFunnelButton';
 
 const FUNNEL_DAYS = 14;
 
@@ -105,9 +106,12 @@ export default async function MetricsPage() {
               <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Traffic funnel — last {funnel.windowDays} days (all visitors)
               </h2>
-              <p className="text-xs text-muted-foreground">
-                cookieless · counts every visit, so it lines up with ad clicks (not Clarity)
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-xs text-muted-foreground">
+                  production only · excludes your opted-out browsers · lines up with ad clicks (not Clarity)
+                </p>
+                <ResetFunnelButton />
+              </div>
             </div>
 
             {funnel.overall.landing === 0 ? (
