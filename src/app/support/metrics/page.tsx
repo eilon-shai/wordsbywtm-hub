@@ -3,6 +3,10 @@ import { getDbClient } from '@eilon-shai/venture-core/db';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getMetrics, type MetricsSnapshot } from '@/lib/metrics';
 import { getReferrerSummary, type ReferrerSummary } from '@/lib/referrer';
+import { summarizeFunnel, type FunnelSummary, type StepSummary } from '@/lib/funnel';
+import { getOccasionMeta } from '@/lib/registry';
+
+const FUNNEL_DAYS = 14;
 
 // ---------------------------------------------------------------------------
 // Business metrics dashboard. Behind the same edge-middleware Basic-Auth as the
@@ -39,11 +43,25 @@ function Stars({ avg }: { avg: number | null }) {
   );
 }
 
+function rateLabel(r: number | null): string {
+  return r == null ? '—' : `${(r * 100).toFixed(0)}%`;
+}
+
 export default async function MetricsPage() {
   const db = getDbClient();
   let snap: MetricsSnapshot | null = null;
   let partners: ReferrerSummary | null = null;
   let error: string | null = null;
+
+  // First-party traffic funnel (Redis, cookieless) — loads independently of the
+  // Postgres snapshot so a Redis hiccup never blanks the DB metrics, and vice
+  // versa. This is the consent-independent count to compare against ad clicks.
+  let funnel: FunnelSummary | null = null;
+  try {
+    funnel = await summarizeFunnel(FUNNEL_DAYS);
+  } catch (err) {
+    console.error('[metrics] funnel error:', err instanceof Error ? err.message : err);
+  }
   if (!db) {
     error = 'Database unavailable (DATABASE_URL not set).';
   } else {
@@ -74,8 +92,86 @@ export default async function MetricsPage() {
           ) : null}
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Live funnel, conversion, and feedback across all occasions — straight from Postgres.
+          First-party traffic funnel (Redis) plus conversion and feedback across all occasions
+          (Postgres). None of this is consent-gated, so it counts every visitor — unlike Clarity/GA.
         </p>
+
+        {/* First-party traffic funnel — the consent-independent visit counts to
+            compare against Google Ads clicks. Every landing/start/create is
+            counted server-side regardless of cookie consent. */}
+        {funnel ? (
+          <section className="mt-8">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Traffic funnel — last {funnel.windowDays} days (all visitors)
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                cookieless · counts every visit, so it lines up with ad clicks (not Clarity)
+              </p>
+            </div>
+
+            {funnel.overall.landing === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                No first-party traffic recorded in this window yet. (Counters began 2026-07-02;
+                a landing only counts real, non-bot page views.)
+              </p>
+            ) : (
+              <>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                  <Stat label="Landings" value={String(funnel.overall.landing)} sub="visits (all)" />
+                  <Stat label="Started" value={String(funnel.overall.start)} sub="opened the form" />
+                  <Stat label="Created" value={String(funnel.overall.create)} sub="collections" />
+                  <Stat
+                    label="Landing → start"
+                    value={rateLabel(funnel.overall.landingToStart)}
+                    sub="reached the form"
+                  />
+                  <Stat
+                    label="Start → create"
+                    value={rateLabel(funnel.overall.startToCreate)}
+                    sub="finished creating"
+                  />
+                </div>
+
+                <div className="mt-4 overflow-x-auto rounded-xl border border-border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                        <th className="px-3 py-2 font-medium">Occasion</th>
+                        <th className="px-3 py-2 text-right font-medium">Landings</th>
+                        <th className="px-3 py-2 text-right font-medium">Started</th>
+                        <th className="px-3 py-2 text-right font-medium">Created</th>
+                        <th className="px-3 py-2 text-right font-medium">L→S</th>
+                        <th className="px-3 py-2 text-right font-medium">S→C</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(funnel.byOccasion)
+                        .filter(([, t]) => t.landing + t.start + t.create > 0)
+                        .sort(([, a], [, b]) => b.landing - a.landing)
+                        .map(([occasion, t]: [string, StepSummary]) => (
+                          <tr key={occasion} className="border-b border-border/60 last:border-0">
+                            <td className="px-3 py-2 text-foreground">
+                              {getOccasionMeta(occasion)?.title ?? occasion}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums">{t.landing}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{t.start}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{t.create}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">
+                              {rateLabel(t.landingToStart)}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums">
+                              {rateLabel(t.startToCreate)}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </section>
+        ) : null}
 
         {error ? <p className="mt-6 text-sm text-destructive">{error}</p> : null}
 

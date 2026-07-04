@@ -25,7 +25,14 @@ vi.mock('@eilon-shai/venture-core/redis', () => ({
   },
 }));
 
-import { bumpFunnel, readFunnel, funnelKey, utcDay, FUNNEL_STEPS } from './funnel';
+import {
+  bumpFunnel,
+  readFunnel,
+  summarizeFunnel,
+  funnelKey,
+  utcDay,
+  FUNNEL_STEPS,
+} from './funnel';
 import { OCCASIONS } from '@/lib/registry';
 
 function makeStore() {
@@ -145,5 +152,49 @@ describe('readFunnel', () => {
     redisState.client = { ...store.client, mget: async () => Promise.reject(new Error('down')) };
     const days = await readFunnel(1);
     expect(days[utcDay()].memorial).toEqual({ landing: 0, start: 0, create: 0 });
+  });
+});
+
+describe('summarizeFunnel', () => {
+  it('rolls up per-occasion + overall totals with landing→start / start→create rates', async () => {
+    const store = makeStore();
+    redisState.client = store.client;
+    // memorial: 4 landing, 1 start, 0 create
+    for (let i = 0; i < 4; i++) await bumpFunnel('memorial', 'landing');
+    await bumpFunnel('memorial', 'start');
+    // wedding: 1 landing, 0 start
+    await bumpFunnel('wedding', 'landing');
+
+    const s = await summarizeFunnel(3);
+    expect(s.windowDays).toBe(3);
+    expect(s.byOccasion.memorial).toEqual({
+      landing: 4,
+      start: 1,
+      create: 0,
+      landingToStart: 0.25,
+      startToCreate: 0, // 1 start, 0 creates → 0 (denominator is non-zero)
+    });
+    // wedding has 1 landing, 0 starts → startToCreate divides by zero → null.
+    expect(s.byOccasion.wedding.landingToStart).toBe(0);
+    expect(s.byOccasion.wedding.startToCreate).toBeNull();
+    expect(s.overall.landing).toBe(5);
+    expect(s.overall.start).toBe(1);
+    expect(s.overall.create).toBe(0);
+    expect(s.overall.landingToStart).toBe(0.2);
+    expect(s.overall.startToCreate).toBe(0);
+    // The raw daily breakdown is carried through for callers that want it.
+    expect(s.days[utcDay()].memorial.landing).toBe(4);
+  });
+
+  it('is all-zero (not thrown) when Redis is unavailable', async () => {
+    redisState.throwOnGet = true;
+    const s = await summarizeFunnel(2);
+    expect(s.overall).toEqual({
+      landing: 0,
+      start: 0,
+      create: 0,
+      landingToStart: null,
+      startToCreate: null,
+    });
   });
 });

@@ -113,3 +113,71 @@ export async function readFunnel(days: number): Promise<DailyFunnel> {
   }
   return result;
 }
+
+// ---------------------------------------------------------------------------
+// Rollup for display — sum the daily counters into per-occasion and overall
+// totals with landing→start and start→create conversion rates. Used by
+// /support/metrics so the operator sees the same first-party, consent-
+// independent counts the /api/metrics/summary endpoint returns.
+// ---------------------------------------------------------------------------
+
+export interface StepCounts {
+  landing: number;
+  start: number;
+  create: number;
+}
+
+export interface StepSummary extends StepCounts {
+  /** start-of-landing and create-of-start ratios; null when the denominator is 0. */
+  landingToStart: number | null;
+  startToCreate: number | null;
+}
+
+export interface FunnelSummary {
+  windowDays: number;
+  /** Raw per-day breakdown, {date: {occasion: {landing, start, create}}}. */
+  days: DailyFunnel;
+  overall: StepSummary;
+  byOccasion: Record<string, StepSummary>;
+}
+
+/** Ratio rounded to 3 dp, or null when the denominator is 0 (no divide-by-zero). */
+function rate(num: number, den: number): number | null {
+  return den > 0 ? Math.round((num / den) * 1000) / 1000 : null;
+}
+
+function withRates(t: StepCounts): StepSummary {
+  return { ...t, landingToStart: rate(t.start, t.landing), startToCreate: rate(t.create, t.start) };
+}
+
+/**
+ * Read the last `days` days of counters and roll them into overall + per-occasion
+ * totals with rates. Never throws (readFunnel is fail-silent → zeros). Mirrors the
+ * rollup in /api/metrics/summary so page and API agree.
+ */
+export async function summarizeFunnel(days: number): Promise<FunnelSummary> {
+  const daily = await readFunnel(days);
+
+  const byOccasionRaw: Record<string, StepCounts> = {};
+  for (const perOccasion of Object.values(daily)) {
+    for (const [occasion, counts] of Object.entries(perOccasion)) {
+      const t = (byOccasionRaw[occasion] ??= { landing: 0, start: 0, create: 0 });
+      for (const step of FUNNEL_STEPS) t[step] += counts[step];
+    }
+  }
+  const overallRaw: StepCounts = { landing: 0, start: 0, create: 0 };
+  for (const t of Object.values(byOccasionRaw)) {
+    overallRaw.landing += t.landing;
+    overallRaw.start += t.start;
+    overallRaw.create += t.create;
+  }
+
+  return {
+    windowDays: days,
+    days: daily,
+    overall: withRates(overallRaw),
+    byOccasion: Object.fromEntries(
+      Object.entries(byOccasionRaw).map(([occasion, t]) => [occasion, withRates(t)]),
+    ),
+  };
+}
