@@ -62,6 +62,12 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
   const [copied, setCopied] = React.useState<string | null>(null); // `${token}:${which}`
   const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null); // token pending confirm
   const [deletingToken, setDeletingToken] = React.useState<string | null>(null);
+  // Inline edit (name + occasions) for one partner at a time.
+  const [editToken, setEditToken] = React.useState<string | null>(null);
+  const [editName, setEditName] = React.useState('');
+  const [editScope, setEditScope] = React.useState<Set<string>>(new Set());
+  const [savingEdit, setSavingEdit] = React.useState(false);
+  const [editError, setEditError] = React.useState<string | null>(null);
 
   const titleFor = React.useCallback(
     (slug: string) => occasions.find((o) => o.slug === slug)?.title ?? slug,
@@ -169,6 +175,56 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
       setDeletingToken(null);
     }
   }, []);
+
+  const startEdit = React.useCallback((p: Partner) => {
+    setEditToken(p.token);
+    setEditName(p.displayName);
+    setEditScope(new Set(p.occasions));
+    setEditError(null);
+    setConfirmDelete(null);
+  }, []);
+
+  const toggleEditScope = React.useCallback((slug: string) => {
+    setEditScope((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+  }, []);
+
+  const saveEdit = React.useCallback(
+    async (token: string) => {
+      const displayName = editName.trim();
+      if (!displayName) {
+        setEditError('A partner name is required.');
+        return;
+      }
+      setSavingEdit(true);
+      setEditError(null);
+      try {
+        const res = await fetch('/api/support/partners', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ token, displayName, occasions: [...editScope] }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          setEditError(json.error ?? 'Could not save changes.');
+          return;
+        }
+        setPartners((prev) =>
+          (prev ?? []).map((p) => (p.token === token ? (json.partner as Partner) : p)),
+        );
+        setEditToken(null);
+      } catch {
+        setEditError('Could not save changes — please try again.');
+      } finally {
+        setSavingEdit(false);
+      }
+    },
+    [editName, editScope],
+  );
 
   const copy = React.useCallback(async (value: string, key: string) => {
     try {
@@ -283,6 +339,13 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
+                        onClick={() => (editToken === p.token ? setEditToken(null) : startEdit(p))}
+                        disabled={deletingToken === p.token}
+                      >
+                        {editToken === p.token ? 'Close' : 'Edit'}
+                      </Button>
+                      <Button
+                        variant="outline"
                         onClick={() => toggleActive(p.token, !p.active)}
                         disabled={busyToken === p.token || deletingToken === p.token}
                       >
@@ -302,6 +365,64 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
                       </Button>
                     </div>
                   </div>
+
+                  {editToken === p.token ? (
+                    <div
+                      className="mt-3 rounded-lg border border-border bg-background p-3"
+                      data-testid="partner-edit"
+                    >
+                      <label className="block">
+                        <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                          Partner name
+                        </span>
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          maxLength={120}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground outline-none focus:border-primary"
+                        />
+                      </label>
+                      <div className="mt-3">
+                        <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                          Applies to
+                        </span>
+                        <div className="mt-1 flex flex-wrap gap-3">
+                          {occasions.map((o) => (
+                            <label
+                              key={o.slug}
+                              className="flex items-center gap-1.5 text-sm text-foreground"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={editScope.has(o.slug)}
+                                onChange={() => toggleEditScope(o.slug)}
+                                className="h-4 w-4 accent-primary"
+                              />
+                              {o.title}
+                            </label>
+                          ))}
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {editScope.size === 0 ? 'With none checked, it applies to all occasions.' : ''}
+                        </p>
+                      </div>
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button
+                          onClick={() => saveEdit(p.token)}
+                          disabled={savingEdit || !editName.trim()}
+                        >
+                          {savingEdit ? 'Saving…' : 'Save changes'}
+                        </Button>
+                        <Button variant="outline" onClick={() => setEditToken(null)} disabled={savingEdit}>
+                          Cancel
+                        </Button>
+                        {editError ? (
+                          <span className="text-sm text-destructive">{editError}</span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
 
                   {confirmDelete === p.token ? (
                     <div

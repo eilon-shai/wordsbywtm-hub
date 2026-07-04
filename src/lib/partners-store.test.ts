@@ -8,6 +8,7 @@ import {
   isActivePartnerForOccasion,
   listPartners,
   setPartnerActive,
+  updatePartner,
   generatePartnerToken,
   __resetPartnersTableGuard,
 } from './partners-store';
@@ -64,11 +65,19 @@ function makeFakeDb(initial: Row[] = []) {
         return [row] as unknown as T[];
       }
 
-      if (sql.startsWith('update partners set active')) {
-        const [token, active] = params as [string, boolean];
+      if (sql.startsWith('update partners set')) {
+        // Params: $1 = token, then one value per SET column in clause order.
+        const token = params[0];
         const row = table.find((r) => r.token === token);
         if (!row) return [] as T[];
-        row.active = active;
+        const setClause = sql.slice(sql.indexOf('set') + 3, sql.indexOf('where'));
+        const cols = setClause.split(',').map((s) => s.trim().split('=')[0].trim());
+        cols.forEach((col, i) => {
+          const val = params[i + 1];
+          if (col === 'display_name') row.display_name = val as string;
+          else if (col === 'occasions') row.occasions = (val as string[]) ?? [];
+          else if (col === 'active') row.active = val as boolean;
+        });
         return [row] as unknown as T[];
       }
 
@@ -200,6 +209,63 @@ describe('setPartnerActive', () => {
   it('throws for a malformed token', async () => {
     const db = makeFakeDb();
     await expect(setPartnerActive('BAD', true, db)).rejects.toThrow(/invalid/i);
+  });
+});
+
+describe('updatePartner', () => {
+  it('edits the display name (trimmed)', async () => {
+    const db = makeFakeDb();
+    const added = await addPartner('Old Name', ['memorial'], db);
+    const updated = await updatePartner(added.token, { displayName: '  New Name  ' }, db);
+    expect(updated?.displayName).toBe('New Name');
+    expect(updated?.occasions).toEqual(['memorial']); // untouched
+    expect((await getPartner(added.token, db))?.displayName).toBe('New Name');
+  });
+
+  it('edits the occasion scope (cleaned + de-duped)', async () => {
+    const db = makeFakeDb();
+    const added = await addPartner('Scoped Home', ['memorial'], db);
+    const updated = await updatePartner(
+      added.token,
+      { occasions: ['wedding', 'wedding', 'BAD SLUG', 'retirement'] },
+      db,
+    );
+    expect(updated?.occasions.sort()).toEqual(['retirement', 'wedding']);
+    // Re-scoping takes effect on the occasion gate immediately.
+    expect(await isActivePartnerForOccasion(added.token, 'memorial', db)).toBe(false);
+    expect(await isActivePartnerForOccasion(added.token, 'wedding', db)).toBe(true);
+  });
+
+  it('can change name, occasions, and active together', async () => {
+    const db = makeFakeDb();
+    const added = await addPartner('Combo', ['memorial'], db);
+    const updated = await updatePartner(
+      added.token,
+      { displayName: 'Combo Renamed', occasions: [], active: false },
+      db,
+    );
+    expect(updated).toMatchObject({ displayName: 'Combo Renamed', occasions: [], active: false });
+  });
+
+  it('rejects an empty name and a too-long name', async () => {
+    const db = makeFakeDb();
+    const added = await addPartner('Valid', [], db);
+    await expect(updatePartner(added.token, { displayName: '   ' }, db)).rejects.toThrow(/required/i);
+    await expect(updatePartner(added.token, { displayName: 'x'.repeat(121) }, db)).rejects.toThrow(
+      /120/,
+    );
+  });
+
+  it('throws when there is nothing to update', async () => {
+    const db = makeFakeDb();
+    const added = await addPartner('Nothing', [], db);
+    await expect(updatePartner(added.token, {}, db)).rejects.toThrow(/nothing to update/i);
+  });
+
+  it('returns null for an unknown token and throws for a malformed one', async () => {
+    const db = makeFakeDb();
+    expect(await updatePartner('p-unknown1', { displayName: 'x' }, db)).toBeNull();
+    await expect(updatePartner('BAD', { displayName: 'x' }, db)).rejects.toThrow(/invalid/i);
   });
 });
 

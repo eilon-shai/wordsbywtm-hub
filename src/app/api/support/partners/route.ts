@@ -1,6 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { addPartner, deletePartner, listPartners, setPartnerActive } from '@/lib/partners-store';
+import {
+  addPartner,
+  deletePartner,
+  listPartners,
+  updatePartner,
+  type PartnerPatch,
+} from '@/lib/partners-store';
 import { isPartnerToken } from '@/lib/partners';
 import { OCCASIONS } from '@/lib/registry';
 
@@ -11,7 +17,7 @@ const LIVE_OCCASION_SLUGS = new Set(OCCASIONS.filter((o) => o.live).map((o) => o
 // Support console — partner registry admin.
 //   GET    → list every partner (active first), for /support/partners.
 //   POST   { displayName, occasions? } → mint an opaque token + add the partner.
-//   PATCH  { token, active }           → activate / deactivate a partner.
+//   PATCH  { token, active?, displayName?, occasions? } → toggle and/or edit.
 //   DELETE { token }                   → permanently remove a partner.
 //
 // The `partners` table is the source of truth for the referral courtesy discount
@@ -65,7 +71,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 }
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
-  let body: { token?: unknown; active?: unknown };
+  let body: { token?: unknown; active?: unknown; displayName?: unknown; occasions?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -75,11 +81,24 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   if (!isPartnerToken(token)) {
     return NextResponse.json({ error: 'Invalid partner token.' }, { status: 400 });
   }
-  if (typeof body.active !== 'boolean') {
-    return NextResponse.json({ error: '`active` must be true or false.' }, { status: 400 });
+  // Build the patch from whichever editable fields are present. active toggles the
+  // partner; displayName/occasions edit its details (any subset may be sent).
+  const patch: PartnerPatch = {};
+  if (typeof body.active === 'boolean') patch.active = body.active;
+  if (typeof body.displayName === 'string') patch.displayName = body.displayName;
+  if (Array.isArray(body.occasions)) {
+    patch.occasions = body.occasions.filter(
+      (o): o is string => typeof o === 'string' && LIVE_OCCASION_SLUGS.has(o),
+    );
+  }
+  if (Object.keys(patch).length === 0) {
+    return NextResponse.json(
+      { error: 'Nothing to update — send active, displayName, and/or occasions.' },
+      { status: 400 },
+    );
   }
   try {
-    const partner = await setPartnerActive(token, body.active);
+    const partner = await updatePartner(token, patch);
     if (!partner) {
       return NextResponse.json({ error: 'No partner with that token.' }, { status: 404 });
     }
@@ -87,7 +106,8 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to update partner.';
     console.error('[support/partners] update error:', message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = /required|characters|long|nothing to update/i.test(message) ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }
 

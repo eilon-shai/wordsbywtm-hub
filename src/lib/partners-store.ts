@@ -200,26 +200,70 @@ export async function addPartner(
   throw new Error('Could not allocate a unique partner token — please try again.');
 }
 
+/** Fields that can be changed on an existing partner. Any subset may be given;
+ *  the token is immutable (it's the family-facing referral link). */
+export interface PartnerPatch {
+  displayName?: string;
+  occasions?: string[];
+  active?: boolean;
+}
+
 /**
- * Activate or deactivate a partner by token. Deactivating stops new
- * endorsements/discounts immediately (organic from then on) but keeps the row
- * for attribution history. Returns the updated Partner, or null if the token
- * isn't known. Throws on bad input / no DB.
+ * Update an existing partner's editable fields (display name, occasion scope,
+ * and/or active flag) by token. Only the provided fields change. Returns the
+ * updated Partner, or null if the token isn't known. Throws on bad input
+ * (empty/too-long name, malformed token, nothing to update) or no DB. The token
+ * itself is never editable — a family may already hold the referral link.
+ */
+export async function updatePartner(
+  token: string,
+  patch: PartnerPatch,
+  db?: SqlClient | null,
+): Promise<Partner | null> {
+  if (!isPartnerToken(token)) throw new Error('Invalid partner token.');
+  const sets: string[] = [];
+  const params: unknown[] = [token]; // $1 = token (the WHERE key)
+
+  if (patch.displayName !== undefined) {
+    const name = patch.displayName.trim();
+    if (!name) throw new Error('A partner display name is required.');
+    if (name.length > MAX_DISPLAY_NAME) {
+      throw new Error(`Display name must be ${MAX_DISPLAY_NAME} characters or fewer.`);
+    }
+    params.push(name);
+    sets.push(`display_name = $${params.length}`);
+  }
+  if (patch.occasions !== undefined) {
+    params.push(cleanOccasions(patch.occasions)); // [] = all occasions
+    sets.push(`occasions = $${params.length}`);
+  }
+  if (patch.active !== undefined) {
+    params.push(patch.active);
+    sets.push(`active = $${params.length}`);
+  }
+  if (sets.length === 0) throw new Error('Nothing to update.');
+
+  const client = db ?? getDbClient();
+  if (!client) throw new Error('Database unavailable (DATABASE_URL not set).');
+  await ensurePartnersTable(client);
+  const rows = await client.query<PartnerRow>(
+    `update partners set ${sets.join(', ')} where token = $1 returning ${SELECT_COLS}`,
+    params,
+  );
+  return rows[0] ? rowToPartner(rows[0]) : null;
+}
+
+/**
+ * Activate or deactivate a partner by token (thin wrapper over updatePartner).
+ * Deactivating stops new endorsements/discounts immediately but keeps the row
+ * for attribution history. Returns the updated Partner, or null if unknown.
  */
 export async function setPartnerActive(
   token: string,
   active: boolean,
   db?: SqlClient | null,
 ): Promise<Partner | null> {
-  if (!isPartnerToken(token)) throw new Error('Invalid partner token.');
-  const client = db ?? getDbClient();
-  if (!client) throw new Error('Database unavailable (DATABASE_URL not set).');
-  await ensurePartnersTable(client);
-  const rows = await client.query<PartnerRow>(
-    `update partners set active = $2 where token = $1 returning ${SELECT_COLS}`,
-    [token, active],
-  );
-  return rows[0] ? rowToPartner(rows[0]) : null;
+  return updatePartner(token, { active }, db);
 }
 
 /**
