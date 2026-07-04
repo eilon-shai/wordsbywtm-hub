@@ -72,8 +72,13 @@ export const memorialLandingConfig: LandingPageConfig = {
     headlineEmphasis: 'in everyone’s voice.',
     subheading:
       'No one person holds the whole of a life. Start a collection, invite the people who knew them to each add a memory, and we weave them into one moving tribute — ready to read aloud at the service.',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&q=80&auto=format&fit=crop',
+    // Self-hosted + shown as intentional warm art (vc 1.31.0): a present,
+    // full-color hero matching the hub homepage, not the old 0.15 grayscale wash
+    // that read as empty. Memorial stays a touch softer than the celebratory
+    // occasions to keep the register calm.
+    backgroundImageUrl: '/hero-memorial.jpg',
+    backgroundImageOpacity: 0.42,
+    backgroundImageGrayscale: false,
     sampleExcerpt: SAMPLE_MIXED,
     sampleExcerptBadge: 'Woven from 9 memories',
     fullCtaLabel: 'Start a collection →',
@@ -244,8 +249,7 @@ export const memorialLandingConfig: LandingPageConfig = {
     subheading:
       'Start a collection now — it’s free. Invite the people who knew them, and weave their memories into one tribute when you’re ready.',
     ctaLabel: 'Start a Memorial Collection →',
-    backgroundImageUrl:
-      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&q=80&auto=format&fit=crop',
+    backgroundImageUrl: '/finalcta-memorial.jpg',
     trustNote: 'Free to create and collect · Pay once when you finalize · No account needed',
   },
 
