@@ -31,13 +31,10 @@ function linkOccasion(partner: Partner): string {
 function refLink(origin: string, partner: Partner): string {
   return `${origin}/${linkOccasion(partner)}?ref=${partner.token}`;
 }
-/** Printable-card link (the card is memorial-templated → only for memorial partners). */
+/** Printable-card link. The card resolves the partner by ?code= and sets its copy
+ *  + baked link to the partner's occasion, so it's valid for every partner. */
 function cardLink(origin: string, token: string): string {
   return `${origin}/partners/card?code=${token}`;
-}
-/** The memorial printable card only makes sense for partners covering memorial. */
-function showsCard(partner: Partner): boolean {
-  return partner.occasions.length === 0 || partner.occasions.includes('memorial');
 }
 
 interface OccasionOption {
@@ -458,14 +455,12 @@ export function PartnersAdmin({ occasions }: { occasions: OccasionOption[] }) {
                       copied={copied === `${p.token}:ref`}
                       onCopy={() => copy(ref, `${p.token}:ref`)}
                     />
-                    {showsCard(p) ? (
-                      <LinkCopy
-                        label="Printable card"
-                        value={card}
-                        copied={copied === `${p.token}:card`}
-                        onCopy={() => copy(card, `${p.token}:card`)}
-                      />
-                    ) : null}
+                    <LinkCopy
+                      label="Printable card"
+                      value={card}
+                      copied={copied === `${p.token}:card`}
+                      onCopy={() => copy(card, `${p.token}:card`)}
+                    />
                   </div>
                 </li>
               );
