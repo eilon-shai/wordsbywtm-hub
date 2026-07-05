@@ -57,7 +57,7 @@ export const memorialLandingConfig: LandingPageConfig = {
     metaTitle: 'Free to gather memories — Memorial Collection',
     metaDescription:
       'Free to start and gather. Invite everyone who knew them to add a memory, then weave it into one tribute to read at the service. Pay once to finalize.',
-    canonicalUrl: 'https://wordsbywtm.com/memorial',
+    canonicalUrl: 'https://www.wordsbywtm.com/memorial',
   },
 
   // No cross-occasion nav: Memorial is a standalone product and must not

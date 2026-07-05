@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
-// Canonical host — non-www, matching the layout canonical + sitemap.
-const HOST = 'https://wordsbywtm.com';
+// Canonical host — www, matching the layout canonical + sitemap + the live redirect.
+const HOST = 'https://www.wordsbywtm.com';
 
 // Allow crawling of the public marketing surface; disallow private, token-bearing,
 // and operational paths (contributor share links, the organizer collect flow,

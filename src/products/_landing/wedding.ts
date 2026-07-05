@@ -41,7 +41,7 @@ export const weddingLandingConfig: LandingPageConfig = {
     metaTitle: 'Free to gather — Wedding Collection & Toast',
     metaDescription:
       'Free to start and gather. Invite both sides to add a story or well-wish, then weave it into one toast for the couple. Pay once to finalize. No account.',
-    canonicalUrl: 'https://wordsbywtm.com/wedding',
+    canonicalUrl: 'https://www.wordsbywtm.com/wedding',
   },
 
   hero: {

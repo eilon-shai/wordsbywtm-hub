@@ -41,7 +41,7 @@ export const anniversaryLandingConfig: LandingPageConfig = {
     metaTitle: 'Free to gather — Anniversary Collection & Toast',
     metaDescription:
       'Free to start and gather. Invite family and friends to add a memory of the couple, then weave it into one anniversary toast. Pay once to finalize.',
-    canonicalUrl: 'https://wordsbywtm.com/anniversary',
+    canonicalUrl: 'https://www.wordsbywtm.com/anniversary',
   },
 
   hero: {

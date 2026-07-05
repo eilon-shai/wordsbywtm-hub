@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: 'Guides — Collecting Memories for Life’s Occasions',
   description:
     'Practical guides to gathering memories from a group — for memorials, weddings, retirements, and anniversaries — and weaving them into one piece.',
-  alternates: { canonical: 'https://wordsbywtm.com/guides' },
+  alternates: { canonical: 'https://www.wordsbywtm.com/guides' },
 };
 
 export default function GuidesIndexPage() {

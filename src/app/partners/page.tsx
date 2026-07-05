@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: 'Partner Program — Words That Matter',
   description:
     'Give families a free, simple way to gather memories from everyone who knew their loved one. A shared link for funeral homes, hospice teams, and celebrants.',
-  alternates: { canonical: 'https://wordsbywtm.com/partners' },
+  alternates: { canonical: 'https://www.wordsbywtm.com/partners' },
 };
 
 const SUPPORT_EMAIL = 'hello@wordsbywtm.com';

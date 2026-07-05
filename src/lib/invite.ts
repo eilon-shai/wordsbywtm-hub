@@ -15,7 +15,7 @@ function withParam(url: string, key: string, value: string): string {
  * Build the public contributor share link from an origin + share token,
  * carrying the occasion and viral-attribution UTM (`src=invite`).
  *
- * @param origin   Absolute base, e.g. `https://wordsbywtm.com` or
+ * @param origin   Absolute base, e.g. `https://www.wordsbywtm.com` or
  *                 `window.location.origin`. Trailing slash is tolerated.
  * @param shareToken  The collection's public share token.
  * @param occasion    Occasion slug, e.g. `memorial`.

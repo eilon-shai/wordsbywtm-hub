@@ -9,7 +9,7 @@
 // All pages are static marketing content — no dynamic APIs, no tokens.
 // ---------------------------------------------------------------------------
 
-export const GUIDES_HOST = 'https://wordsbywtm.com';
+export const GUIDES_HOST = 'https://www.wordsbywtm.com';
 
 export interface GuideMeta {
   slug: string;
