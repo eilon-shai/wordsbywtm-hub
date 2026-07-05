@@ -338,7 +338,7 @@ function AdvancePayExpander({
       className="rounded-lg border border-border bg-background"
     >
       <summary className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium text-muted-foreground">
-        <span>Need more than {cap} people? Open your collection to 10 — same {priceLabel}, paid early</span>
+        <span><strong className="font-semibold">Need more than {cap} people?</strong> Open your collection to 10 — same {priceLabel}, paid early</span>
         <span aria-hidden className="text-muted-foreground">⌄</span>
       </summary>
       <div className="space-y-3 border-t border-border p-4">
