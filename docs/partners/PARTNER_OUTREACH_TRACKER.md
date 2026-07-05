@@ -115,3 +115,44 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Bounced | 0 |
 
 _Update this block as you go — it's the at-a-glance read for the weekly review._
+
+---
+
+# WEDDING TRACK (added 2026-07-05)
+
+**Master data:** `PARTNER_TARGETS_WEDDING.md` (54 targets: 28 planners, 10 officiants/celebrants, 8 DJ/MCs, 8 venues). **Send copy:** `PARTNER_OUTREACH_EMAILS_WEDDING.md` (has per-type Touch-1 openers).
+
+⚠ **The 10–15/day send cap is SHARED with the memorial track** — one hello@ mailbox, one domain. Count both tracks together; memorial batch-1 Touch-2s (due 2026-07-12) take priority over new wedding Touch-1s on any given day.
+
+**On a reply:** same flow as memorial, but scope the token to **wedding** (plus anniversary if they do vow renewals) at `/support/partners`, and point the referral link at `wordsbywtm.com/wedding?ref=<token>`.
+
+## Wedding Batch W1 — suggested first 10 (ready, not sent — fill T1 date when sent)
+
+| # | Name | Organization | Email | Type | T1 sent | T2 due | T3 due | Reply? | Token | Status |
+|---|------|--------------|-------|------|---------|--------|--------|--------|-------|--------|
+| W1 | Marguerite Griffin | Meaningful Marguerite | moments@meaningfulmarguerite.com | Celebrant | | | | | | ready |
+| W2 | Rev. Maureen Cotton | The Soulful Wedding | maureen@thesoulfulwedding.com | Celebrant | | | | | | ready |
+| W3 | Peter Merry | Merry Weddings | Peter@MerryWeddings.com | DJ/MC | | | | | | ready |
+| W4 | Jim Cerone | The Perfect Host | jim@jimcerone.com | DJ/MC | | | | | | ready |
+| W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | | | | | | ready |
+| W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | | | | | | ready |
+| W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | | | | | | ready |
+| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | | | | | | ready |
+| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | | | | | | ready |
+| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | | | | | | ready |
+
+## Wedding queue — remaining 44 (move up + fill dates as you send)
+
+See the master table in `PARTNER_TARGETS_WEDDING.md` (Tier A first). Bounce-check before sending: mastersofceremony@ymail.com, ashley@boutiqueplanning.com; verify in a browser: boydenevents@gmail.com, markaustinanderson@gmail.com, Grace And Virtue (mailto-only).
+
+## Wedding running totals
+
+| Metric | Count |
+|--------|-------|
+| Total targets | 54 |
+| Touch-1 sent | 0 |
+| Replies | 0 |
+| Interested | 0 |
+| Signed (token minted) | 0 |
+| Declined | 0 |
+| Bounced | 0 |
