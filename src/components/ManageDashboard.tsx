@@ -171,6 +171,9 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
   const readAloud = getOccasionMeta(occasion)?.readAloudContext ?? 'at the service';
   const successIcon = getOccasionMeta(occasion)?.successIcon ?? '🤍';
+  // Calm icon for terminal screens (deleted / gone / error) — never the
+  // celebratory successIcon, which reads wrong over an "unavailable" message.
+  const terminalIcon = getOccasionMeta(occasion)?.terminalIcon ?? '🤍';
   // Map stored relationship VALUEs ("child") → friendly labels ("Son or Daughter")
   // for display on the memory cards (E2E finding F-3).
   const relationshipLabels = Object.fromEntries(
@@ -376,15 +379,23 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   }, [adminToken, data, finalizing, occasion, resultPath]);
 
   // --- Render --------------------------------------------------------------
+  // Shared calm terminal layout for the deleted / gone / error screens — centered
+  // with the occasion's terminalIcon, matching the contributor share page's
+  // ClosedScreen (not a bare top-anchored block).
+  const terminalScreen = (title: string, body: string, action: React.ReactNode) => (
+    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="mb-6 text-5xl" aria-hidden="true">{terminalIcon}</div>
+      <h1 className="font-serif text-2xl text-foreground md:text-3xl">{title}</h1>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <div className="mt-8">{action}</div>
+    </div>
+  );
+
   if (deleted) {
-    return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="font-serif text-2xl text-foreground">Collection deleted</h1>
-        <p className="mt-3 text-muted-foreground">
-          Your collection and every memory in it have been permanently removed.
-        </p>
-        <a href="/" className={`${buttonVariants({ size: 'lg' })} mt-6`}>Back to home</a>
-      </div>
+    return terminalScreen(
+      'Collection deleted',
+      'Your collection and every memory in it have been permanently removed.',
+      <a href="/" className={buttonVariants({ size: 'lg' })}>Back to home</a>,
     );
   }
 
@@ -401,19 +412,22 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
   }
 
   if (loadError) {
-    const notFound = loadError.code === 'NOT_FOUND' || loadError.code === 'INVALID_SESSION';
-    return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="font-serif text-2xl text-foreground">We couldn&apos;t open this collection</h1>
-        <p className="mt-3 text-muted-foreground">
-          {notFound
-            ? 'Please use the private manage link from the email we sent you.'
-            : 'Something went wrong on our end. Your collection is safe.'}
-        </p>
-        <Button className="mt-6" onClick={() => void load()}>
-          Try again
-        </Button>
-      </div>
+    // NOT_FOUND is permanent (retryable:false) — the collection is genuinely gone
+    // (deleted by the organizer, auto-removed after the 30-day keepsake window, or
+    // the link is wrong). A "Try again" here can never succeed, and "use the manage
+    // link from your email" is confusing when they're already on that link. Offer a
+    // way home instead. Transient/service errors keep the retry.
+    if (loadError.code === 'NOT_FOUND') {
+      return terminalScreen(
+        'This collection isn’t available',
+        'It may have been deleted, or automatically removed after the 30-day keepsake window closed. If you just created it, open the private manage link from your confirmation email.',
+        <a href="/" className={buttonVariants({ size: 'lg' })}>Back to home</a>,
+      );
+    }
+    return terminalScreen(
+      'We couldn’t open this collection',
+      'Something went wrong on our end. Your collection is safe — please try again in a moment.',
+      <Button onClick={() => void load()}>Try again</Button>,
     );
   }
 
