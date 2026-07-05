@@ -111,7 +111,9 @@ export default async function OccasionResultPage({ params, searchParams }: PageP
         <SiteHeader />
         <main className="min-h-[60vh] bg-background flex items-center justify-center px-4 py-16">
           <div className="max-w-md w-full text-center">
-            <div className="text-5xl mb-6" aria-hidden="true">{meta.successIcon}</div>
+            {/* Calm terminalIcon — never the celebratory successIcon (🎉), which
+                reads wrong over "no longer available" (esp. retirement/anniversary). */}
+            <div className="text-5xl mb-6" aria-hidden="true">{meta.terminalIcon}</div>
             <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
               This collection is no longer available
             </h1>
