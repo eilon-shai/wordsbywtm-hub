@@ -17,7 +17,7 @@ const guide = getGuide('retirement-tribute-stories')!;
 export const metadata: Metadata = {
   title: guide.metaTitle,
   description: guide.metaDescription,
-  alternates: { canonical: `https://wordsbywtm.com/guides/${guide.slug}` },
+  alternates: { canonical: `https://www.wordsbywtm.com/guides/${guide.slug}` },
 };
 
 export default function RetirementTributeGuide() {

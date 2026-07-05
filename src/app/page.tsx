@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: 'Words That Matter — Gather memories into one piece',
   description:
     'No one person holds the whole story. Start a collection for a memorial, wedding, retirement, or anniversary, invite the people who were there to each add a memory, and we weave them into one piece to read aloud. Free to create and collect; pay once when you’re ready.',
-  alternates: { canonical: 'https://wordsbywtm.com' },
+  alternates: { canonical: 'https://www.wordsbywtm.com' },
 };
 
 const STEPS = [

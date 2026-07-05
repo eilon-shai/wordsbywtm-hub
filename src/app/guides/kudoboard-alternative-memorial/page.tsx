@@ -15,7 +15,7 @@ const guide = getGuide('kudoboard-alternative-memorial')!;
 export const metadata: Metadata = {
   title: guide.metaTitle,
   description: guide.metaDescription,
-  alternates: { canonical: `https://wordsbywtm.com/guides/${guide.slug}` },
+  alternates: { canonical: `https://www.wordsbywtm.com/guides/${guide.slug}` },
 };
 
 // Comparison rows. Kudoboard facts verified against kudoboard.com/pricing and

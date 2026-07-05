@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 import { OCCASIONS } from '@/lib/registry';
 import { GUIDES } from '@/lib/guides';
 
-// Canonical host — non-www, matching the layout's alternates.canonical. (The
-// metadataBase is www, but every canonical points here; SEO should follow the
-// canonical host.)
-const HOST = 'https://wordsbywtm.com';
+// Canonical host — www, matching the layout metadataBase/canonical, robots, and
+// the live apex→www redirect, so submitted sitemap URLs resolve 200 directly
+// instead of redirecting (which GSC flags as "Page with redirect").
+const HOST = 'https://www.wordsbywtm.com';
 
 // Public, indexable pages only: the home hub + the live per-occasion landings.
 // Token-bearing routes (/c/, /collect/, /support, /api/) are private and excluded

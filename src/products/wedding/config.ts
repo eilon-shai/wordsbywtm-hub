@@ -20,7 +20,7 @@ import type { CollectionMeta, Contribution } from '@eilon-shai/venture-core/db';
 
 function resolveAppUrl(): string {
   if (process.env.NEXT_PUBLIC_URL) return process.env.NEXT_PUBLIC_URL;
-  if (process.env.VERCEL_ENV === 'production') return 'https://wordsbywtm.com';
+  if (process.env.VERCEL_ENV === 'production') return 'https://www.wordsbywtm.com';
   const vercelHost = process.env.VERCEL_BRANCH_URL || process.env.VERCEL_URL;
   if (vercelHost) return `https://${vercelHost}`;
   return 'http://localhost:3005';

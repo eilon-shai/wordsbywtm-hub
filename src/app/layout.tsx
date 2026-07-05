@@ -14,12 +14,13 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  // Align with the non-www canonical so OG/SEO host signals don't split.
-  metadataBase: new URL('https://wordsbywtm.com'),
+  // www canonical host — matches robots/sitemap and the live apex→www redirect,
+  // so OG/SEO host signals don't split.
+  metadataBase: new URL('https://www.wordsbywtm.com'),
   title: 'Words That Matter — Gather memories into one piece',
   description:
     'Start a collection, invite the people who matter to share their memories, and weave them into one heartfelt piece. For memorials, weddings, retirements, and the moments that matter.',
-  alternates: { canonical: 'https://wordsbywtm.com' },
+  alternates: { canonical: 'https://www.wordsbywtm.com' },
   openGraph: {
     title: 'Words That Matter',
     description: 'Gather memories from everyone who matters into one piece.',

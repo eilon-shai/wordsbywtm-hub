@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 // One row per collections.referrer slug: how many collections that partner's
 // links started, how many were paid, how many reached a generated tribute.
 // CRON_SECRET-guarded (same bearer pattern as the cron routes): read with
-//   curl -H "Authorization: Bearer $CRON_SECRET" https://wordsbywtm.com/api/partners/summary
+//   curl -H "Authorization: Bearer $CRON_SECRET" https://www.wordsbywtm.com/api/partners/summary
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // Fail-closed in production; VERCEL_ENV (not NODE_ENV) is the real
   // production/preview discriminator — same rationale as /api/cron/purge.

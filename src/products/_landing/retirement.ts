@@ -45,7 +45,7 @@ export const retirementLandingConfig: LandingPageConfig = {
     metaTitle: 'Free to gather — Retirement Collection & Speech',
     metaDescription:
       'Free to start and gather. Invite colleagues, friends, and family to add a story, then weave it into one send-off speech. Pay once to finalize. No account.',
-    canonicalUrl: 'https://wordsbywtm.com/retirement',
+    canonicalUrl: 'https://www.wordsbywtm.com/retirement',
   },
 
   hero: {
