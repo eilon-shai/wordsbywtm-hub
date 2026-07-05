@@ -75,6 +75,11 @@ interface ManageDashboardProps {
   discountApplies?: boolean;
   /** Referring partner's display name, when this collection was partner-referred. */
   partnerName?: string;
+  /** False when the admin token didn't resolve to a collection (deleted / unknown
+   *  token) — the occasion is then a guessed default, so terminal screens stay
+   *  brand-neutral (🤍 + bronze chrome) instead of showing the wrong occasion's
+   *  icon/accent (e.g. a memorial candle on a deleted wedding link). */
+  occasionKnown?: boolean;
 }
 
 const isIncluded = (c: Contribution) => c.status !== 'removed';
@@ -166,14 +171,17 @@ function InfoTooltip({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false, discountApplies = false, partnerName }: ManageDashboardProps) {
+export function ManageDashboard({ adminToken, resultPath, occasion, organizerEmail, justCreated = false, discountApplies = false, partnerName, occasionKnown = true }: ManageDashboardProps) {
   // Occasion-specific copy (defaults to memorial wording if the slug is unknown).
   const noun = getOccasionMeta(occasion)?.deliverableNoun ?? 'tribute';
   const readAloud = getOccasionMeta(occasion)?.readAloudContext ?? 'at the service';
   const successIcon = getOccasionMeta(occasion)?.successIcon ?? '🤍';
   // Calm icon for terminal screens (deleted / gone / error) — never the
   // celebratory successIcon, which reads wrong over an "unavailable" message.
-  const terminalIcon = getOccasionMeta(occasion)?.terminalIcon ?? '🤍';
+  // When the occasion is unknown (deleted/unresolved token, so `occasion` is a
+  // guessed default), stay neutral (🤍) rather than show the wrong occasion's icon
+  // — e.g. a memorial candle on a deleted wedding manage link.
+  const terminalIcon = occasionKnown ? getOccasionMeta(occasion)?.terminalIcon ?? '🤍' : '🤍';
   // Map stored relationship VALUEs ("child") → friendly labels ("Son or Daughter")
   // for display on the memory cards (E2E finding F-3).
   const relationshipLabels = Object.fromEntries(

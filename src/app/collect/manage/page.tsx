@@ -36,7 +36,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
     return (
       <>
         <SiteHeader />
-        <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" justCreated={justCreated} />
+        <ManageDashboard adminToken={adminToken} resultPath="/memorial/result" occasion="memorial" justCreated={justCreated} occasionKnown={false} />
       </>
     );
   }
@@ -50,11 +50,16 @@ export default async function ManagePage({ searchParams }: PageProps) {
 
   // Unknown token — do not reveal whether a collection exists; the dashboard's
   // own NOT_FOUND copy directs the organizer back to their email link.
+  const occasionKnown = !!collection;
   const occasion = collection?.occasion ?? 'memorial';
   const config = getConfig(occasion);
   const meta = getOccasionMeta(occasion);
   const resultPath = config?.brand.resultPath ?? '/memorial/result';
-  const accent = meta?.accent;
+  // Only theme with the occasion accent when the token actually resolved. On a
+  // deleted/unknown token `occasion` is a guessed default (memorial), so applying
+  // its accent would paint a wedding organizer's not-found screen memorial-blue.
+  // Fall back to the neutral bronze hub chrome instead.
+  const accent = occasionKnown ? meta?.accent : undefined;
 
   // Partner-referral courtesy (durable, server-side from the collection row).
   // Passed to the dashboard so its price copy + advance-pay CTA reflect the
@@ -88,6 +93,7 @@ export default async function ManagePage({ searchParams }: PageProps) {
         justCreated={justCreated}
         discountApplies={discountApplies}
         partnerName={partnerName}
+        occasionKnown={occasionKnown}
       />
     </main>
   );
