@@ -649,7 +649,6 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
 
   // Tier-1 finalize hero — the only priced card, left-aligned, one solid CTA.
   const peopleCount = includedCount;
-  const perPerson = price && priceNum && peopleCount >= 2 ? Math.round(priceNum / peopleCount) : null;
   const finalizeHero = (
     <div className="rounded-xl border border-border bg-card p-6">
       {includedCount === 0 ? (
@@ -677,7 +676,6 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
         <div className="mt-4 max-w-prose">
           <p className="text-sm text-foreground">
             <span className="font-medium">{price} for the whole group</span>, one time
-            {perPerson != null ? <span className="text-muted-foreground"> — about ${perPerson} per person</span> : null}
           </p>
           {discountApplies && data.priceShown ? (
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -839,13 +837,16 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
             {memoryFeed}
           </>
         ) : belowMin ? (
-          // Still gathering — the invite is the hero (Copy = the one solid CTA);
-          // finalize is a quiet footer line until the minimum is reached.
+          // Still gathering — same section order as the finalizable state below,
+          // so a memory card never jumps position when its include toggle crosses
+          // the finalize minimum. Stage is carried by emphasis, not position: the
+          // invite keeps the one solid Copy CTA and finalize stays a quiet footer
+          // line until the minimum is reached.
           <>
-            {inviteCard({ copyVariant: 'default', compact: false })}
             {addMemoryRow}
             {memoryFeed}
             {finalizeGhost}
+            {inviteCard({ copyVariant: 'default', compact: false })}
           </>
         ) : (
           // Finalizable — Review & create is the hero; the invite is demoted

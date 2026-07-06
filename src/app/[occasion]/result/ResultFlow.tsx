@@ -895,11 +895,8 @@ function ResultFlowInner(props: ResultFlowProps) {
               </Button>
               {!paid ? (
                 <p className="text-center text-xs leading-relaxed text-muted-foreground">
-                  {priceLabel} for the whole group, one time
-                  {prepayCount != null && prepayCount >= 2 && typeof props.priceValue === 'number'
-                    ? ` — about $${Math.round(props.priceValue / prepayCount)} per person`
-                    : ''}
-                  . No subscription, no account. The memories you gathered are always yours to keep.
+                  {priceLabel} for the whole group, one time. No subscription, no account. The memories you
+                  gathered are always yours to keep.
                 </p>
               ) : null}
             </>
