@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { SiteHeader } from '@/components/SiteHeader';
 import { PartnersAdmin } from '@/components/PartnersAdmin';
 import { OCCASIONS } from '@/lib/registry';
 
@@ -17,10 +16,5 @@ export const metadata: Metadata = { title: 'Partners', robots: { index: false, f
 export default function PartnersAdminPage() {
   // Live occasions a partner can be scoped to (memorial pre-selected client-side).
   const occasions = OCCASIONS.filter((o) => o.live).map((o) => ({ slug: o.slug, title: o.title }));
-  return (
-    <>
-      <SiteHeader />
-      <PartnersAdmin occasions={occasions} />
-    </>
-  );
+  return <PartnersAdmin occasions={occasions} />;
 }

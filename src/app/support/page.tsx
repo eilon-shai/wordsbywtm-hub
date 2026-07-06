@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { SiteHeader } from '@/components/SiteHeader';
 import { SupportConsole } from '@/components/SupportConsole';
 
 // ---------------------------------------------------------------------------
@@ -13,10 +12,5 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Support', robots: { index: false, follow: false } };
 
 export default function SupportPage() {
-  return (
-    <>
-      <SiteHeader />
-      <SupportConsole />
-    </>
-  );
+  return <SupportConsole />;
 }

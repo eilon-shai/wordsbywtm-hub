@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { getDbClient } from '@eilon-shai/venture-core/db';
-import { SiteHeader } from '@/components/SiteHeader';
 import { getMetrics, type MetricsSnapshot } from '@/lib/metrics';
 import { getReferrerSummary, type ReferrerSummary } from '@/lib/referrer';
 import { summarizeFunnel, type FunnelSummary, type StepSummary } from '@/lib/funnel';
@@ -81,9 +80,7 @@ export default async function MetricsPage() {
   }
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-4xl px-4 py-10">
+    <main className="mx-auto w-full max-w-4xl px-4 py-10">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <h1 className="font-serif text-2xl text-foreground">Metrics</h1>
           {snap ? (
@@ -306,7 +303,6 @@ export default async function MetricsPage() {
             )}
           </section>
         ) : null}
-      </main>
-    </>
+    </main>
   );
 }
