@@ -38,6 +38,14 @@ const NAME_FIELD = 'contributorName';
 const RELATIONSHIP_FIELD = 'relationship';
 const MEMORY_FIELD = 'memory';
 
+// Shared styling for the hand-rolled inputs (email + the optional fields) so they
+// match the venture-core Input/Textarea used for the name/relationship/memory
+// fields. Without this they used `bg-background border-border`, which — against
+// the white SectionCard — read as greyed-out/disabled. Only the genuinely locked
+// email keeps a muted fill.
+const FIELD_CLASS =
+  'w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50';
+
 type Phase = 'form' | 'submitting' | 'done';
 
 interface SubmitErrorState {
@@ -540,11 +548,13 @@ export function ContributorForm({
                   readOnly={emailLocked}
                   aria-invalid={!!emailError || undefined}
                   aria-describedby={emailError ? 'contributor-email-error' : undefined}
-                  className={`w-full rounded-md border px-3 py-2 text-sm ${
+                  className={
                     emailLocked
-                      ? 'cursor-not-allowed border-border bg-muted text-muted-foreground'
-                      : 'bg-background'
-                  } ${emailError ? 'border-destructive bg-background focus-visible:ring-destructive' : 'border-border'}`}
+                      ? 'w-full cursor-not-allowed rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground'
+                      : emailError
+                        ? 'w-full rounded-lg border border-destructive bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-destructive focus-visible:ring-3 focus-visible:ring-destructive/20'
+                        : FIELD_CLASS
+                  }
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => {
@@ -596,7 +606,7 @@ export function ContributorForm({
                 id="x-quality"
                 type="text"
                 maxLength={120}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                className={FIELD_CLASS}
                 placeholder="e.g. endlessly generous; quietly funny"
                 value={extras.quality}
                 onChange={(e) => setExtras((p) => ({ ...p, quality: e.target.value }))}
@@ -610,7 +620,7 @@ export function ContributorForm({
                 id="x-moment"
                 rows={3}
                 maxLength={600}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                className={FIELD_CLASS}
                 placeholder="A specific moment or story — even a small one."
                 value={extras.favoriteMoment}
                 onChange={(e) => setExtras((p) => ({ ...p, favoriteMoment: e.target.value }))}
@@ -625,7 +635,7 @@ export function ContributorForm({
                   id="x-avoid"
                   rows={2}
                   maxLength={400}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  className={FIELD_CLASS}
                   placeholder={`Optional — we’ll keep it out of the ${deliverable}.`}
                   value={extras.avoid}
                   onChange={(e) => setExtras((p) => ({ ...p, avoid: e.target.value }))}
