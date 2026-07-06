@@ -839,13 +839,16 @@ export function ManageDashboard({ adminToken, resultPath, occasion, organizerEma
             {memoryFeed}
           </>
         ) : belowMin ? (
-          // Still gathering — the invite is the hero (Copy = the one solid CTA);
-          // finalize is a quiet footer line until the minimum is reached.
+          // Still gathering — same section order as the finalizable state below,
+          // so a memory card never jumps position when its include toggle crosses
+          // the finalize minimum. Stage is carried by emphasis, not position: the
+          // invite keeps the one solid Copy CTA and finalize stays a quiet footer
+          // line until the minimum is reached.
           <>
-            {inviteCard({ copyVariant: 'default', compact: false })}
             {addMemoryRow}
             {memoryFeed}
             {finalizeGhost}
+            {inviteCard({ copyVariant: 'default', compact: false })}
           </>
         ) : (
           // Finalizable — Review & create is the hero; the invite is demoted
