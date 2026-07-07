@@ -35,10 +35,10 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
-| 11 | Brian P. Devlin | Devlin Funeral Home | brian@devlinfuneralhome.com | FH | | | | ready |
-| 12 | R. Lee Calcutt, Jr. | Calcutt-Dowling FH | lcalcutt@cainfuneralhome.com | FH | | | | ready |
+| 11 | Brian P. Devlin | Devlin Funeral Home | brian@devlinfuneralhome.com | FH | 2026-07-07 | | | T1 |
+| 12 | R. Lee Calcutt, Jr. | Calcutt-Dowling FH | lcalcutt@cainfuneralhome.com | FH | 2026-07-07 | | | T1 |
 | 13 | Dennis Haren | Haren-Wood Funeral Chapel | harenwood@msn.com | FH | | | | ready ⚠ bounce-check |
-| 14 | Jill Brown | Chicago Choice Ceremonies | jillbrowncelebrates@gmail.com | Celebrant | | | | ready |
+| 14 | Jill Brown | Chicago Choice Ceremonies | jillbrowncelebrates@gmail.com | Celebrant | 2026-07-07 | | | T1 |
 | 15 | Rev. Elizabeth Turk | Forever in Your Hearts Eulogies | RevElizabethFL@gmail.com | Celebrant | | | | ready |
 | 16 | Valerie Nicholas | Gifts of Life Ceremonies | valerie@giftsoflifeceremonies.com | Celebrant | | | | ready |
 | 17 | Kristy J. Martin | Divine Passage Funerals | divinepassagefunerals@gmail.com | FH | | | | ready |
@@ -109,7 +109,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 |--------|-------|
 | Total targets | 61 |
 | Drafted & ready (Batch 1 + 2) | 20 |
-| Touch-1 sent | 10 |
+| Touch-1 sent | 13 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
