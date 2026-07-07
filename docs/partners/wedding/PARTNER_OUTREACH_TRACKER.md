@@ -19,7 +19,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH1_READY.md`. Set T2 due = T1+7, T3 due = 
 | # | Name | Organization | Email | Type | T1 sent | T2 due | T3 due | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|--------|--------|-------|--------|
 | W1 | Marguerite Griffin | Meaningful Marguerite | moments@meaningfulmarguerite.com | Celebrant | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
-| W2 | Rev. Maureen Cotton | The Soulful Wedding | maureen@thesoulfulwedding.com | Celebrant | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
+| W2 | Rev. Maureen Cotton | The Soulful Wedding | maureen@thesoulfulwedding.com | Celebrant | 2026-07-07 | — | — | | | BOUNCED (addr not found 07-07) |
 | W3 | Peter Merry | Merry Weddings | Peter@MerryWeddings.com | DJ/MC | | | | | | ready |
 | W4 | Jim Cerone | The Perfect Host | jim@jimcerone.com | DJ/MC | | | | | | ready |
 | W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | | | | | | ready |
@@ -116,6 +116,6 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Interested | 0 |
 | Signed (token minted) | 0 |
 | Declined | 0 |
-| Bounced | 0 |
+| Bounced | 1 |
 
 _Update this block as you go — it's the at-a-glance read for the weekly review._
