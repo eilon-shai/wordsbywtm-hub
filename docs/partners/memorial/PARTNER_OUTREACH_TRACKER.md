@@ -39,7 +39,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | 12 | R. Lee Calcutt, Jr. | Calcutt-Dowling FH | lcalcutt@cainfuneralhome.com | FH | 2026-07-07 | | | T1 |
 | 13 | Dennis Haren | Haren-Wood Funeral Chapel | harenwood@msn.com | FH | | | | ready ⚠ bounce-check |
 | 14 | Jill Brown | Chicago Choice Ceremonies | jillbrowncelebrates@gmail.com | Celebrant | 2026-07-07 | | | T1 |
-| 15 | Rev. Elizabeth Turk | Forever in Your Hearts Eulogies | RevElizabethFL@gmail.com | Celebrant | 2026-07-07 | | | T1 |
+| 15 | Rev. Elizabeth Turk | Forever in Your Hearts Eulogies | RevElizabethFL@gmail.com | Celebrant | 2026-07-07 | Y 07-07 | | DECLINED (gracious no — prefers her own in-person interviews; no follow-up) |
 | 16 | Valerie Nicholas | Gifts of Life Ceremonies | valerie@giftsoflifeceremonies.com | Celebrant | 2026-07-07 | | | T1 |
 | 17 | Kristy J. Martin | Divine Passage Funerals | divinepassagefunerals@gmail.com | FH | 2026-07-07 | | | T1 |
 | 18 | Andrea & Leigh Graumlich | Graumlich Funeral Home | info@graumlichfuneralhome.com | FH | 2026-07-07 | | | T1 |
@@ -110,10 +110,10 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Total targets | 61 |
 | Drafted & ready (Batch 1 + 2) | 20 |
 | Touch-1 sent | 18 |
-| Replies | 0 |
+| Replies | 1 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
-| Declined | 0 |
+| Declined | 1 |
 | Bounced | 0 |
 
 _Update this block as you go — it's the at-a-glance read for the weekly review._
