@@ -21,9 +21,9 @@
 | 3 | Rachel Gulley | Coastal Hospice | rgulley@coastalhospice.org | Hospice | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
 | 4 | Carla Gabrielsen | Lumina Hospice | grief@luminahospice.org | Hospice | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
 | 5 | Mark Holmes | Carmon Community FH | mcholmes@carmonfh.com | FH | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
-| 6 | Chris Speck | Speck and Livingston FH | chris@speckfuneral.com | FH | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 ⚠ soft-bounce 07-07 (Gmail retrying 23h) |
+| 6 | Chris Speck | Speck and Livingston FH | chris@speckfuneral.com | FH | 2026-07-05 | — | — | | | BOUNCED (hard-bounced 07-09 after soft-bounce 07-07; no follow-up) |
 | 7 | Nick Kowalski | Kowalski Funeral Home | Nick@KowalskiFH.com | FH | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
-| 8 | Kristine Bentz | Sweetgrass Ceremonies | kristine@sweetgrassceremonies.com | Celebrant | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 ⚠ soft-bounce 07-07 (Gmail retrying 22h) |
+| 8 | Kristine Bentz | Sweetgrass Ceremonies | kristine@sweetgrassceremonies.com | Celebrant | 2026-07-05 | — | — | | | BOUNCED (hard-bounced 07-09 after soft-bounce 07-07; no follow-up) |
 | 9 | Tawnya Musser | Dear Departures | tawnya@deardepartures.com | Celebrant | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
 | 10 | Holly R. Miller | Stories of A Lifetime | holly@storiesofalifetimellc.com | Celebrant | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
 
@@ -114,6 +114,6 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Interested | 0 |
 | Signed (token minted) | 0 |
 | Declined | 1 |
-| Bounced | 0 |
+| Bounced | 2 |
 
 _Update this block as you go — it's the at-a-glance read for the weekly review._
