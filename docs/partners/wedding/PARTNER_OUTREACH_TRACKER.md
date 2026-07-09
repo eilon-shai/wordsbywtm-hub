@@ -25,9 +25,9 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH1_READY.md`. Set T2 due = T1+7, T3 due = 
 | W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
 | W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
 | W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
-| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | | | | | | ready |
-| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | | | | | | ready |
-| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | | | | | | ready |
+| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
+| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
+| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
 
 ---
 
@@ -37,7 +37,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
-| W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | | | | ready |
+| W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | 2026-07-09 | | | T1 (T2 due 2026-07-16, T3 due 2026-07-23) |
 | W12 | Ewan Riccio-Laing | Celebrant in Savannah | ewan@celebrantinsavannah.com | Celebrant | | | | ready |
 | W13 | Arissa | A Wedding With Heart | arissa@aweddingwithheart.com | Celebrant | | | | ready |
 | W14 | Mark Anderson | Memphis Wedding DJ MA | markaustinanderson@gmail.com | DJ/MC | | | | ready ⚠ verify renders |
@@ -111,7 +111,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 |--------|-------|
 | Total targets | 54 |
 | Drafted & ready (Batch W1 + W2) | 20 |
-| Touch-1 sent | 7 |
+| Touch-1 sent | 11 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
