@@ -83,7 +83,7 @@ const SHOWCASE_COPY: Record<string, ShowcaseCopy> = {
  *  view of the product without pretending to be a real browser chrome. */
 function ScreenFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div className="pointer-events-none select-none overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex items-center gap-1.5 border-b border-border bg-secondary/40 px-4 py-2.5" aria-hidden>
         <span className="h-2 w-2 rounded-full bg-border" />
         <span className="h-2 w-2 rounded-full bg-border" />
@@ -142,8 +142,10 @@ export function ProductShowcase({ meta }: { meta: OccasionMeta }) {
                   {copy.contributor.memory}
                 </div>
               </div>
-              <div className="rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground">
-                Share this memory
+              <div className="flex justify-center">
+                <span className="rounded-full border border-primary px-5 py-1.5 text-sm font-semibold text-primary">
+                  Share this memory
+                </span>
               </div>
             </ScreenFrame>
             <StepCaption n="1">No account, no payment — about two minutes.</StepCaption>
@@ -171,8 +173,10 @@ export function ProductShowcase({ meta }: { meta: OccasionMeta }) {
                   </li>
                 ))}
               </ul>
-              <div className="rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground">
-                Weave into one {noun}
+              <div className="flex justify-center">
+                <span className="rounded-full border border-primary px-5 py-1.5 text-sm font-semibold text-primary">
+                  Weave into one {noun}
+                </span>
               </div>
             </ScreenFrame>
             <StepCaption n="2">Read every memory as it arrives. Leave out anything that doesn’t belong.</StepCaption>
