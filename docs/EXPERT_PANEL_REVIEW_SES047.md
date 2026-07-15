@@ -18,6 +18,7 @@ The CRITICAL (§7) was conditional on "if prod was migrated from the stale `db/s
 
 ---
 
+
 ## 1. Scorecard
 
 | Expert | Confidence | Quality | Prod-Readiness |
