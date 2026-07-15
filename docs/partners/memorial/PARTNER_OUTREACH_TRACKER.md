@@ -18,7 +18,7 @@
 |---|------|--------------|-------|------|---------|--------|--------|--------|-------|--------|
 | 1 | Carol Pacione | McComas Family FH | cpacione@mccomasfuneralhome.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 2 | Rachel Owen | Owen Funeral Homes | rachel.owen@owenfuneralhome.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
-| 3 | Rachel Gulley | Coastal Hospice | rgulley@coastalhospice.org | Hospice | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
+| 3 | Rachel Gulley | Coastal Hospice | rgulley@coastalhospice.org | Hospice | 2026-07-05 | — | — | Y 07-15 | | DECLINED (gracious no — not interested; no follow-up) |
 | 4 | Carla Gabrielsen | Lumina Hospice | grief@luminahospice.org | Hospice | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 5 | Mark Holmes | Carmon Community FH | mcholmes@carmonfh.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 6 | Chris Speck | Speck and Livingston FH | chris@speckfuneral.com | FH | 2026-07-05 | — | — | | | BOUNCED (hard-bounced 07-09 after soft-bounce 07-07; no follow-up) |
@@ -110,10 +110,10 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Total targets | 61 |
 | Drafted & ready (Batch 1 + 2) | 20 |
 | Touch-1 sent | 19 |
-| Replies | 1 |
+| Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
-| Declined | 1 |
+| Declined | 2 |
 | Bounced | 2 |
 
 _Update this block as you go — it's the at-a-glance read for the weekly review._
