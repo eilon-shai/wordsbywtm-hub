@@ -47,9 +47,12 @@ function CardPanel({ link, copy }: { link: string; copy: CardCopy }) {
         <li>2. {copy.step2}</li>
         <li>3. {copy.step3}</li>
       </ol>
-      <p className="mt-6 border-y border-neutral-300 py-3 font-mono text-lg font-semibold tracking-tight print:border-neutral-400">
+      <a
+        href={`https://${link}`}
+        className="mt-6 block break-all border-y border-neutral-300 py-3 font-mono text-lg font-semibold tracking-tight text-neutral-900 underline-offset-4 hover:underline print:border-neutral-400 print:no-underline"
+      >
         {link}
-      </p>
+      </a>
       <p className="mt-4 text-xs text-neutral-500">{copy.reassurance}</p>
     </div>
   );
