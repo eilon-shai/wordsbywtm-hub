@@ -22,10 +22,10 @@
 | 4 | Carla Gabrielsen | Lumina Hospice | grief@luminahospice.org | Hospice | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 5 | Mark Holmes | Carmon Community FH | mcholmes@carmonfh.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 6 | Chris Speck | Speck and Livingston FH | chris@speckfuneral.com | FH | 2026-07-05 | — | — | | | BOUNCED (hard-bounced 07-09 after soft-bounce 07-07; no follow-up) |
-| 7 | Nick Kowalski | Kowalski Funeral Home | Nick@KowalskiFH.com | FH | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
+| 7 | Nick Kowalski | Kowalski Funeral Home | Nick@KowalskiFH.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 8 | Kristine Bentz | Sweetgrass Ceremonies | kristine@sweetgrassceremonies.com | Celebrant | 2026-07-05 | — | — | | | BOUNCED (hard-bounced 07-09 after soft-bounce 07-07; no follow-up) |
-| 9 | Tawnya Musser | Dear Departures | tawnya@deardepartures.com | Celebrant | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
-| 10 | Holly R. Miller | Stories of A Lifetime | holly@storiesofalifetimellc.com | Celebrant | 2026-07-05 | 2026-07-12 | 2026-07-19 | | | T1 |
+| 9 | Tawnya Musser | Dear Departures | tawnya@deardepartures.com | Celebrant | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
+| 10 | Holly R. Miller | Stories of A Lifetime | holly@storiesofalifetimellc.com | Celebrant | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 
 ---
 
@@ -35,7 +35,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
-| 11 | Brian P. Devlin | Devlin Funeral Home | brian@devlinfuneralhome.com | FH | 2026-07-07 | | | T1 |
+| 11 | Brian P. Devlin | Devlin Funeral Home | brian@devlinfuneralhome.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-15, T3 due 2026-07-22) |
 | 12 | R. Lee Calcutt, Jr. | Calcutt-Dowling FH | lcalcutt@cainfuneralhome.com | FH | 2026-07-07 | | | T1 |
 | 13 | Dennis Haren | Haren-Wood Funeral Chapel | harenwood@msn.com | FH | | | | ready ⚠ bounce-check |
 | 14 | Jill Brown | Chicago Choice Ceremonies | jillbrowncelebrates@gmail.com | Celebrant | 2026-07-07 | | | T1 |
