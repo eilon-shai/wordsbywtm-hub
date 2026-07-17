@@ -44,7 +44,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | 17 | Kristy J. Martin | Divine Passage Funerals | divinepassagefunerals@gmail.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
 | 18 | Andrea & Leigh Graumlich | Graumlich Funeral Home | info@graumlichfuneralhome.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
 | 19 | Samuel & Carol Smith | Smith Family Funeral Homes | smithfamilyfuneralhome@gmail.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
-| 20 | Bradley & Jill Perdue | Zabka-Perdue FH | zabkafuneralhome@gmail.com | FH | 2026-07-09 | | | T1 (T2 due 2026-07-16, T3 due 2026-07-23) |
+| 20 | Bradley & Jill Perdue | Zabka-Perdue FH | zabkafuneralhome@gmail.com | FH | 2026-07-09 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
 
 ---
 

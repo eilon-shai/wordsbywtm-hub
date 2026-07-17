@@ -24,10 +24,10 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH1_READY.md`. Set T2 due = T1+7, T3 due = 
 | W4 | Jim Cerone | The Perfect Host | jim@jimcerone.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
 | W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
-| W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
-| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
-| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
-| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
+| W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
+| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | 2026-07-09 | sent 2026-07-16 | 2026-07-23 | | | T2 |
+| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | 2026-07-09 | sent 2026-07-16 | 2026-07-23 | | | T2 |
+| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | 2026-07-09 | sent 2026-07-16 | 2026-07-23 | | | T2 |
 
 ---
 
@@ -37,16 +37,16 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
-| W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | 2026-07-09 | | | T1 (T2 due 2026-07-16, T3 due 2026-07-23) |
+| W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | 2026-07-09 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
 | W12 | Ewan Riccio-Laing | Celebrant in Savannah | ewan@celebrantinsavannah.com | Celebrant | 2026-07-10 | | | T1 (T2 due 2026-07-17, T3 due 2026-07-24) |
 | W13 | Arissa | A Wedding With Heart | arissa@aweddingwithheart.com | Celebrant | 2026-07-10 | | | T1 (T2 due 2026-07-17, T3 due 2026-07-24) |
 | W14 | Mark Anderson | Memphis Wedding DJ MA | markaustinanderson@gmail.com | DJ/MC | | | | ready ⚠ verify renders |
 | W15 | Lily Hansen | HappiLily Events | hello@happililyevents.com | Planner | 2026-07-10 | | | T1 (T2 due 2026-07-17, T3 due 2026-07-24) |
 | W16 | Carly | Emerald Engagements | carly@emeraldengagements.com | Planner | 2026-07-10 | | | T1 (T2 due 2026-07-17, T3 due 2026-07-24) |
 | W17 | Payton Ellis | Promise Event Planners | payton@promiseeventplanners.com | Planner | 2026-07-10 | | | T1 (T2 due 2026-07-17, T3 due 2026-07-24) |
-| W18 | Melanie Voros | Blissful Beginnings | melanie@blissfulbeginnings.com | Planner | | | | ready |
-| W19 | Kristina Wittig | Kristina Wittig Weddings | kw@kristinawittigweddings.com | Planner | | | | ready |
-| W20 | Gina Marie | Gina Marie Weddings & Events | gina@ginamarieevents.com | Planner | | | | ready |
+| W18 | Melanie Voros | Blissful Beginnings | melanie@blissfulbeginnings.com | Planner | 2026-07-16 | | | T1 (T2 due 2026-07-23, T3 due 2026-07-30) |
+| W19 | Kristina Wittig | Kristina Wittig Weddings | kw@kristinawittigweddings.com | Planner | 2026-07-16 | | | T1 (T2 due 2026-07-23, T3 due 2026-07-30) |
+| W20 | Gina Marie | Gina Marie Weddings & Events | gina@ginamarieevents.com | Planner | 2026-07-16 | | | T1 (T2 due 2026-07-23, T3 due 2026-07-30) |
 
 ---
 
@@ -56,7 +56,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
-| Rose Ahn | Rose Ahn Events | rose@roseahnevents.com | Planner | | | | — |
+| Rose Ahn | Rose Ahn Events | rose@roseahnevents.com | Planner | 2026-07-16 | | | T1 (T2 due 2026-07-23, T3 due 2026-07-30) — drafted from queue, personalized 07-16 |
 | Becky Baker | Becky's Brides | becky@beckysbrides.com | Planner | | | | — |
 | Shannon Rose | Shannon Rose Events | shannon@shannonroseevents.com | Planner | | | | — |
 | Lauri Boyden | The Barn at Boyden Farm | boydenevents@gmail.com | Venue | | | | — ⚠ verify renders |
@@ -111,7 +111,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 |--------|-------|
 | Total targets | 54 |
 | Drafted & ready (Batch W1 + W2) | 20 |
-| Touch-1 sent | 16 |
+| Touch-1 sent | 20 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
