@@ -22,8 +22,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH1_READY.md`. Set T2 due = T1+7, T3 due = 
 | W2 | Rev. Maureen Cotton | The Soulful Wedding | maureen@thesoulfulwedding.com | Celebrant | 2026-07-07 | — | — | | | BOUNCED (addr not found 07-07) |
 | W3 | Peter Merry | Merry Weddings | Peter@MerryWeddings.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | W4 | Jim Cerone | The Perfect Host | jim@jimcerone.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | 2026-07-22 | | | T2 |
-| W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
-| W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
+| W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
+| W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
 | W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | 2026-07-07 | 2026-07-14 | 2026-07-21 | | | T1 |
 | W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
 | W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | 2026-07-09 | 2026-07-16 | 2026-07-23 | | | T1 |
