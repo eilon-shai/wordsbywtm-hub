@@ -18,9 +18,9 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH1_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | # | Name | Organization | Email | Type | T1 sent | T2 due | T3 due | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|--------|--------|-------|--------|
-| W1 | Marguerite Griffin | Meaningful Marguerite | moments@meaningfulmarguerite.com | Celebrant | 2026-07-07 | sent 2026-07-15 | 2026-07-22 | | | T2 |
+| W1 | Marguerite Griffin | Meaningful Marguerite | moments@meaningfulmarguerite.com | Celebrant | 2026-07-07 | sent 2026-07-15 | sent 2026-07-22 | | | T3 |
 | W2 | Rev. Maureen Cotton | The Soulful Wedding | maureen@thesoulfulwedding.com | Celebrant | 2026-07-07 | — | — | | | BOUNCED (addr not found 07-07) |
-| W3 | Peter Merry | Merry Weddings | Peter@MerryWeddings.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | 2026-07-22 | | | T2 |
+| W3 | Peter Merry | Merry Weddings | Peter@MerryWeddings.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | sent 2026-07-22 | | | T3 |
 | W4 | Jim Cerone | The Perfect Host | jim@jimcerone.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
 | W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |

@@ -16,10 +16,10 @@
 
 | # | Name | Organization | Email | Type | T1 sent | T2 due | T3 due | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|--------|--------|-------|--------|
-| 1 | Carol Pacione | McComas Family FH | cpacione@mccomasfuneralhome.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
-| 2 | Rachel Owen | Owen Funeral Homes | rachel.owen@owenfuneralhome.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
+| 1 | Carol Pacione | McComas Family FH | cpacione@mccomasfuneralhome.com | FH | 2026-07-05 | sent 2026-07-15 | sent 2026-07-22 | | | T3 |
+| 2 | Rachel Owen | Owen Funeral Homes | rachel.owen@owenfuneralhome.com | FH | 2026-07-05 | sent 2026-07-15 | sent 2026-07-22 | | | T3 |
 | 3 | Rachel Gulley | Coastal Hospice | rgulley@coastalhospice.org | Hospice | 2026-07-05 | — | — | Y 07-15 | | DECLINED (gracious no — not interested; no follow-up) |
-| 4 | Carla Gabrielsen | Lumina Hospice | grief@luminahospice.org | Hospice | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
+| 4 | Carla Gabrielsen | Lumina Hospice | grief@luminahospice.org | Hospice | 2026-07-05 | sent 2026-07-15 | sent 2026-07-22 | | | T3 |
 | 5 | Mark Holmes | Carmon Community FH | mcholmes@carmonfh.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
 | 6 | Chris Speck | Speck and Livingston FH | chris@speckfuneral.com | FH | 2026-07-05 | — | — | | | BOUNCED (hard-bounced 07-09 after soft-bounce 07-07; no follow-up) |
 | 7 | Nick Kowalski | Kowalski Funeral Home | Nick@KowalskiFH.com | FH | 2026-07-05 | sent 2026-07-15 | 2026-07-22 | | | T2 |
