@@ -35,12 +35,12 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
-| 11 | Brian P. Devlin | Devlin Funeral Home | brian@devlinfuneralhome.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-15, T3 due 2026-07-22) |
-| 12 | R. Lee Calcutt, Jr. | Calcutt-Dowling FH | lcalcutt@cainfuneralhome.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-15, T3 due 2026-07-22) |
+| 11 | Brian P. Devlin | Devlin Funeral Home | brian@devlinfuneralhome.com | FH | 2026-07-07 | | | T3 (T2 sent 2026-07-15, T3 sent 2026-07-23) |
+| 12 | R. Lee Calcutt, Jr. | Calcutt-Dowling FH | lcalcutt@cainfuneralhome.com | FH | 2026-07-07 | | | T3 (T2 sent 2026-07-15, T3 sent 2026-07-23) |
 | 13 | Dennis Haren | Haren-Wood Funeral Chapel | harenwood@msn.com | FH | | | | ready ⚠ bounce-check |
-| 14 | Jill Brown | Chicago Choice Ceremonies | jillbrowncelebrates@gmail.com | Celebrant | 2026-07-07 | | | T2 (T2 sent 2026-07-15, T3 due 2026-07-22) |
+| 14 | Jill Brown | Chicago Choice Ceremonies | jillbrowncelebrates@gmail.com | Celebrant | 2026-07-07 | | | T3 (T2 sent 2026-07-15, T3 sent 2026-07-23) |
 | 15 | Rev. Elizabeth Turk | Forever in Your Hearts Eulogies | RevElizabethFL@gmail.com | Celebrant | 2026-07-07 | Y 07-07 | | DECLINED (gracious no — prefers her own in-person interviews; no follow-up) |
-| 16 | Valerie Nicholas | Gifts of Life Ceremonies | valerie@giftsoflifeceremonies.com | Celebrant | 2026-07-07 | | | T2 (T2 sent 2026-07-15, T3 due 2026-07-22) |
+| 16 | Valerie Nicholas | Gifts of Life Ceremonies | valerie@giftsoflifeceremonies.com | Celebrant | 2026-07-07 | | | T3 (T2 sent 2026-07-15, T3 sent 2026-07-23) |
 | 17 | Kristy J. Martin | Divine Passage Funerals | divinepassagefunerals@gmail.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
 | 18 | Andrea & Leigh Graumlich | Graumlich Funeral Home | info@graumlichfuneralhome.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
 | 19 | Samuel & Carol Smith | Smith Family Funeral Homes | smithfamilyfuneralhome@gmail.com | FH | 2026-07-07 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
