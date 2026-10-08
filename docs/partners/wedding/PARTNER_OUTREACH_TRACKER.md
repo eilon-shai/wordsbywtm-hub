@@ -38,12 +38,12 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
 | W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | 2026-07-09 | | | T3 (T2 sent 2026-07-16, T3 sent 2026-10-08 — ~11 wks late, catch-up) |
-| W12 | Ewan Riccio-Laing | Celebrant in Savannah | ewan@celebrantinsavannah.com | Celebrant | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
-| W13 | Arissa | A Wedding With Heart | arissa@aweddingwithheart.com | Celebrant | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
+| W12 | Ewan Riccio-Laing | Celebrant in Savannah | ewan@celebrantinsavannah.com | Celebrant | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
+| W13 | Arissa | A Wedding With Heart | arissa@aweddingwithheart.com | Celebrant | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
 | W14 | Mark Anderson | Memphis Wedding DJ MA | markaustinanderson@gmail.com | DJ/MC | | | | ready ⚠ verify renders |
-| W15 | Lily Hansen | HappiLily Events | hello@happililyevents.com | Planner | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
-| W16 | Carly | Emerald Engagements | carly@emeraldengagements.com | Planner | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
-| W17 | Payton Ellis | Promise Event Planners | payton@promiseeventplanners.com | Planner | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
+| W15 | Lily Hansen | HappiLily Events | hello@happililyevents.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
+| W16 | Carly | Emerald Engagements | carly@emeraldengagements.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
+| W17 | Payton Ellis | Promise Event Planners | payton@promiseeventplanners.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
 | W18 | Melanie Voros | Blissful Beginnings | melanie@blissfulbeginnings.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 due 2026-10-12) |
 | W19 | Kristina Wittig | Kristina Wittig Weddings | kw@kristinawittigweddings.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 due 2026-10-12) |
 | W20 | Gina Marie | Gina Marie Weddings & Events | gina@ginamarieevents.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 due 2026-10-14) |
