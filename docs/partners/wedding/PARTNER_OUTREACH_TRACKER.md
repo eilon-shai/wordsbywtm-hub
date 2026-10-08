@@ -24,10 +24,10 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH1_READY.md`. Set T2 due = T1+7, T3 due = 
 | W4 | Jim Cerone | The Perfect Host | jim@jimcerone.com | DJ/MC | 2026-07-07 | sent 2026-07-15 | sent 2026-07-23 | | | T3 |
 | W5 | Danielle Giannone | Your Story Ceremonies | danielle@yourstoryceremonies.com | Celebrant | 2026-07-07 | sent 2026-07-16 | sent 2026-10-07 | | | T3 (T3 ~11 wks late, catch-up) |
 | W6 | Amina & Kylie | Wedding Day Girl | info@weddingdaygirl.com | Planner | 2026-07-07 | sent 2026-07-16 | sent 2026-10-07 | | | T3 (T3 ~11 wks late, catch-up) |
-| W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | 2026-07-07 | sent 2026-07-16 | 2026-07-23 | | | T2 |
-| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | 2026-07-09 | sent 2026-07-16 | 2026-07-23 | | | T2 |
-| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | 2026-07-09 | sent 2026-07-16 | 2026-07-23 | | | T2 |
-| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | 2026-07-09 | sent 2026-07-16 | 2026-07-23 | | | T2 |
+| W7 | Marsha VanArk | Distinctly Yours | marsha@stevenspointweddingplanner.com | Planner | 2026-07-07 | sent 2026-07-16 | sent 2026-10-08 | | | T3 (T3 ~11 wks late, catch-up) |
+| W8 | Mitch Taylor | Taylored Weddings | Mitch@TayloredWeddings.com | DJ/MC | 2026-07-09 | sent 2026-07-16 | sent 2026-10-08 | | | T3 (T3 ~11 wks late, catch-up) |
+| W9 | Taylor Fail | Verdeaux & Co | hello@verdeauxandco.com | Planner | 2026-07-09 | sent 2026-07-16 | sent 2026-10-08 | | | T3 (T3 ~11 wks late, catch-up) |
+| W10 | Meg Gurley | Meg's Ceremonies | meggurley@megsceremonies.com | Celebrant | 2026-07-09 | sent 2026-07-16 | sent 2026-10-08 | | | T3 (T3 ~11 wks late, catch-up) |
 
 ---
 
@@ -37,7 +37,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | # | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |---|------|--------------|-------|------|---------|--------|-------|--------|
-| W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | 2026-07-09 | | | T2 (T2 sent 2026-07-16, T3 due 2026-07-23) |
+| W11 | Katherine Hunter | Katherine Hunter Celebrant | katherine@katherinehuntercelebrant.com | Celebrant | 2026-07-09 | | | T3 (T2 sent 2026-07-16, T3 sent 2026-10-08 — ~11 wks late, catch-up) |
 | W12 | Ewan Riccio-Laing | Celebrant in Savannah | ewan@celebrantinsavannah.com | Celebrant | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
 | W13 | Arissa | A Wedding With Heart | arissa@aweddingwithheart.com | Celebrant | 2026-07-10 | | | T2 (T2 sent 2026-07-23, T3 due 2026-07-30) |
 | W14 | Mark Anderson | Memphis Wedding DJ MA | markaustinanderson@gmail.com | DJ/MC | | | | ready ⚠ verify renders |
