@@ -67,8 +67,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
-| Nicole Mower | NMWE (Nicole Mower Wedding Events) | hello@nicolemower.com | Planner | | | | — |
-| — (team) | Mavinhouse Events | hello@mavinhouse.com | Planner | | | | — |
+| Nicole Mower | NMWE (Nicole Mower Wedding Events) | hello@nicolemower.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W25, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| — (team) | Mavinhouse Events | hello@mavinhouse.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W26, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Ashley | Boutique Planning | ashley@boutiqueplanning.com | Planner | | | | — ⚠ bounce-check |
 | — (team) | Sutlan + Co. | letschat@sutlanco.com | Planner | | | | — |
 | Lisa Ivler | Lisa Ivler Events | info@lisaivlerevents.com | Planner | | | | — |
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 24 |
-| Touch-1 sent | 24 |
+| Drafted & ready (Batch W1 + W2 + W3) | 26 |
+| Touch-1 sent | 26 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

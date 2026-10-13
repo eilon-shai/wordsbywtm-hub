@@ -77,3 +77,41 @@ Couples ask venue teams about guest books and ways to include far-away family �
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Roca Berry Farm? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W25. Nicole Mower — NMWE (Maine) · planner
+_Drafted by the dispatcher 2026-10-13 (run 2) from the Tier-B queue._
+**To:** hello@nicolemower.com
+**Subject:** A toast built from everyone's stories
+
+Hi Nicole,
+
+Your real-wedding posts keep coming back to the family and wedding-party toasts, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for NMWE? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W26. Mavinhouse Events (Ipswich / Boston, MA) · planner — generic mailbox → "Hello,"
+_Drafted by the dispatcher 2026-10-13 (run 2) from the Tier-B queue._
+**To:** hello@mavinhouse.com
+**Subject:** A toast built from everyone's stories
+
+Hello,
+
+A studio that plans multi-day weddings, welcome parties included, and writes about heartfelt toasts on its blog is why I'm writing to your team.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Mavinhouse? Just reply and I'll send it over.
+
+Eilon

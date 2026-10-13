@@ -58,9 +58,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | C.E. Peaslee & Son FH | info@peasleefuneralhome.com | FH | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — #22, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Paul W. Harris FH | info@harrisfuneralhome.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #23, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | J. Workman | A.W. Rich Funeral Home | jdworkman@awrfh.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #24, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | | | | — |
-| General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | | | | — |
-| General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | | | | — |
+| General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #25, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #26, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #27, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Liming Family FH | LimingFamilyFuneral@gmail.com | FH | | | | — |
 | General office | Family and Friends FH | familyandfriends@tds.net | FH | | | | — |
 | General office | Krueger Funeral Home | info@kruegerfuneral.com | FH | | | | — |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 24 |
-| Touch-1 sent | 23 |
+| Drafted & ready (Batch 1 + 2 + 3) | 27 |
+| Touch-1 sent | 26 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

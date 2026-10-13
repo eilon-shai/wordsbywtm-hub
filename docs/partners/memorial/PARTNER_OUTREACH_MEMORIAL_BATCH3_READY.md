@@ -76,3 +76,60 @@ Families often ask their funeral director some version of "how do we collect eve
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for A.W. Rich? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## 25. Kiley & Foley Funeral Service (Bangor/Brewer, ME) · FH — general office
+_Drafted by the dispatcher 2026-10-13 (run 2) from the Tier-B queue._
+**To:** info@kileyandfoley.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+I'm writing to you because Kiley & Foley has been family-owned since 1963 and keeps its own Understanding Grief resources for families.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Kiley & Foley? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 26. Anderson-Winfield Funeral Home (Greenville, RI) · FH — general office
+_Drafted by the dispatcher 2026-10-13 (run 2) from the Tier-B queue._
+**To:** Info@andersonwinfield.net
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A home serving Greenville since 1928 that brings therapy dogs in for grieving families clearly thinks past the service itself, which is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Anderson-Winfield? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 27. Iten Funeral Home (Browerville, MN) · FH — general office
+_Drafted by the dispatcher 2026-10-13 (run 2) from the Tier-B queue._
+**To:** itenfuneralhome@gmail.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+I'm writing to you because Iten is a family-owned small-town home that stays with families through a full year of daily grief support.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Iten Funeral Home? Just reply and I'll send it over.
+
+Eilon
