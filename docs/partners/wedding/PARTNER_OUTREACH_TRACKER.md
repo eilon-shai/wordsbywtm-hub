@@ -44,8 +44,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | W15 | Lily Hansen | HappiLily Events | hello@happililyevents.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
 | W16 | Carly | Emerald Engagements | carly@emeraldengagements.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
 | W17 | Payton Ellis | Promise Event Planners | payton@promiseeventplanners.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
-| W18 | Melanie Voros | Blissful Beginnings | melanie@blissfulbeginnings.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 due 2026-10-12) |
-| W19 | Kristina Wittig | Kristina Wittig Weddings | kw@kristinawittigweddings.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 due 2026-10-12) |
+| W18 | Melanie Voros | Blissful Beginnings | melanie@blissfulbeginnings.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 sent 2026-10-13) |
+| W19 | Kristina Wittig | Kristina Wittig Weddings | kw@kristinawittigweddings.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 sent 2026-10-13) |
 | W20 | Gina Marie | Gina Marie Weddings & Events | gina@ginamarieevents.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 due 2026-10-14) |
 
 ---
@@ -61,7 +61,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Shannon Rose | Shannon Rose Events | shannon@shannonroseevents.com | Planner | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — W22, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lauri Boyden | The Barn at Boyden Farm | boydenevents@gmail.com | Venue | | | | — ⚠ verify renders |
 | Jill Hicks / Holly Beaty | Carolina Country Weddings | CarolinaCountryWeddings@gmail.com | Venue | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — W23, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Jordan | Roca Berry Farm | Jordan@rocaberryfarm.com | Venue | | | | — |
+| Jordan | Roca Berry Farm | Jordan@rocaberryfarm.com | Venue | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W24, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 
 ### Tier B (26)
 
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 23 |
-| Touch-1 sent | 23 |
+| Drafted & ready (Batch W1 + W2 + W3) | 24 |
+| Touch-1 sent | 24 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

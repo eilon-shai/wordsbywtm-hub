@@ -58,3 +58,22 @@ Couples ask venue teams about guest books and ways to include far-away family �
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Carolina Country Weddings? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W24. Jordan — Roca Berry Farm (Roca, NE) · venue
+_Drafted by the dispatcher 2026-10-13 from the Tier-A queue._
+**To:** Jordan@rocaberryfarm.com
+**Subject:** A toast built from everyone's stories
+
+Hi Jordan,
+
+A family-owned farm since 1980 that now hosts weddings is exactly the kind of place couples lean on for ideas — which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples ask venue teams about guest books and ways to include far-away family — this is one link that does both. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Roca Berry Farm? Just reply and I'll send it over.
+
+Eilon
