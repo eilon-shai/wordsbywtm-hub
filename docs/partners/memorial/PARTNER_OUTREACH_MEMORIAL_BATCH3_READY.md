@@ -133,3 +133,60 @@ Families often ask their funeral director some version of "how do we collect eve
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Iten Funeral Home? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## 28. Liming Family Funeral Home (Shirley, IN) · FH — general office
+_Drafted by the dispatcher 2026-10-13 (run 3) from the Tier-B queue._
+**To:** LimingFamilyFuneral@gmail.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+I'm writing to you because Liming is an independent, family-owned home that keeps its own grief support and bereavement pages for families.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Liming Family? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 29. Family and Friends Funeral Home (Wingate, IN) · FH — general office
+_Drafted by the dispatcher 2026-10-13 (run 3) from the Tier-B queue._
+**To:** familyandfriends@tds.net
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A family-owned home that offers "A Year of Grief Support" to the families it serves clearly thinks past the service itself, which is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Family and Friends? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 30. Krueger Funeral Home (Blue Island, IL) · FH — general office
+_Drafted by the dispatcher 2026-10-13 (run 3) from the Tier-B queue._
+**To:** info@kruegerfuneral.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+Krueger being family-owned since 1858, with its own bereavement and grief-resources pages, is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Krueger? Just reply and I'll send it over.
+
+Eilon

@@ -115,3 +115,41 @@ Couples keep asking planners some version of "how do we include everyone who can
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Mavinhouse? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W27. Sutlan + Co. (Bluffton, SC) · planner — team mailbox → "Hello,"
+_Drafted by the dispatcher 2026-10-13 (run 3) from the Tier-B queue._
+**To:** letschat@sutlanco.com
+**Subject:** A toast built from everyone's stories
+
+Hello,
+
+A small Lowcountry team planning weddings across Savannah, Hilton Head and Bluffton is exactly who I wanted to write to.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Sutlan + Co.? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W28. Lisa Ivler — Lisa Ivler Events (Jersey Shore, NJ) · planner — info@ mailbox, owner-named
+_Drafted by the dispatcher 2026-10-13 (run 3) from the Tier-B queue._
+**To:** info@lisaivlerevents.com
+**Subject:** A toast built from everyone's stories
+
+Hi Lisa,
+
+You run the day-of timeline yourself, toasts included, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Lisa Ivler Events? Just reply and I'll send it over.
+
+Eilon
