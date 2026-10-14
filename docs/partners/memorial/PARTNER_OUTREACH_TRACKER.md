@@ -65,9 +65,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Family and Friends FH | familyandfriends@tds.net | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #29, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Krueger Funeral Home | info@kruegerfuneral.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #30, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | T. "Eric" Pitman | Pitman Funeral Home | pitmanfuneralhome@hotmail.com | FH | | | | — ⚠ bounce-check |
-| General office | Halligan-McCabe-DeVries FH | info@hmdfuneralhome.com | FH | | | | — |
+| General office | Halligan-McCabe-DeVries FH | info@hmdfuneralhome.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #31, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Lawrence L. Williams | T.V. Williams FH | tvwilliamsfh@bellsouth.net | FH | | | | — ⚠ bounce-check |
-| General office | Carolina Funeral Service | cfccbusiness@carolinafuneral.com | FH | | | | — |
+| General office | Carolina Funeral Service | cfccbusiness@carolinafuneral.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #32, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Hayden & Butler FH | haydenandbutler@tds.net | FH | | | | — |
 | General office | Settle-Wilder FH | info@settlewilderfuneralhome.com | FH | | | | — |
 | General office | Peeples-Rhoden FH | info@peeplesrhoden.com | FH | | | | — |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 30 |
-| Touch-1 sent | 29 |
+| Drafted & ready (Batch 1 + 2 + 3) | 32 |
+| Touch-1 sent | 31 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

@@ -153,3 +153,22 @@ Couples keep asking planners some version of "how do we include everyone who can
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Lisa Ivler Events? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W29. Irene Tyndale — Irene Tyndale Weddings & Events (Atlanta, GA) · planner — events@ mailbox, owner-named
+_Drafted by the dispatcher 2026-10-14 (run 1) from the Tier-B queue._
+**To:** events@irenetyndale.com
+**Subject:** A toast built from everyone's stories
+
+Hi Irene,
+
+A boutique Atlanta firm that takes on small weddings as well as full-service ones is exactly who I wanted to write to.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Irene Tyndale Weddings & Events? Just reply and I'll send it over.
+
+Eilon

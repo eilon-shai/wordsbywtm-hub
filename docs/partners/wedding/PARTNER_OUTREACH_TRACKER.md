@@ -46,7 +46,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | W17 | Payton Ellis | Promise Event Planners | payton@promiseeventplanners.com | Planner | 2026-07-10 | | | T3 (T2 sent 2026-07-23, T3 sent 2026-10-08 — ~10 wks late, catch-up) |
 | W18 | Melanie Voros | Blissful Beginnings | melanie@blissfulbeginnings.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 sent 2026-10-13) |
 | W19 | Kristina Wittig | Kristina Wittig Weddings | kw@kristinawittigweddings.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-05 — ~10 wks late, catch-up; T3 sent 2026-10-13) |
-| W20 | Gina Marie | Gina Marie Weddings & Events | gina@ginamarieevents.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 due 2026-10-14) |
+| W20 | Gina Marie | Gina Marie Weddings & Events | gina@ginamarieevents.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 sent 2026-10-14) |
 
 ---
 
@@ -56,7 +56,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
-| Rose Ahn | Rose Ahn Events | rose@roseahnevents.com | Planner | 2026-07-16 | | | T2 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 due 2026-10-14) — drafted from queue, personalized 07-16 |
+| Rose Ahn | Rose Ahn Events | rose@roseahnevents.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 sent 2026-10-14) — drafted from queue, personalized 07-16 |
 | Becky Baker | Becky's Brides | becky@beckysbrides.com | Planner | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — W21, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Shannon Rose | Shannon Rose Events | shannon@shannonroseevents.com | Planner | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — W22, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lauri Boyden | The Barn at Boyden Farm | boydenevents@gmail.com | Venue | | | | — ⚠ verify renders |
@@ -72,7 +72,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Ashley | Boutique Planning | ashley@boutiqueplanning.com | Planner | | | | — ⚠ bounce-check |
 | — (team) | Sutlan + Co. | letschat@sutlanco.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W27, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lisa Ivler | Lisa Ivler Events | info@lisaivlerevents.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W28, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Irene Tyndale | Irene Tyndale Weddings & Events | events@irenetyndale.com | Planner | | | | — |
+| Irene Tyndale | Irene Tyndale Weddings & Events | events@irenetyndale.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W29, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Anne | The Hive Wedding Collective | anne@thehiveweddingco.com | Planner | | | | — |
 | Jo Ann | Apropos Creations | joann@aproposcreations.com | Planner | | | | — |
 | Emily | Events by Emily PDX | info@eventsbyemilypdx.com | Planner | | | | — |
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 28 |
-| Touch-1 sent | 28 |
+| Drafted & ready (Batch W1 + W2 + W3) | 29 |
+| Touch-1 sent | 29 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
