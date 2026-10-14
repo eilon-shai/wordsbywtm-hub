@@ -72,9 +72,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Settle-Wilder FH | info@settlewilderfuneralhome.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #34, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Peeples-Rhoden FH | info@peeplesrhoden.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #35, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Monroe County Memorial Chapel | mcmemorialchapel@bellsouth.net | FH | | | | — ⚠ bounce-check |
-| General office | Lucas Funeral Homes | info@lucasfuneralhomes.com | FH | | | | — |
-| General office | Brown Funeral Homes WV | info@brownfuneralhomeswv.com | FH | | | | — |
-| Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | | | | — |
+| General office | Lucas Funeral Homes | info@lucasfuneralhomes.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #36, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Brown Funeral Homes WV | info@brownfuneralhomeswv.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #37, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #38, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Feldman Mortuary | director@feldmanmortuary.com | FH | | | | — |
 | General office | Buffalo Hill FH & Crematory | wecare@bhfuneralhome.com | FH | | | | — |
 | General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | | | | — |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 35 |
-| Touch-1 sent | 34 |
+| Drafted & ready (Batch 1 + 2 + 3) | 38 |
+| Touch-1 sent | 37 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

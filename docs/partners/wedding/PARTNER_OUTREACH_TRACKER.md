@@ -75,8 +75,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Irene Tyndale | Irene Tyndale Weddings & Events | events@irenetyndale.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W29, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Anne | The Hive Wedding Collective | anne@thehiveweddingco.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W30, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Jo Ann | Apropos Creations | joann@aproposcreations.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W31, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Emily | Events by Emily PDX | info@eventsbyemilypdx.com | Planner | | | | — |
-| — (studio) | Wedicity Wedding & Event Detailing | info@wed-icity.com | Planner | | | | — |
+| Emily | Events by Emily PDX | info@eventsbyemilypdx.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W32, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| — (studio) | Wedicity Wedding & Event Detailing | info@wed-icity.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W33, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lois Tenille McDaniel | Lois Lane Events | info@loislaneevents.com | Planner | | | | — |
 | Ashley | Wild Rose JH | hello@wildrosejh.com | Planner | | | | — |
 | — (studio) | The Chapter of Love | aloha@thechapteroflove.com | Planner | | | | — |
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 31 |
-| Touch-1 sent | 31 |
+| Drafted & ready (Batch W1 + W2 + W3) | 33 |
+| Touch-1 sent | 33 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
