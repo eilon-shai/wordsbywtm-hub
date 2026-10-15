@@ -342,3 +342,60 @@ Families often ask their funeral director some version of "how do we collect eve
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Silver Creek? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## 39. Feldman Mortuary (Denver, CO) · FH — general office
+_Drafted by the dispatcher 2026-10-15 (run 2) from the Tier-B queue._
+**To:** director@feldmanmortuary.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A fourth-generation family mortuary that puts real effort into its "Path to Healing" grief resources is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Feldman? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 40. Buffalo Hill Funeral Home & Crematory (Kalispell, MT) · FH — general office
+_Drafted by the dispatcher 2026-10-15 (run 2) from the Tier-B queue._
+**To:** wecare@bhfuneralhome.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+The oldest independent family-owned funeral home in the Flathead Valley, with a full "Year of Grief Support" for families, is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Buffalo Hill? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 41. Darlington Cremation and Burial Service (Kalispell, MT) · FH — general office
+_Drafted by the dispatcher 2026-10-15 (run 2) from the Tier-B queue._
+**To:** info@darlingtonfunerals.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A family- and veteran-owned firm that keeps writing to families for a full year after a loss is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Darlington? Just reply and I'll send it over.
+
+Eilon

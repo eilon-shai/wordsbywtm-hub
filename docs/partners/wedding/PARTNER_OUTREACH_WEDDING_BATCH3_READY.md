@@ -248,3 +248,41 @@ Couples keep asking planners some version of "how do we include everyone who can
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Wedicity? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W34. Lois Tenille McDaniel — Lois Lane Events (Worthington / Columbus, OH) · planner — info@ mailbox, owner-named
+_Drafted by the dispatcher 2026-10-15 (run 2) from the Tier-B queue._
+**To:** info@loislaneevents.com
+**Subject:** A toast built from everyone's stories
+
+Hi Lois,
+
+An owner-led Columbus studio doing both full-service planning and event design since 2010 is exactly who I wanted to write to.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Lois Lane Events? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W35. Ashley — Wild Rose JH (Jackson, WY) · planner
+_Drafted by the dispatcher 2026-10-15 (run 2) from the Tier-B queue._
+**To:** hello@wildrosejh.com
+**Subject:** A toast built from everyone's stories
+
+Hi Ashley,
+
+An independent, earth-friendly Jackson Hole boutique handling everything from full planning to coordination is why I'm writing to you.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples keep asking planners some version of "how do we include everyone who can't give a speech?" Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Wild Rose? Just reply and I'll send it over.
+
+Eilon
