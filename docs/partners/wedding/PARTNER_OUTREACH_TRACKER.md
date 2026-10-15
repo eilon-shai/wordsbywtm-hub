@@ -79,8 +79,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | — (studio) | Wedicity Wedding & Event Detailing | info@wed-icity.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W33, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lois Tenille McDaniel | Lois Lane Events | info@loislaneevents.com | Planner | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — W34, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Ashley | Wild Rose JH | hello@wildrosejh.com | Planner | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — W35, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| — (studio) | The Chapter of Love | aloha@thechapteroflove.com | Planner | | | | — |
-| Gail | Weddings by Gail | info@weddingsbygail.com | Planner | | | | — |
+| — (studio) | The Chapter of Love | aloha@thechapteroflove.com | Planner | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — W36, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Gail | Weddings by Gail | info@weddingsbygail.com | Planner | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — W37, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Elyse Jennings | Elyse Jennings Weddings | elyse@elysejenningsweddings.com | Planner | | | | — (ultra-luxury — lead with the tool, not the discount) |
 | Kenneth Poirier | Officiant Kenneth | officiantkenneth@gmail.com | Celebrant | | | | — |
 | Leslie Ross | Summit Celebrant | summitcelebrant@gmail.com | Celebrant | | | | — |
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 35 |
-| Touch-1 sent | 35 |
+| Drafted & ready (Batch W1 + W2 + W3) | 37 |
+| Touch-1 sent | 37 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

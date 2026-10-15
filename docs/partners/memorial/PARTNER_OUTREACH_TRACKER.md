@@ -78,9 +78,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Feldman Mortuary | director@feldmanmortuary.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #39, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Buffalo Hill FH & Crematory | wecare@bhfuneralhome.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #40, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #41, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | | | | — |
-| General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | | | | — |
-| General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | | | | — |
+| Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #42, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #43, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Berg Mortuary | info@bergmortuary.com | FH | | | | — |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
 | Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | | | | — |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 41 |
-| Touch-1 sent | 40 |
+| Drafted & ready (Batch 1 + 2 + 3) | 44 |
+| Touch-1 sent | 43 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
