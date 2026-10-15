@@ -54,8 +54,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
-| General office | Schlossberg Memorial Chapel | info@schlossbergchapel.com | FH | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — #21, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | C.E. Peaslee & Son FH | info@peasleefuneralhome.com | FH | 2026-10-08 | | | T1 (T2 due 2026-10-15, T3 due 2026-10-22) — #22, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Schlossberg Memorial Chapel | info@schlossbergchapel.com | FH | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — #21, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | C.E. Peaslee & Son FH | info@peasleefuneralhome.com | FH | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — #22, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Paul W. Harris FH | info@harrisfuneralhome.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #23, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | J. Workman | A.W. Rich Funeral Home | jdworkman@awrfh.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #24, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #25, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
