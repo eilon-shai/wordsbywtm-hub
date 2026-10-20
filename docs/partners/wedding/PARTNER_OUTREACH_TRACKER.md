@@ -61,13 +61,13 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Shannon Rose | Shannon Rose Events | shannon@shannonroseevents.com | Planner | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — W22, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lauri Boyden | The Barn at Boyden Farm | boydenevents@gmail.com | Venue | | | | — ⚠ verify renders |
 | Jill Hicks / Holly Beaty | Carolina Country Weddings | CarolinaCountryWeddings@gmail.com | Venue | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — W23, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Jordan | Roca Berry Farm | Jordan@rocaberryfarm.com | Venue | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W24, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Jordan | Roca Berry Farm | Jordan@rocaberryfarm.com | Venue | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — W24, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 
 ### Tier B (26)
 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
-| Nicole Mower | NMWE (Nicole Mower Wedding Events) | hello@nicolemower.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W25, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Nicole Mower | NMWE (Nicole Mower Wedding Events) | hello@nicolemower.com | Planner | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — W25, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | — (team) | Mavinhouse Events | hello@mavinhouse.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W26, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Ashley | Boutique Planning | ashley@boutiqueplanning.com | Planner | | | | — ⚠ bounce-check |
 | — (team) | Sutlan + Co. | letschat@sutlanco.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W27, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
