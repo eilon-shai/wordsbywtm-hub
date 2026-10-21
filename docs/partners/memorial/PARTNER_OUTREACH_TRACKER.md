@@ -62,10 +62,10 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #26, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #27, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Liming Family FH | LimingFamilyFuneral@gmail.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #28, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Family and Friends FH | familyandfriends@tds.net | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #29, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Krueger Funeral Home | info@kruegerfuneral.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #30, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Family and Friends FH | familyandfriends@tds.net | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #29, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Krueger Funeral Home | info@kruegerfuneral.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #30, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | T. "Eric" Pitman | Pitman Funeral Home | pitmanfuneralhome@hotmail.com | FH | | | | — ⚠ bounce-check |
-| General office | Halligan-McCabe-DeVries FH | info@hmdfuneralhome.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #31, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Halligan-McCabe-DeVries FH | info@hmdfuneralhome.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #31, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Lawrence L. Williams | T.V. Williams FH | tvwilliamsfh@bellsouth.net | FH | | | | — ⚠ bounce-check |
 | General office | Carolina Funeral Service | cfccbusiness@carolinafuneral.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #32, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Hayden & Butler FH | haydenandbutler@tds.net | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #33, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
