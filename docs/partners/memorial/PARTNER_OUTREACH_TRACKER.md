@@ -59,9 +59,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Paul W. Harris FH | info@harrisfuneralhome.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #23, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | J. Workman | A.W. Rich Funeral Home | jdworkman@awrfh.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #24, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #25, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #26, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #27, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Liming Family FH | LimingFamilyFuneral@gmail.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #28, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #26, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #27, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Liming Family FH | LimingFamilyFuneral@gmail.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #28, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Family and Friends FH | familyandfriends@tds.net | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #29, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Krueger Funeral Home | info@kruegerfuneral.com | FH | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — #30, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | T. "Eric" Pitman | Pitman Funeral Home | pitmanfuneralhome@hotmail.com | FH | | | | — ⚠ bounce-check |

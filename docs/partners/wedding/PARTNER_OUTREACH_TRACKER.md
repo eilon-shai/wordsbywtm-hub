@@ -68,9 +68,9 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
 | Nicole Mower | NMWE (Nicole Mower Wedding Events) | hello@nicolemower.com | Planner | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — W25, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| — (team) | Mavinhouse Events | hello@mavinhouse.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W26, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| — (team) | Mavinhouse Events | hello@mavinhouse.com | Planner | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — W26, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Ashley | Boutique Planning | ashley@boutiqueplanning.com | Planner | | | | — ⚠ bounce-check |
-| — (team) | Sutlan + Co. | letschat@sutlanco.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W27, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| — (team) | Sutlan + Co. | letschat@sutlanco.com | Planner | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — W27, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lisa Ivler | Lisa Ivler Events | info@lisaivlerevents.com | Planner | 2026-10-13 | | | T1 (T2 due 2026-10-20, T3 due 2026-10-27) — W28, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Irene Tyndale | Irene Tyndale Weddings & Events | events@irenetyndale.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W29, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Anne | The Hive Wedding Collective | anne@thehiveweddingco.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W30, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
