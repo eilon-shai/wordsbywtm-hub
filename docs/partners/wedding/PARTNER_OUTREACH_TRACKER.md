@@ -73,8 +73,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | — (team) | Sutlan + Co. | letschat@sutlanco.com | Planner | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — W27, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lisa Ivler | Lisa Ivler Events | info@lisaivlerevents.com | Planner | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — W28, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Irene Tyndale | Irene Tyndale Weddings & Events | events@irenetyndale.com | Planner | 2026-10-14 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — W29, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Anne | The Hive Wedding Collective | anne@thehiveweddingco.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W30, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Jo Ann | Apropos Creations | joann@aproposcreations.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W31, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Anne | The Hive Wedding Collective | anne@thehiveweddingco.com | Planner | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — W30, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Jo Ann | Apropos Creations | joann@aproposcreations.com | Planner | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — W31, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Emily | Events by Emily PDX | info@eventsbyemilypdx.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W32, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | — (studio) | Wedicity Wedding & Event Detailing | info@wed-icity.com | Planner | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — W33, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lois Tenille McDaniel | Lois Lane Events | info@loislaneevents.com | Planner | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — W34, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |

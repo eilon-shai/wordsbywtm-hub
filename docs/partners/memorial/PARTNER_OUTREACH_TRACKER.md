@@ -67,9 +67,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | T. "Eric" Pitman | Pitman Funeral Home | pitmanfuneralhome@hotmail.com | FH | | | | — ⚠ bounce-check |
 | General office | Halligan-McCabe-DeVries FH | info@hmdfuneralhome.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #31, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Lawrence L. Williams | T.V. Williams FH | tvwilliamsfh@bellsouth.net | FH | | | | — ⚠ bounce-check |
-| General office | Carolina Funeral Service | cfccbusiness@carolinafuneral.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #32, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Hayden & Butler FH | haydenandbutler@tds.net | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #33, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Settle-Wilder FH | info@settlewilderfuneralhome.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #34, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Carolina Funeral Service | cfccbusiness@carolinafuneral.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #32, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Hayden & Butler FH | haydenandbutler@tds.net | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #33, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Settle-Wilder FH | info@settlewilderfuneralhome.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #34, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Peeples-Rhoden FH | info@peeplesrhoden.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #35, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Monroe County Memorial Chapel | mcmemorialchapel@bellsouth.net | FH | | | | — ⚠ bounce-check |
 | General office | Lucas Funeral Homes | info@lucasfuneralhomes.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #36, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
