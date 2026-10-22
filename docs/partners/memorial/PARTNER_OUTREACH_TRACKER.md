@@ -54,8 +54,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
-| General office | Schlossberg Memorial Chapel | info@schlossbergchapel.com | FH | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — #21, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | C.E. Peaslee & Son FH | info@peasleefuneralhome.com | FH | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — #22, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Schlossberg Memorial Chapel | info@schlossbergchapel.com | FH | 2026-10-08 | | | T3 (T2 sent 2026-10-15, T3 sent 2026-10-22) — #21, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | C.E. Peaslee & Son FH | info@peasleefuneralhome.com | FH | 2026-10-08 | | | T3 (T2 sent 2026-10-15, T3 sent 2026-10-22) — #22, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Paul W. Harris FH | info@harrisfuneralhome.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #23, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | J. Workman | A.W. Rich Funeral Home | jdworkman@awrfh.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #24, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #25, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
@@ -74,7 +74,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Monroe County Memorial Chapel | mcmemorialchapel@bellsouth.net | FH | | | | — ⚠ bounce-check |
 | General office | Lucas Funeral Homes | info@lucasfuneralhomes.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #36, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Brown Funeral Homes WV | info@brownfuneralhomeswv.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #37, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | 2026-10-14 | | | T1 (T2 due 2026-10-21, T3 due 2026-10-28) — #38, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #38, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Feldman Mortuary | director@feldmanmortuary.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #39, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Buffalo Hill FH & Crematory | wecare@bhfuneralhome.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #40, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #41, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |

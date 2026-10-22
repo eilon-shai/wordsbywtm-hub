@@ -57,8 +57,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
 | Rose Ahn | Rose Ahn Events | rose@roseahnevents.com | Planner | 2026-07-16 | | | T3 (T2 sent 2026-10-07 — ~11 wks late, catch-up; T3 sent 2026-10-14) — drafted from queue, personalized 07-16 |
-| Becky Baker | Becky's Brides | becky@beckysbrides.com | Planner | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — W21, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Shannon Rose | Shannon Rose Events | shannon@shannonroseevents.com | Planner | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — W22, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Becky Baker | Becky's Brides | becky@beckysbrides.com | Planner | 2026-10-08 | | | T3 (T2 sent 2026-10-15, T3 sent 2026-10-22) — W21, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Shannon Rose | Shannon Rose Events | shannon@shannonroseevents.com | Planner | 2026-10-08 | | | T3 (T2 sent 2026-10-15, T3 sent 2026-10-22) — W22, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Lauri Boyden | The Barn at Boyden Farm | boydenevents@gmail.com | Venue | | | | — ⚠ verify renders |
 | Jill Hicks / Holly Beaty | Carolina Country Weddings | CarolinaCountryWeddings@gmail.com | Venue | 2026-10-08 | | | T2 (T2 sent 2026-10-15, T3 due 2026-10-22) — W23, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Jordan | Roca Berry Farm | Jordan@rocaberryfarm.com | Venue | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — W24, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
