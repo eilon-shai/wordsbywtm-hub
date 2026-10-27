@@ -77,9 +77,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #38, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Feldman Mortuary | director@feldmanmortuary.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #39, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Buffalo Hill FH & Crematory | wecare@bhfuneralhome.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #40, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #41, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #42, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #43, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #41, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #42, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #43, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Berg Mortuary | info@bergmortuary.com | FH | | | | — |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
