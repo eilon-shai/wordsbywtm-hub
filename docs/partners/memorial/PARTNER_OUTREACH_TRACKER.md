@@ -56,11 +56,11 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 |------|--------------|-------|------|---------|--------|-------|--------|
 | General office | Schlossberg Memorial Chapel | info@schlossbergchapel.com | FH | 2026-10-08 | | | T3 (T2 sent 2026-10-15, T3 sent 2026-10-22) — #21, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | C.E. Peaslee & Son FH | info@peasleefuneralhome.com | FH | 2026-10-08 | | | T3 (T2 sent 2026-10-15, T3 sent 2026-10-22) — #22, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Paul W. Harris FH | info@harrisfuneralhome.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #23, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| J. Workman | A.W. Rich Funeral Home | jdworkman@awrfh.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #24, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-20, T3 due 2026-10-27) — #25, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #26, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #27, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Paul W. Harris FH | info@harrisfuneralhome.com | FH | 2026-10-13 | | | T3 (T2 sent 2026-10-20, T3 sent 2026-10-27) — #23, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| J. Workman | A.W. Rich Funeral Home | jdworkman@awrfh.com | FH | 2026-10-13 | | | T3 (T2 sent 2026-10-20, T3 sent 2026-10-27) — #24, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Kiley & Foley Funeral Service | info@kileyandfoley.com | FH | 2026-10-13 | | | T3 (T2 sent 2026-10-20, T3 sent 2026-10-28 — 1d late) — #25, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Anderson-Winfield FH | Info@andersonwinfield.net | FH | 2026-10-13 | | | T3 (T2 sent 2026-10-21, T3 sent 2026-10-28) — #26, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Iten Funeral Home | itenfuneralhome@gmail.com | FH | 2026-10-13 | | | T3 (T2 sent 2026-10-21, T3 sent 2026-10-28) — #27, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Liming Family FH | LimingFamilyFuneral@gmail.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #28, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Family and Friends FH | familyandfriends@tds.net | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #29, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Krueger Funeral Home | info@kruegerfuneral.com | FH | 2026-10-13 | | | T2 (T2 sent 2026-10-21, T3 due 2026-10-28) — #30, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
@@ -80,7 +80,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #41, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #42, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #43, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T1 (T2 due 2026-10-22, T3 due 2026-10-29) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Berg Mortuary | info@bergmortuary.com | FH | | | | — |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
 | Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | | | | — |
