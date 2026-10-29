@@ -456,3 +456,24 @@ Families often ask their funeral director some version of "how do we collect eve
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Cali Home? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## 45. Berg Mortuary (Provo, UT) · FH — general office
+_Drafted by the dispatcher 2026-10-29 (run 3) from the Tier-B queue._
+**To:** info@bergmortuary.com
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A Provo firm that has served families since 1870 and keeps a grief-support section for them is why I'm writing to you.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families often ask their funeral director some version of "how do we collect everyone's stories before the service?" This gives you a real answer to hand them. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Berg Mortuary? Just reply and I'll send it over.
+
+Eilon
+
+---

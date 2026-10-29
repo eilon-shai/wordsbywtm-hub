@@ -73,15 +73,15 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Peeples-Rhoden FH | info@peeplesrhoden.com | FH | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — #35, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Monroe County Memorial Chapel | mcmemorialchapel@bellsouth.net | FH | | | | — ⚠ bounce-check |
 | General office | Lucas Funeral Homes | info@lucasfuneralhomes.com | FH | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — #36, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Brown Funeral Homes WV | info@brownfuneralhomeswv.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #37, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | 2026-10-14 | | | T2 (T2 sent 2026-10-22, T3 due 2026-10-29) — #38, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Brown Funeral Homes WV | info@brownfuneralhomeswv.com | FH | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — #37, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Jason & Anna Brubaker | Silver Creek Mortuary | taylor@silvercreekmortuary.com | FH | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — #38, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Feldman Mortuary | director@feldmanmortuary.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #39, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Buffalo Hill FH & Crematory | wecare@bhfuneralhome.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #40, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Darlington Cremation & Burial | info@darlingtonfunerals.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #41, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #42, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #43, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Berg Mortuary | info@bergmortuary.com | FH | | | | — |
+| General office | Berg Mortuary | info@bergmortuary.com | FH | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — #45, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
 | Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | | | | — |
 | Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | | | | — |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 44 |
-| Touch-1 sent | 43 |
+| Drafted & ready (Batch 1 + 2 + 3) | 45 |
+| Touch-1 sent | 44 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

@@ -82,8 +82,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | — (studio) | The Chapter of Love | aloha@thechapteroflove.com | Planner | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — W36, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Gail | Weddings by Gail | info@weddingsbygail.com | Planner | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — W37, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Elyse Jennings | Elyse Jennings Weddings | elyse@elysejenningsweddings.com | Planner | | | | — (ultra-luxury — lead with the tool, not the discount) |
-| Kenneth Poirier | Officiant Kenneth | officiantkenneth@gmail.com | Celebrant | | | | — |
-| Leslie Ross | Summit Celebrant | summitcelebrant@gmail.com | Celebrant | | | | — |
+| Kenneth Poirier | Officiant Kenneth | officiantkenneth@gmail.com | Celebrant | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — W38, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Leslie Ross | Summit Celebrant | summitcelebrant@gmail.com | Celebrant | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — W39, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Spike Gillespie | Spike Gillespie, Officiant | spikegillespie@gmail.com | Celebrant | | | | — |
 | Dennis | Premier Entertainment | dennis@premier-entertainment.com | DJ/MC | | | | — |
 | Steven Sievers | Showcase DJ Service | info@ShowcaseDJ.com | DJ/MC | | | | — |
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 37 |
-| Touch-1 sent | 37 |
+| Drafted & ready (Batch W1 + W2 + W3) | 39 |
+| Touch-1 sent | 39 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
