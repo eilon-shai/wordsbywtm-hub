@@ -84,8 +84,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Elyse Jennings | Elyse Jennings Weddings | elyse@elysejenningsweddings.com | Planner | | | | — (ultra-luxury — lead with the tool, not the discount) |
 | Kenneth Poirier | Officiant Kenneth | officiantkenneth@gmail.com | Celebrant | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — W38, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Leslie Ross | Summit Celebrant | summitcelebrant@gmail.com | Celebrant | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — W39, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Spike Gillespie | Spike Gillespie, Officiant | spikegillespie@gmail.com | Celebrant | | | | — |
-| Dennis | Premier Entertainment | dennis@premier-entertainment.com | DJ/MC | | | | — |
+| Spike Gillespie | Spike Gillespie, Officiant | spikegillespie@gmail.com | Celebrant | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — W40, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Dennis | Premier Entertainment | dennis@premier-entertainment.com | DJ/MC | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — W41, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Steven Sievers | Showcase DJ Service | info@ShowcaseDJ.com | DJ/MC | | | | — |
 | Scott Faver | The Party Favers | Scott@thepartyfavers.com | DJ/MC | | | | — |
 | Prianna Staley | The Cinnamon Barn | Info@thecinnamonbarn.com | Venue | | | | — |
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 39 |
-| Touch-1 sent | 39 |
+| Drafted & ready (Batch W1 + W2 + W3) | 41 |
+| Touch-1 sent | 41 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

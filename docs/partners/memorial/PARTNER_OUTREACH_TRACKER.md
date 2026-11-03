@@ -83,9 +83,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Berg Mortuary | info@bergmortuary.com | FH | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — #45, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
-| Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | | | | — |
-| Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | | | | — |
-| Bereavement Team | Hospice of the Northwest | Hospicebereavement@HospiceNW.org | Hospice | | | | — |
+| Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #46, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #47, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Bereavement Team | Hospice of the Northwest | Hospicebereavement@HospiceNW.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #48, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Bereavement Coord. | ClearPath Healthcare | bereavement@clearpathhealthcare.org | Hospice | | | | — |
 | Pathways Center | Hospice & Community Care | pathways@hospicecommunity.org | Hospice | | | | — |
 | Tess Veloso | Respectful Ceremonies | tess@respectfulceremonies.com | Celebrant | | | | — |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 45 |
-| Touch-1 sent | 44 |
+| Drafted & ready (Batch 1 + 2 + 3) | 48 |
+| Touch-1 sent | 47 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

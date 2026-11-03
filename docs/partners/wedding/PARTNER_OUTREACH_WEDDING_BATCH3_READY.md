@@ -362,3 +362,41 @@ You already build ceremonies from the couple's own story. This hands the recepti
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Summit Celebrant? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W40. Spike Gillespie — Spike Gillespie, Officiant (Austin, TX) · officiant
+_Drafted by the dispatcher 2026-11-03 (run 3) from the Tier-B queue._
+**To:** spikegillespie@gmail.com
+**Subject:** A toast built from everyone's stories
+
+Hi Spike,
+
+A writer who has married 2,000-plus couples and promises "no cookie cutter language" is exactly who I wanted to write to.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+You already write ceremonies from the couple's own story. This hands the reception toast the same treatment, from everyone at once. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for you? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W41. Dennis — Premier Entertainment (San Diego, CA) · DJ/MC
+_Drafted by the dispatcher 2026-11-03 (run 3) from the Tier-B queue._
+**To:** dennis@premier-entertainment.com
+**Subject:** A toast built from everyone's stories
+
+Hi Dennis,
+
+A two-person team where Marlon is the dedicated MC "guiding every formality" means toasts are already part of your night, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+You've watched a best man read three rushed paragraphs off a phone. This gives the nervous ones a real toast built from everyone's stories. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Premier Entertainment? Just reply and I'll send it over.
+
+Eilon

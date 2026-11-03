@@ -477,3 +477,60 @@ It costs you nothing and there's nothing to manage on your end. Want me to set u
 Eilon
 
 ---
+
+## 46. Alive Hospice (Nashville, TN) · Hospice — grief support dept mailbox
+_Drafted by the dispatcher 2026-11-03 (run 3) from the Tier-B queue._
+**To:** griefsupport@alivehospice.org
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+I saw Alive Hospice opens its grief support to anyone in the community, not only the families you've cared for, so I wanted to write to your grief support team directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families in bereavement often want to gather everyone's stories in one place but don't know how. This gives your team a simple thing to point them to. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Alive Hospice? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 47. Hudson Valley Hospice (Poughkeepsie, NY) · Hospice — bereavement center mailbox
+_Drafted by the dispatcher 2026-11-03 (run 3) from the Tier-B queue._
+**To:** bereavementcenter@hvhospice.org
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+I saw your bereavement center runs community groups that are open to people who weren't Hudson Valley Hospice families, so I wanted to reach the center directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families in bereavement often want to gather everyone's stories in one place but don't know how. This gives your team a simple thing to point them to. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Hudson Valley Hospice? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 48. Hospice of the Northwest (Mount Vernon, WA) · Hospice — bereavement team mailbox
+_Drafted by the dispatcher 2026-11-03 (run 3) from the Tier-B queue._
+**To:** Hospicebereavement@HospiceNW.org
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A bereavement team that keeps the area's largest grief library is exactly who I hoped to reach, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families in bereavement often want to gather everyone's stories in one place but don't know how. This gives your team a simple thing to point them to. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Hospice of the Northwest? Just reply and I'll send it over.
+
+Eilon
+
+---
