@@ -77,8 +77,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Jo Ann | Apropos Creations | joann@aproposcreations.com | Planner | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — W31, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Emily | Events by Emily PDX | info@eventsbyemilypdx.com | Planner | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — W32, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | — (studio) | Wedicity Wedding & Event Detailing | info@wed-icity.com | Planner | 2026-10-14 | | | T3 (T2 sent 2026-10-22, T3 sent 2026-10-29) — W33, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Lois Tenille McDaniel | Lois Lane Events | info@loislaneevents.com | Planner | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — W34, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Ashley | Wild Rose JH | hello@wildrosejh.com | Planner | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — W35, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Lois Tenille McDaniel | Lois Lane Events | info@loislaneevents.com | Planner | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — W34, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Ashley | Wild Rose JH | hello@wildrosejh.com | Planner | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — W35, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | — (studio) | The Chapter of Love | aloha@thechapteroflove.com | Planner | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — W36, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Gail | Weddings by Gail | info@weddingsbygail.com | Planner | 2026-10-15 | | | T2 (T2 sent 2026-10-27 — 5d late, T3 due 2026-11-03) — W37, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Elyse Jennings | Elyse Jennings Weddings | elyse@elysejenningsweddings.com | Planner | | | | — (ultra-luxury — lead with the tool, not the discount) |
