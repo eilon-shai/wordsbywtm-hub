@@ -90,8 +90,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Scott Faver | The Party Favers | Scott@thepartyfavers.com | DJ/MC | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W43, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Prianna Staley | The Cinnamon Barn | Info@thecinnamonbarn.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W45, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Angie & Ella | Red Barn Villa | redbarnvilla@gmail.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W46, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Events team | The Butler Barn | events@butlerbarn.com | Venue | | | | — |
-| Misty / Mackenzie | Ogletree Estates | ogletreeestate@yahoo.com | Venue | | | | — |
+| Events team | The Butler Barn | events@butlerbarn.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W47, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Misty / Mackenzie | Ogletree Estates | ogletreeestate@yahoo.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W48, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Charlene / Clara | Tryphena's Garden | tryphenasgarden@gmail.com | Venue | | | | — |
 
 ### Tier C (2)
@@ -110,8 +110,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Metric | Count |
 |--------|-------|
 | Total targets | 54 |
-| Drafted & ready (Batch W1 + W2 + W3) | 46 |
-| Touch-1 sent | 46 |
+| Drafted & ready (Batch W1 + W2 + W3) | 48 |
+| Touch-1 sent | 48 |
 | Replies | 0 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
