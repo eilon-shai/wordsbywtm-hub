@@ -438,3 +438,60 @@ You've watched a best man read three rushed paragraphs off a phone. This gives t
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for The Party Favers? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W44. Elyse Jennings — Elyse Jennings Weddings (New Orleans, LA) · planner — ultra-luxury, tool-first pitch
+_Drafted by the dispatcher 2026-11-04 (run 2) from the Tier-B queue._
+**To:** elyse@elysejenningsweddings.com
+**Subject:** A toast built from everyone's stories
+
+Hi Elyse,
+
+For weddings planned at the level you plan them, the toasts are often the one part nobody can fully design for, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+It quietly solves "how do we include everyone who can't give a speech?" without adding anything to your timeline. Gathering is free for the couple's guests, and because they came through you, I can arrange 10% off the keepsake if they want one — already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Elyse Jennings Weddings? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W45. Prianna Staley — The Cinnamon Barn (Princeton, TX) · venue — info@ mailbox
+_Drafted by the dispatcher 2026-11-04 (run 2) from the Tier-B queue._
+**To:** Info@thecinnamonbarn.com
+**Subject:** A toast built from everyone's stories
+
+Hi Prianna,
+
+A founder-run venue with an FAQ as thorough as yours is clearly the place couples lean on for planning ideas, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples ask venue teams about guest books and ways to include far-away family — this is one link that does both. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for The Cinnamon Barn? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W46. Angie & Ella — Red Barn Villa (Oregon City, OR) · venue
+_Drafted by the dispatcher 2026-11-04 (run 2) from the Tier-B queue._
+**To:** redbarnvilla@gmail.com
+**Subject:** A toast built from everyone's stories
+
+Hi Angie and Ella,
+
+An independent barn venue where couples get to know their coordinators by name is exactly the kind of place they lean on for ideas, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples ask venue teams about guest books and ways to include far-away family — this is one link that does both. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Red Barn Villa? Just reply and I'll send it over.
+
+Eilon

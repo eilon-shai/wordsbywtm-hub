@@ -591,3 +591,41 @@ It costs you nothing and there's nothing to manage on your end. Want me to set u
 Eilon
 
 ---
+
+## 52. Jenny Muir — Ceremonies by Jenny (Johns Creek, GA) · Celebrant
+_Drafted by the dispatcher 2026-11-04 (run 2) from the Tier-B queue._
+**To:** ceremoniesbyjenny@outlook.com
+**Subject:** A link for gathering a family's memories before a service
+
+Hi Jenny,
+
+I came across Ceremonies by Jenny and the memorial, ash-scattering and living-funeral ceremonies you offer. Building a service from a family's own memories is exactly what my tool helps with, so I wanted to reach you directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install — and it puts every story in one place before you start writing.
+
+For the families you work with, it's a simple way to collect everyone's memories up front. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Ceremonies by Jenny? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 53. Center for Solace (fka Brattleboro Area Hospice, Brattleboro, VT) · Hospice — general office
+_Drafted by the dispatcher 2026-11-04 (run 2) from the Tier-C queue (Tier B exhausted)._
+**To:** info@cfsolace.org
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A volunteer hospice that has run one of Vermont's most extensive bereavement programs since 1979 is exactly who I hoped to reach, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families in bereavement often want to gather everyone's stories in one place but don't know how. This gives your team a simple thing to point them to. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Center for Solace? Just reply and I'll send it over.
+
+Eilon
+
+---

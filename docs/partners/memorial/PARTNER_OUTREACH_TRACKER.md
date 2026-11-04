@@ -89,7 +89,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Bereavement Coord. | ClearPath Healthcare | bereavement@clearpathhealthcare.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #49, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Pathways Center | Hospice & Community Care | pathways@hospicecommunity.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #50, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Tess Veloso | Respectful Ceremonies | tess@respectfulceremonies.com | Celebrant | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #51, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Jenny Muir | Ceremonies by Jenny | ceremoniesbyjenny@outlook.com | Celebrant | | | | — |
+| Jenny Muir | Ceremonies by Jenny | ceremoniesbyjenny@outlook.com | Celebrant | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #52, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 
 ### Tier C (5)
 
@@ -98,7 +98,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Virginia Funeral Home | virginiafuneralhome@gmail.com | FH | | | | — |
 | General office | Peters Funeral Homes | clpeters57x@gmail.com | FH | | | | — |
 | General office | Burns Funeral Home | office@Burnsfhnv.com | FH | | | | — |
-| General office | Center for Solace | info@cfsolace.org | Hospice | | | | — |
+| General office | Center for Solace | info@cfsolace.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #53, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Central Wyoming Hospice | centralwyominghospice@centralwyominghospice.org | Hospice | | | | — |
 
 ---
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 51 |
-| Touch-1 sent | 50 |
+| Drafted & ready (Batch 1 + 2 + 3) | 53 |
+| Touch-1 sent | 52 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |
