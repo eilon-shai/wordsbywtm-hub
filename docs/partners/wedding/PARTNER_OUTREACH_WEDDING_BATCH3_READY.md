@@ -495,3 +495,41 @@ Couples ask venue teams about guest books and ways to include far-away family �
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Red Barn Villa? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W47. The Butler Barn (Scholls, OR) · venue — events team mailbox → "Hello,"
+_Drafted by the dispatcher 2026-11-04 (run 3) from the Tier-B queue._
+**To:** events@butlerbarn.com
+**Subject:** A toast built from everyone's stories
+
+Hello,
+
+A family-owned venue on a 200-acre working berry farm is exactly the kind of place couples lean on for ideas, which is why I'm writing to your events team directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples ask venue teams about guest books and ways to include far-away family — this is one link that does both. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for The Butler Barn? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## W48. Misty — Ogletree Estates (Cornelia, GA) · venue — owner
+_Drafted by the dispatcher 2026-11-04 (run 3) from the Tier-B queue._
+**To:** ogletreeestate@yahoo.com
+**Subject:** A toast built from everyone's stories
+
+Hi Misty,
+
+An owner-run North Georgia estate where couples get to know the coordinator by name is exactly the kind of place they lean on for ideas, which is why I'm writing to you directly.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples ask venue teams about guest books and ways to include far-away family — this is one link that does both. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Ogletree Estates? Just reply and I'll send it over.
+
+Eilon
