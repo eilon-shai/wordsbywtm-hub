@@ -86,9 +86,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #46, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #47, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Bereavement Team | Hospice of the Northwest | Hospicebereavement@HospiceNW.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #48, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Bereavement Coord. | ClearPath Healthcare | bereavement@clearpathhealthcare.org | Hospice | | | | — |
-| Pathways Center | Hospice & Community Care | pathways@hospicecommunity.org | Hospice | | | | — |
-| Tess Veloso | Respectful Ceremonies | tess@respectfulceremonies.com | Celebrant | | | | — |
+| Bereavement Coord. | ClearPath Healthcare | bereavement@clearpathhealthcare.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #49, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Pathways Center | Hospice & Community Care | pathways@hospicecommunity.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #50, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Tess Veloso | Respectful Ceremonies | tess@respectfulceremonies.com | Celebrant | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #51, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Jenny Muir | Ceremonies by Jenny | ceremoniesbyjenny@outlook.com | Celebrant | | | | — |
 
 ### Tier C (5)
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 48 |
-| Touch-1 sent | 47 |
+| Drafted & ready (Batch 1 + 2 + 3) | 51 |
+| Touch-1 sent | 50 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

@@ -534,3 +534,60 @@ It costs you nothing and there's nothing to manage on your end. Want me to set u
 Eilon
 
 ---
+
+## 49. ClearPath Healthcare (Redmond, OR) · Hospice — bereavement coordinator mailbox
+_Drafted by the dispatcher 2026-11-04 (run 1) from the Tier-B queue._
+**To:** bereavement@clearpathhealthcare.org
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+A nonprofit that has carried Central Oregon families through loss since its Hospice of Redmond days is exactly who I hoped to reach, which is why I'm writing to your bereavement coordinator directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families in bereavement often want to gather everyone's stories in one place but don't know how. This gives your team a simple thing to point them to. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for ClearPath? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 50. Hospice & Community Care — Pathways Center for Grief & Loss (Mount Joy, PA) · Hospice — Pathways mailbox
+_Drafted by the dispatcher 2026-11-04 (run 1) from the Tier-B queue._
+**To:** pathways@hospicecommunity.org
+**Subject:** A link for families who ask about collecting memories
+
+Hello,
+
+I saw the Pathways Center offers grief support to anyone in the community with no referral required, so I wanted to write to the Pathways team directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install.
+
+Families in bereavement often want to gather everyone's stories in one place but don't know how. This gives your team a simple thing to point them to. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Pathways? Just reply and I'll send it over.
+
+Eilon
+
+---
+
+## 51. Tess Veloso — Respectful Ceremonies (Washington, DC) · Celebrant
+_Drafted by the dispatcher 2026-11-04 (run 1) from the Tier-B queue._
+**To:** tess@respectfulceremonies.com
+**Subject:** A link for gathering a family's memories before a service
+
+Hi Tess,
+
+I came across Respectful Ceremonies and the handbuilt end-of-life and memorial ceremonies you create. Building a service from a family's own memories is exactly what my tool helps with, so I wanted to reach you directly.
+
+I run a small tool called Words That Matter. Families use it to gather memories of a loved one from everyone who knew them. One shared link, each person opens it and writes a memory. No accounts, nothing to install — and it puts every story in one place before you start writing.
+
+For the families you work with, it's a simple way to collect everyone's memories up front. Gathering is free for the family, and because they came through you, I can arrange 10% off the keepsake if they decide they want one. A small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Respectful Ceremonies? Just reply and I'll send it over.
+
+Eilon
+
+---
