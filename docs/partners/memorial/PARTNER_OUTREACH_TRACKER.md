@@ -81,7 +81,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Mike Anderson | Anderson Family FH | andersonfamilyfh@gmail.com | FH | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — #42, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Thompson Oak Park Mortuary | Support@TOPMortuary.com | FH | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — #43, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Berg Mortuary | info@bergmortuary.com | FH | 2026-10-29 | | | T1 (T2 due 2026-11-05, T3 due 2026-11-12) — #45, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Berg Mortuary | info@bergmortuary.com | FH | 2026-10-29 | | | T2 (T2 sent 2026-11-05, T3 due 2026-11-12) — #45, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
 | Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #46, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #47, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
@@ -96,7 +96,7 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Name | Organization | Email | Type | T1 sent | Reply? | Token | Status |
 |------|--------------|-------|------|---------|--------|-------|--------|
 | General office | Virginia Funeral Home | virginiafuneralhome@gmail.com | FH | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #54, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Peters Funeral Homes | clpeters57x@gmail.com | FH | | | | — |
+| General office | Peters Funeral Homes | clpeters57x@gmail.com | FH | 2026-11-05 | | | T1 (T2 due 2026-11-12, T3 due 2026-11-19) — #57, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` (lower-confidence mailbox) |
 | General office | Burns Funeral Home | office@Burnsfhnv.com | FH | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #55, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Center for Solace | info@cfsolace.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #53, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Central Wyoming Hospice | centralwyominghospice@centralwyominghospice.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #56, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
@@ -108,8 +108,8 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | Metric | Count |
 |--------|-------|
 | Total targets | 61 |
-| Drafted & ready (Batch 1 + 2 + 3) | 56 |
-| Touch-1 sent | 55 |
+| Drafted & ready (Batch 1 + 2 + 3) | 57 |
+| Touch-1 sent | 56 |
 | Replies | 2 |
 | Interested | 0 |
 | Signed (token minted) | 0 |

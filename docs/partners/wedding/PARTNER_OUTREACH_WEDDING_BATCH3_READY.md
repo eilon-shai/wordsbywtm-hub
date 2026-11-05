@@ -533,3 +533,22 @@ Couples ask venue teams about guest books and ways to include far-away family �
 It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Ogletree Estates? Just reply and I'll send it over.
 
 Eilon
+
+---
+
+## W49. Charlene / Clara — Tryphena's Garden (Fort Valley, GA) · venue — owner-managed
+_Drafted by the dispatcher 2026-11-05 (run 1) from the Tier-B queue._
+**To:** tryphenasgarden@gmail.com
+**Subject:** A toast built from everyone's stories
+
+Hi Charlene and Clara,
+
+An owner-run garden venue in Fort Valley that walks couples through planning right on its own site is exactly who I wanted to write to.
+
+I run a small tool called Words That Matter. Wedding parties use it to gather stories and well-wishes about a couple from both sides. One shared link, each person opens it and writes their piece. It all gets woven into one toast for the reception, plus a keepsake PDF and a spoken version the couple keeps.
+
+Couples ask venue teams about guest books and ways to include far-away family — this is one link that does both. Gathering is free for them. And because they came through you, I can arrange 10% off the keepsake if they decide they want one — a small courtesy from you to them, already applied, nothing for anyone to enter.
+
+It costs you nothing and there's nothing to manage on your end. Want me to set up a link for Tryphena's Garden? Just reply and I'll send it over.
+
+Eilon
