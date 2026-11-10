@@ -83,9 +83,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 | General office | Cali Home Funeral Services | info@calihomefunerals.com | FH | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — #44, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Berg Mortuary | info@bergmortuary.com | FH | 2026-10-29 | | | T2 (T2 sent 2026-11-05, T3 due 2026-11-12) — #45, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Jeff Dorothy | Cattermole Funeral Home | cattermolefuneralhome@aol.com | FH | | | | — ⚠ bounce-check |
-| Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #46, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #47, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| Bereavement Team | Hospice of the Northwest | Hospicebereavement@HospiceNW.org | Hospice | 2026-11-03 | | | T1 (T2 due 2026-11-10, T3 due 2026-11-17) — #48, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Grief Support Dept | Alive Hospice | griefsupport@alivehospice.org | Hospice | 2026-11-03 | | | T2 (T2 sent 2026-11-10, T3 due 2026-11-17) — #46, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Bereavement Center | Hudson Valley Hospice | bereavementcenter@hvhospice.org | Hospice | 2026-11-03 | | | T2 (T2 sent 2026-11-10, T3 due 2026-11-17) — #47, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| Bereavement Team | Hospice of the Northwest | Hospicebereavement@HospiceNW.org | Hospice | 2026-11-03 | | | T2 (T2 sent 2026-11-10, T3 due 2026-11-17) — #48, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Bereavement Coord. | ClearPath Healthcare | bereavement@clearpathhealthcare.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #49, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Pathways Center | Hospice & Community Care | pathways@hospicecommunity.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #50, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | Tess Veloso | Respectful Ceremonies | tess@respectfulceremonies.com | Celebrant | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #51, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
