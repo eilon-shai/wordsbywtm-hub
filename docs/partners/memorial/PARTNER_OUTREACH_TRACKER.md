@@ -97,9 +97,9 @@ Copy in `PARTNER_OUTREACH_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = T1+14.
 |------|--------------|-------|------|---------|--------|-------|--------|
 | General office | Virginia Funeral Home | virginiafuneralhome@gmail.com | FH | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — #54, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Peters Funeral Homes | clpeters57x@gmail.com | FH | 2026-11-05 | | | T1 (T2 due 2026-11-12, T3 due 2026-11-19) — #57, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` (lower-confidence mailbox) |
-| General office | Burns Funeral Home | office@Burnsfhnv.com | FH | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #55, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Burns Funeral Home | office@Burnsfhnv.com | FH | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — #55, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 | General office | Center for Solace | info@cfsolace.org | Hospice | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — #53, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
-| General office | Central Wyoming Hospice | centralwyominghospice@centralwyominghospice.org | Hospice | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — #56, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
+| General office | Central Wyoming Hospice | centralwyominghospice@centralwyominghospice.org | Hospice | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — #56, copy in `PARTNER_OUTREACH_MEMORIAL_BATCH3_READY.md` |
 
 ---
 

@@ -89,9 +89,9 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Steven Sievers | Showcase DJ Service | info@ShowcaseDJ.com | DJ/MC | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — W42, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Scott Faver | The Party Favers | Scott@thepartyfavers.com | DJ/MC | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — W43, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Prianna Staley | The Cinnamon Barn | Info@thecinnamonbarn.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — W45, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Angie & Ella | Red Barn Villa | redbarnvilla@gmail.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W46, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Events team | The Butler Barn | events@butlerbarn.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W47, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Misty / Mackenzie | Ogletree Estates | ogletreeestate@yahoo.com | Venue | 2026-11-04 | | | T1 (T2 due 2026-11-11, T3 due 2026-11-18) — W48, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Angie & Ella | Red Barn Villa | redbarnvilla@gmail.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — W46, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Events team | The Butler Barn | events@butlerbarn.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — W47, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Misty / Mackenzie | Ogletree Estates | ogletreeestate@yahoo.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — W48, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Charlene / Clara | Tryphena's Garden | tryphenasgarden@gmail.com | Venue | 2026-11-05 | | | T1 (T2 due 2026-11-12, T3 due 2026-11-19) — W49, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 
 ### Tier C (2)
