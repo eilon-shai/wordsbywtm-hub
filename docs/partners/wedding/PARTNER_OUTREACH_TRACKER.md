@@ -82,8 +82,8 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | — (studio) | The Chapter of Love | aloha@thechapteroflove.com | Planner | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — W36, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Gail | Weddings by Gail | info@weddingsbygail.com | Planner | 2026-10-15 | | | T3 (T2 sent 2026-10-27 — 5d late, T3 sent 2026-11-03) — W37, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Elyse Jennings | Elyse Jennings Weddings | elyse@elysejenningsweddings.com | Planner | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — W44, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Kenneth Poirier | Officiant Kenneth | officiantkenneth@gmail.com | Celebrant | 2026-10-29 | | | T2 (T2 sent 2026-11-05, T3 due 2026-11-12) — W38, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Leslie Ross | Summit Celebrant | summitcelebrant@gmail.com | Celebrant | 2026-10-29 | | | T2 (T2 sent 2026-11-05, T3 due 2026-11-12) — W39, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Kenneth Poirier | Officiant Kenneth | officiantkenneth@gmail.com | Celebrant | 2026-10-29 | | | T3 (T2 sent 2026-11-05, T3 sent 2026-11-12) — W38, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Leslie Ross | Summit Celebrant | summitcelebrant@gmail.com | Celebrant | 2026-10-29 | | | T3 (T2 sent 2026-11-05, T3 sent 2026-11-12) — W39, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Spike Gillespie | Spike Gillespie, Officiant | spikegillespie@gmail.com | Celebrant | 2026-11-03 | | | T2 (T2 sent 2026-11-10, T3 due 2026-11-17) — W40, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Dennis | Premier Entertainment | dennis@premier-entertainment.com | DJ/MC | 2026-11-03 | | | T2 (T2 sent 2026-11-10, T3 due 2026-11-17) — W41, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Steven Sievers | Showcase DJ Service | info@ShowcaseDJ.com | DJ/MC | 2026-11-04 | | | T2 (T2 sent 2026-11-11, T3 due 2026-11-18) — W42, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
@@ -92,7 +92,7 @@ Copy in `PARTNER_OUTREACH_WEDDING_BATCH2_READY.md`. Set T2 due = T1+7, T3 due = 
 | Angie & Ella | Red Barn Villa | redbarnvilla@gmail.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — W46, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Events team | The Butler Barn | events@butlerbarn.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — W47, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 | Misty / Mackenzie | Ogletree Estates | ogletreeestate@yahoo.com | Venue | 2026-11-04 | | | T2 (T2 sent 2026-11-12 — 1d late, T3 due 2026-11-19) — W48, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
-| Charlene / Clara | Tryphena's Garden | tryphenasgarden@gmail.com | Venue | 2026-11-05 | | | T1 (T2 due 2026-11-12, T3 due 2026-11-19) — W49, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
+| Charlene / Clara | Tryphena's Garden | tryphenasgarden@gmail.com | Venue | 2026-11-05 | | | T2 (T2 sent 2026-11-12, T3 due 2026-11-19) — W49, copy in `PARTNER_OUTREACH_WEDDING_BATCH3_READY.md` |
 
 ### Tier C (2)
 
